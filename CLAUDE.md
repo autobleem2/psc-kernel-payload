@@ -137,8 +137,10 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
 1. **Push the 3 kernel fixes to autobleem/psc-kernel** (currently only in the server checkout).
 2. **`next` variant**: run `build.sh -V next all`; validate `psc_next_defconfig` symbols against
    Buildroot 2024.02 (exfatprogs/pcre2 already set) and the sixaxis-on-newer-bluez behaviour.
-3. **hciconfig/hid2hci** are absent — BlueZ 5.63 gates them behind more than `DEPRECATED`; enable
-   them (needed for the PSC-Bios pairing flow, `docs/bt-pairing.md`).
+3. ~~**hciconfig/hid2hci** absent~~ — DONE: `BR2_PACKAGE_BLUEZ5_UTILS_TOOLS` +
+   `..._TOOLS_HID2HCI` build them (`/usr/bin/hciconfig`, `/usr/lib/udev/hid2hci`, + hcitool/l2ping).
+   (The PSC-Bios pairing flow drives `bluetoothctl`, which was already present, so this is for HID-mode
+   dongles; `docs/bt-pairing.md`.)
 4. **Populate `board/psc/overlay/`** with the AutoBleem-custom files ONLY (`etc/autobleem/*`, systemd
    units, `bin/{abnet,start_pman,updaterootfs.sh,settime,ntpget}`, `etc/bluetooth/{main,input}.conf`,
    `etc/dhcpcd.conf`); NOT the `etc/bluetooth/bluetoothd/<MAC>/` dev pairing state (post-build.sh
