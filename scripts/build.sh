@@ -59,11 +59,20 @@ esac
 BR_DIR="${HERE}/buildroot${SUFFIX}"
 O="${HERE}/output${SUFFIX}"
 DEFCONFIG="${HERE}/configs/${DEFCONFIG_NAME}"
+KSRC="${HERE}/sources/psc-kernel"
 
 log(){ printf '\033[1;36m[build:%s]\033[0m %s\n' "${VARIANT}" "$*"; }
 die(){ printf '\033[1;31m[build:%s] ERROR:\033[0m %s\n' "${VARIANT}" "$*" >&2; exit 1; }
 
-brmake(){ make -C "${BR_DIR}" O="${O}" BR2_EXTERNAL="${HERE}" -j"${JOBS}" "$@"; }
+# Pass LINUX_OVERRIDE_SRCDIR on the make command line (command-line vars always
+# win, and Buildroot only reads local.mk from $(O), not the top dir). This makes
+# the kernel build rsync from the local checkout instead of fetching the private
+# autobleem/psc-kernel repo — and gives the instant `linux-rebuild` dev loop.
+brmake(){
+	local kov=()
+	[ -f "${KSRC}/Makefile" ] && kov=(LINUX_OVERRIDE_SRCDIR="${KSRC}")
+	make -C "${BR_DIR}" O="${O}" BR2_EXTERNAL="${HERE}" "${kov[@]}" -j"${JOBS}" "$@"
+}
 
 fetch_buildroot(){
 	if [ -f "${BR_DIR}/Makefile" ]; then log "Buildroot present in ${BR_DIR##*/}"; return; fi
