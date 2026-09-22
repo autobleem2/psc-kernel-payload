@@ -93,6 +93,12 @@ do NOT bump the kernel major version — see the plan below.
    morrownr/8821cu, morrownr/88x2bu, mt76 backport. Each is its own commit in the kernel repo,
    built as a module and shipped in the overlay's `/lib/modules`. Tracked here; not started.
 4. **exfatprogs** replaces the old exfat-utils in `next`; **pcre2** replaces pcre.
+5. **PSC-Bios controller pairing** (in `autobleem/AutoBleem2 → apps/pscbios`, NOT here): replace the
+   "feature in progress" screen with a real DS4/BT-gamepad pairing flow driving this overlay's
+   `bluetoothctl`/`hciconfig`/`hid2hci` + the sixaxis plugin (DS3 over USB). The `next` overlay's
+   newer BlueZ is what makes modern controllers pair cleanly. Full spec: `docs/bt-pairing.md`.
+
+Full reference lives in **`docs/`** (source-archaeology, build-guide, kernel-and-drivers, bt-pairing).
 
 ## Build / incremental / selective
 
