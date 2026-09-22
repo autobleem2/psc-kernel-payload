@@ -51,9 +51,11 @@ BR2_PACKAGE_HOST_UBOOT_TOOLS=y
 # ---- Bluetooth stack (BlueZ 5.54 + sixaxis DualShock plugin) ----
 BR2_PACKAGE_BLUEZ5_UTILS=y
 BR2_PACKAGE_BLUEZ5_UTILS_CLIENT=y                 # bluetoothctl
-BR2_PACKAGE_BLUEZ5_UTILS_DEPRECATED=y             # hciconfig, hid2hci
+BR2_PACKAGE_BLUEZ5_UTILS_TOOLS=y                  # hciconfig, hcitool, l2ping ...
+BR2_PACKAGE_BLUEZ5_UTILS_TOOLS_HID2HCI=y          # hid2hci: switch HID-mode BT dongles to HCI
+BR2_PACKAGE_BLUEZ5_UTILS_DEPRECATED=y             # the deprecated tools (needs CLIENT or TOOLS)
 BR2_PACKAGE_BLUEZ5_UTILS_EXPERIMENTAL=y           # btmon etc
-BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_SIXAXIS=y        # DualShock pairing (patched)
+BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_SIXAXIS=y        # DualShock 3 pairing (patched)
 
 # ---- WiFi / networking ----
 BR2_PACKAGE_WPA_SUPPLICANT=y
