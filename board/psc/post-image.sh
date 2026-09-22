@@ -42,7 +42,9 @@ LZ4="${HOST_DIR}/bin/lz4";     [ -x "${LZ4}" ]     || LZ4="$(command -v lz4)"
 # "unsupported type Flat Device Tree"); the system u-boot-tools mkimage has FIT.
 MKIMAGE=""
 for _mk in /usr/bin/mkimage "${HOST_DIR}/bin/mkimage" "$(command -v mkimage 2>/dev/null)"; do
-	if [ -x "${_mk}" ] && "${_mk}" 2>&1 | grep -q "fit-image.its"; then MKIMAGE="${_mk}"; break; fi
+	[ -x "${_mk}" ] || continue
+	_u="$("${_mk}" 2>&1 || true)"           # usage; mkimage exits non-zero, so || true
+	case "${_u}" in *fit-image.its*) MKIMAGE="${_mk}"; break;; esac
 done
 [ -n "${MKIMAGE}" ] || { echo "[post-image] ERROR: no FIT-capable mkimage found"; exit 1; }
 echo "[post-image] mkimage: ${MKIMAGE}"
