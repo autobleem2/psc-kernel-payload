@@ -23,7 +23,8 @@ BR2_TOOLCHAIN_BUILDROOT_GLIBC=y
 BR2_TOOLCHAIN_BUILDROOT_CXX=y
 # Kernel headers come from the kernel we build in-tree (4.4.22).
 BR2_KERNEL_HEADERS_AS_KERNEL=y
-BR2_GLOBAL_PATCH_DIR="$(BR2_EXTERNAL_PSC_PATH)/board/psc/patches"
+# Newer BlueZ (this Buildroot) uses its upstream sixaxis plugin; the archived
+# 5.54 DanTheMans patch is in board/psc/reference-patches (not applied).
 BR2_CCACHE=y
 
 # ---- System / init ----
@@ -77,7 +78,7 @@ BR2_PACKAGE_WIRELESS_TOOLS_LIB=y
 BR2_PACKAGE_NTFS_3G=y
 BR2_PACKAGE_NTFS_3G_NTFSPROGS=y                    # mkntfs, ntfsfix, ntfsinfo ...
 BR2_PACKAGE_EXFAT=y                                # mount.exfat-fuse
-BR2_PACKAGE_EXFAT_UTILS=y                          # mkexfatfs, exfatfsck
+BR2_PACKAGE_EXFATPROGS=y                           # mkfs.exfat, fsck.exfat (replaces exfat-utils)
 
 # ---- Libraries the overlay ships ----
 BR2_PACKAGE_LIBGLIB2=y
@@ -85,9 +86,8 @@ BR2_PACKAGE_NCURSES=y
 BR2_PACKAGE_NCURSES_WCHAR=y
 # libform/libmenu/libpanel are built automatically by the ncurses package.
 BR2_PACKAGE_READLINE=y
-BR2_PACKAGE_PCRE=y
+BR2_PACKAGE_PCRE2=y
 BR2_PACKAGE_OPENSSL=y
-BR2_PACKAGE_LIBOPENSSL=y
 BR2_PACKAGE_ELFUTILS=y
 BR2_PACKAGE_BZIP2=y
 BR2_PACKAGE_XZ=y

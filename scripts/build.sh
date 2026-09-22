@@ -51,7 +51,7 @@ while [ $# -gt 0 ]; do
 done
 
 case "${VARIANT}" in
-	psc)  BR_VERSION="${BR_VERSION:-2020.02.12}"; DEFCONFIG_NAME="psc_defconfig";      SUFFIX="";;
+	psc)  BR_VERSION="${BR_VERSION:-2022.02.x}"; DEFCONFIG_NAME="psc_defconfig";      SUFFIX="";;
 	next) BR_VERSION="${BR_VERSION:-2024.02.x}";  DEFCONFIG_NAME="psc_next_defconfig"; SUFFIX="-next";;
 	*) echo "unknown variant '${VARIANT}' (use psc|next)"; exit 2;;
 esac
