@@ -30,6 +30,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
         xxd \
         lz4 \
         u-boot-tools \
+        device-tree-compiler \
         libncurses-dev \
         python3 \
         ccache \
