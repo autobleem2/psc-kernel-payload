@@ -37,7 +37,9 @@ cp "${BOARD_DIR}/kernel.its"    "${WORK}/kernel.its"
 cp "${BOARD_DIR}/orig.dtb"      "${WORK}/orig.dtb"
 
 LZ4="${HOST_DIR}/bin/lz4";     [ -x "${LZ4}" ]     || LZ4="$(command -v lz4)"
-MKIMAGE="${HOST_DIR}/bin/mkimage"; [ -x "${MKIMAGE}" ] || MKIMAGE="$(command -v mkimage)"
+# Prefer the system mkimage: it is built with FIT support, while Buildroot's
+# host-uboot-tools mkimage is tools-only ("unsupported type Flat Device Tree").
+MKIMAGE="$(command -v mkimage || true)"; [ -x "${MKIMAGE}" ] || MKIMAGE="${HOST_DIR}/bin/mkimage"
 [ -x "${LZ4}" ]     || { echo "[post-image] ERROR: no lz4 (host-lz4 or system)"; exit 1; }
 [ -x "${MKIMAGE}" ] || { echo "[post-image] ERROR: no mkimage (host-uboot-tools or system u-boot-tools)"; exit 1; }
 ( cd "${WORK}"
