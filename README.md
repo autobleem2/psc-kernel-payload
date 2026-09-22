@@ -66,6 +66,20 @@ Kernel hacking is the tightest loop: edit `sources/psc-kernel/`, then
 `scripts/build.sh kernel` recompiles from that working tree (via `LINUX_OVERRIDE_SRCDIR`)
 and repacks `boot.img` in seconds.
 
+## Two variants: faithful vs improved
+
+```bash
+scripts/build.sh all               # faithful baseline (psc): 4.4 + BlueZ 5.54, matches today
+scripts/build.sh -V next all       # improved image: newer BlueZ + userland, more WiFi dongles
+scripts/build.sh -V next bluez5_utils   # ...selective, per variant
+```
+
+Both build the **same GPU-safe 4.4 kernel** and the **same hand-tuned kernel config**; `next`
+only *adds* — newer userland (Buildroot 2024.02), and more in-tree USB-WiFi drivers
+(ath9k_htc/carl9170/rtl8192cu) via a config fragment layered on top of your config, plus the full
+firmware set. The kernel major version is pinned at 4.4 by the PowerVR GPU blob (no mainline
+driver), so "newer" means a modernised 4.4 + newer userland, not a newer kernel. See `CLAUDE.md`.
+
 ## Installing a freshly built payload
 
 Copy `output/images/psc-payload/kernel/` over

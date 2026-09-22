@@ -58,6 +58,42 @@ Layout (BR2_EXTERNAL): `external.desc/mk`, `Config.in`, `configs/psc_defconfig`,
 (FIT + config + patches + overlay + post scripts), `scripts/` (build.sh, verify.sh), `docker/`,
 `reference/` (ground-truth manifest of the shipped overlay), `sources/psc-kernel` (submodule).
 
+## Two variants: faithful baseline + improved image
+
+`build.sh -V <variant>` (or `VARIANT=`) selects one; they use separate Buildroot
+checkouts and outputs so both coexist.
+
+- **`psc`** (default) — the faithful 4.4 baseline: Buildroot 2020.02.12, BlueZ 5.54 + the
+  archived DanTheMans sixaxis patch. `configs/psc_defconfig`, `buildroot/`, `output/`.
+- **`next`** — the *improved* image (owner's ask, "safe wins on the 4.4 BSP"): Buildroot
+  2024.02.x → newer BlueZ + userland; broader WiFi dongle support; full firmware set.
+  `configs/psc_next_defconfig`, `buildroot-next/`, `output-next/`.
+
+**The kernel is shared and the owner's hand-tuned menuconfig is sacred.** Both variants build
+the SAME 4.4 kernel (`sources/psc-kernel`) with the SAME base config
+(`board/psc/linux_autobleem_config` — the full 124 KB `.config` the owner built by hand, with the
+complete BT stack and a broad in-tree WiFi set already enabled). `next` only *adds* on top, via a
+Buildroot **config fragment** (`board/psc/linux-extra-wifi.fragment`,
+`BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES`) — it never turns anything off. The fragment enables the
+in-tree USB-WiFi drivers the base config left off: **ath9k_htc** (AR9271/AR7010 — the most common
+Linux USB WiFi, TL-WN722N v1), **carl9170** (AR9170), **rtl8192cu** (rtlwifi). `psc_next_defconfig`
+adds the matching `linux-firmware` blobs.
+
+The GPU pins the kernel to 4.4 (PowerVR GX6250 blob is 4.4-ABI; no mainline Rogue driver), so we
+do NOT bump the kernel major version — see the plan below.
+
+### Improvement plan (WiFi dongles / Bluetooth / userland)
+
+1. **Newer BlueZ + userland** — free with Buildroot 2024.02.x in `next`. Validate the DualShock 3
+   pairing on hardware; forward-port the sixaxis patch into `board/psc/patches-next/` if it regresses.
+2. **In-tree dongle drivers** — done via `linux-extra-wifi.fragment` (ath9k_htc, carl9170, rtl8192cu).
+3. **Out-of-tree modern USB WiFi** (the big win: RTL8811/8812/8821/88x2, MT76x0/x2) — NOT in the 4.4
+   tree. Add as vendored driver trees + kernel patches under `sources/psc-kernel`, exactly like the
+   existing `rtl8188eu-master`/`drivers/staging/rtl8188eu`. Candidates: aircrack-ng/rtl8812au,
+   morrownr/8821cu, morrownr/88x2bu, mt76 backport. Each is its own commit in the kernel repo,
+   built as a module and shipped in the overlay's `/lib/modules`. Tracked here; not started.
+4. **exfatprogs** replaces the old exfat-utils in `next`; **pcre2** replaces pcre.
+
 ## Build / incremental / selective
 
 `docker/run.sh scripts/build.sh <cmd>` (Buildroot refuses root; run.sh runs as host uid:gid and

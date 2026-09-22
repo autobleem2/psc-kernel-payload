@@ -1,0 +1,32 @@
+# linux-extra-wifi.fragment — ADDITIVE kernel options for the `next` variant.
+#
+# Merged ON TOP of board/psc/linux_autobleem_config (your hand-tuned menuconfig)
+# via Buildroot's config-fragment mechanism — it only ADDS drivers, it never
+# turns anything off. These are popular USB WiFi dongles whose IN-TREE 4.4
+# drivers your base config left disabled. Firmware for them is added in
+# psc_next_defconfig (linux-firmware).
+#
+# (Modern Realtek/MediaTek USB chips — 8811/8812/8821/88x2, mt76x0/x2 — need
+#  OUT-OF-TREE drivers backported to 4.4; those are a separate step, tracked in
+#  CLAUDE.md, added as vendored driver trees in sources/psc-kernel like the
+#  existing rtl8188eu-master.)
+
+# Atheros AR9271 / AR7010 — the most common Linux USB WiFi (e.g. TP-Link
+# TL-WN722N v1, Alfa AWUS036NHA). Needs ath9k_htc + its firmware.
+CONFIG_ATH_COMMON=m
+CONFIG_ATH9K_HW=m
+CONFIG_ATH9K_COMMON=m
+CONFIG_ATH9K=m
+CONFIG_ATH9K_HTC=m
+
+# Atheros AR9170 USB (older Netgear WNDA3100, etc.)
+CONFIG_CARL9170=m
+CONFIG_CARL9170_HWRNG=y
+
+# Realtek RTL8192CU / RTL8188CU via the rtlwifi stack (many cheap dongles).
+CONFIG_RTLWIFI=m
+CONFIG_RTLWIFI_USB=m
+CONFIG_RTL8192C_COMMON=m
+CONFIG_RTL8192CU=m
+
+# Ralink/MediaTek RT35xx/RT53xx extra USB IDs are already on in the base config.

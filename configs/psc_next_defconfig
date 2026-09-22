@@ -1,0 +1,120 @@
+#
+# psc_next_defconfig — the IMPROVED AutoBleem PSC image.
+#
+# Same GPU-safe 4.4 kernel and YOUR hand-tuned kernel config as the baseline —
+# `next` only ADDS: newer BlueZ + userland (Buildroot 2024.02.x, set by
+# build.sh), a broader WiFi driver set (board/psc/linux-extra-wifi.fragment
+# merged on top of your config) and the full USB-dongle firmware set.
+#
+# Build with:  scripts/build.sh -V next all   (or VARIANT=next)
+# Regenerate:  scripts/build.sh -V next savedefconfig
+#
+# NOTE: validate symbol names against Buildroot 2024.02 (a few renamed since
+# 2020.02 — exfat, openssl). Do it with `-V next menuconfig` then savedefconfig.
+#
+
+# ---- Architecture (identical to baseline) ----
+BR2_arm=y
+BR2_cortex_a7=y
+BR2_ARM_FPU_NEON_VFPV4=y
+BR2_ARM_EABIHF=y
+
+# ---- Toolchain (Buildroot-built glibc) ----
+BR2_TOOLCHAIN_BUILDROOT_GLIBC=y
+BR2_TOOLCHAIN_BUILDROOT_CXX=y
+BR2_KERNEL_HEADERS_AS_KERNEL=y
+# `next` does NOT apply the 5.54 DanTheMans sixaxis patch (bluez is newer here);
+# it relies on upstream BlueZ DualShock support. Forward-ported PSC patches, if
+# needed after hardware testing, go in board/psc/patches-next.
+BR2_GLOBAL_PATCH_DIR="$(BR2_EXTERNAL_PSC_PATH)/board/psc/patches-next"
+BR2_CCACHE=y
+
+# ---- System / init ----
+BR2_TARGET_GENERIC_HOSTNAME="PlayStationClassic"
+BR2_TARGET_GENERIC_ISSUE="AutoBleem"
+BR2_INIT_SYSTEMD=y
+BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_PSC_PATH)/board/psc/overlay"
+BR2_ROOTFS_POST_BUILD_SCRIPT="$(BR2_EXTERNAL_PSC_PATH)/board/psc/post-build.sh"
+BR2_ROOTFS_POST_IMAGE_SCRIPT="$(BR2_EXTERNAL_PSC_PATH)/board/psc/post-image.sh"
+
+# ---- Kernel: SAME 4.4 fork + SAME base config + additive WiFi fragment ----
+BR2_LINUX_KERNEL=y
+BR2_LINUX_KERNEL_CUSTOM_GIT=y
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/autobleem/psc-kernel.git"
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="master"
+BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
+BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="$(BR2_EXTERNAL_PSC_PATH)/board/psc/linux_autobleem_config"
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(BR2_EXTERNAL_PSC_PATH)/board/psc/linux-extra-wifi.fragment"
+BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y
+BR2_LINUX_KERNEL_IMAGE_TARGET_NAME="Image"
+BR2_LINUX_KERNEL_NEEDS_HOST_LIBELF=y
+
+# ---- Host tools for FIT packaging ----
+BR2_PACKAGE_HOST_UBOOT_TOOLS=y
+
+# ---- Bluetooth stack (newer BlueZ + sixaxis) ----
+BR2_PACKAGE_BLUEZ5_UTILS=y
+BR2_PACKAGE_BLUEZ5_UTILS_CLIENT=y
+BR2_PACKAGE_BLUEZ5_UTILS_DEPRECATED=y
+BR2_PACKAGE_BLUEZ5_UTILS_EXPERIMENTAL=y
+BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_SIXAXIS=y
+
+# ---- WiFi / networking ----
+BR2_PACKAGE_WPA_SUPPLICANT=y
+BR2_PACKAGE_WPA_SUPPLICANT_NL80211=y
+BR2_PACKAGE_WPA_SUPPLICANT_CLI=y
+BR2_PACKAGE_WPA_SUPPLICANT_PASSPHRASE=y
+BR2_PACKAGE_IW=y
+BR2_PACKAGE_LIBNL=y
+BR2_PACKAGE_DHCPCD=y
+BR2_PACKAGE_WIRELESS_TOOLS=y
+BR2_PACKAGE_WIRELESS_TOOLS_LIB=y
+
+# ---- Filesystems (exfatprogs replaces exfat-utils on modern Buildroot) ----
+BR2_PACKAGE_NTFS_3G=y
+BR2_PACKAGE_NTFS_3G_NTFSPROGS=y
+BR2_PACKAGE_EXFAT=y
+BR2_PACKAGE_EXFATPROGS=y
+
+# ---- Libraries ----
+BR2_PACKAGE_LIBGLIB2=y
+BR2_PACKAGE_NCURSES=y
+BR2_PACKAGE_NCURSES_WCHAR=y
+BR2_PACKAGE_READLINE=y
+BR2_PACKAGE_PCRE2=y
+BR2_PACKAGE_OPENSSL=y
+BR2_PACKAGE_ELFUTILS=y
+BR2_PACKAGE_BZIP2=y
+BR2_PACKAGE_XZ=y
+
+# ---- Userland tools ----
+BR2_PACKAGE_MC=y
+BR2_PACKAGE_NANO=y
+BR2_PACKAGE_FILE=y
+BR2_PACKAGE_DROPBEAR=y
+BR2_PACKAGE_DROPBEAR_CLIENT=y
+BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y
+
+# ---- Firmware: the FULL USB WiFi/BT dongle set (the point of `next`) ----
+BR2_PACKAGE_LINUX_FIRMWARE=y
+BR2_PACKAGE_LINUX_FIRMWARE_RTL_81XX=y
+BR2_PACKAGE_LINUX_FIRMWARE_RTL_87XX=y
+BR2_PACKAGE_LINUX_FIRMWARE_RTL_88XX=y
+BR2_PACKAGE_LINUX_FIRMWARE_RTL_8188=y
+BR2_PACKAGE_LINUX_FIRMWARE_RTL_8192=y
+BR2_PACKAGE_LINUX_FIRMWARE_RALINK_RT2XX=y
+BR2_PACKAGE_LINUX_FIRMWARE_RALINK_RT61=y
+BR2_PACKAGE_LINUX_FIRMWARE_RALINK_RT73=y
+BR2_PACKAGE_LINUX_FIRMWARE_MEDIATEK_MT7601U=y
+BR2_PACKAGE_LINUX_FIRMWARE_MEDIATEK_MT7650=y
+BR2_PACKAGE_LINUX_FIRMWARE_MEDIATEK_MT76X2E=y
+BR2_PACKAGE_LINUX_FIRMWARE_ATHEROS_9271=y
+BR2_PACKAGE_LINUX_FIRMWARE_ATHEROS_CARL9170=y
+BR2_PACKAGE_LINUX_FIRMWARE_ATH6K=y
+BR2_PACKAGE_LINUX_FIRMWARE_ATH9K_HTC=y
+BR2_PACKAGE_LINUX_FIRMWARE_ZD1211=y
+BR2_PACKAGE_LINUX_FIRMWARE_BRCM_BCM43XXX=y
+
+# ---- Rootfs image ----
+BR2_TARGET_ROOTFS_TAR=y
+BR2_TARGET_ROOTFS_TAR_GZIP=y
