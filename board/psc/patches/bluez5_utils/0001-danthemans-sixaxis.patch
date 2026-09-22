@@ -1,0 +1,401 @@
+commit e0e769577b71333ac4c9d149dd82e52c27b55475
+Author: screemer <screemer1@o2.pl>
+Date:   Sat Apr 18 21:55:39 2020 +0100
+
+    DanTheMans patch
+
+diff --git a/plugins/sixaxis.c b/plugins/sixaxis.c
+index 4bdb6a3..cc9db98 100644
+--- a/plugins/sixaxis.c
++++ b/plugins/sixaxis.c
+@@ -42,7 +42,6 @@
+ 
+ #include "lib/bluetooth.h"
+ #include "lib/sdp.h"
+-#include "lib/sdp_lib.h"
+ #include "lib/uuid.h"
+ 
+ #include "src/adapter.h"
+@@ -72,7 +71,6 @@ static struct udev *ctx = NULL;
+ static struct udev_monitor *monitor = NULL;
+ static guint watch_id = 0;
+ /* key = sysfs_path (const str), value = auth_closure */
+-static GHashTable *pending_auths = NULL;
+ 
+ #define SIXAXIS_HID_SDP_RECORD "3601920900000A000100000900013503191124090004"\
+     "350D35061901000900113503190011090006350909656E09006A090100090009350"\
+@@ -88,181 +86,6 @@ static GHashTable *pending_auths = NULL;
+     "07350835060904090901000902082800090209280109020A280109020B090100090"\
+     "20C093E8009020D280009020E2800"
+ 
+-static sdp_record_t *get_sdp_record(void)
+-{
+-    sdp_record_t *record;
+-    uint16_t hid_release, hid_parser, version, timeout;
+-    uint8_t sdp_disable, battery, remote_wakeup, norm_connect, boot_device;
+-    uint8_t subclass, country, virtual_cable, reconnect;
+-    sdp_list_t *svclass_id, *pfseq, *apseq, *root;
+-    uuid_t root_uuid, hidkb_uuid, l2cap_uuid, hidp_uuid;
+-    sdp_profile_desc_t profile;
+-    sdp_list_t *aproto, *proto[3];
+-    sdp_data_t *psm, *lang_lst, *lang_lst2, *hid_spec_lst, *hid_spec_lst2;
+-    uint8_t dtd = SDP_UINT16;
+-    uint8_t dtd2 = SDP_UINT8;
+-    uint8_t dtd_data = SDP_TEXT_STR8;
+-    void *dtds[2];
+-    void *values[2];
+-    void *dtds2[2];
+-    void *values2[2];
+-    int leng[2];
+-    uint8_t hid_spec_type = 0x22;
+-    uint16_t hid_attr_lang[] = { 0x409, 0x100 };
+-    static const uint16_t ctrl = 0x11;
+-    static const uint16_t intr = 0x13;
+-    uint8_t hid_spec[] = {
+-            0x05, 0x01, 0x09, 0x04, 0xa1, 0x01, 0xa1, 0x02, 0x85, 0x01,
+-            0x75, 0x08, 0x95, 0x01, 0x15, 0x00, 0x26, 0xff, 0x00, 0x81,
+-            0x03, 0x75, 0x01, 0x95, 0x13, 0x15, 0x00, 0x25, 0x01, 0x35,
+-            0x00, 0x45, 0x01, 0x05, 0x09, 0x19, 0x01, 0x29, 0x13, 0x81,
+-            0x02, 0x75, 0x01, 0x95, 0x0d, 0x06, 0x00, 0xff, 0x81, 0x03,
+-            0x15, 0x00, 0x26, 0xff, 0x00, 0x05, 0x01, 0x09, 0x01, 0xa1,
+-            0x00, 0x75, 0x08, 0x95, 0x04, 0x35, 0x00, 0x46, 0xff, 0x00,
+-            0x09, 0x30, 0x09, 0x31, 0x09, 0x32, 0x09, 0x35, 0x81, 0x02,
+-            0xc0, 0x05, 0x01, 0x75, 0x08, 0x95, 0x27, 0x09, 0x01, 0x81,
+-            0x02, 0x75, 0x08, 0x95, 0x30, 0x09, 0x01, 0x91, 0x02, 0x75,
+-            0x08, 0x95, 0x30, 0x09, 0x01, 0xb1, 0x02, 0xc0, 0xa1, 0x02,
+-            0x85, 0x02, 0x75, 0x08, 0x95, 0x30, 0x09, 0x01, 0xb1, 0x02,
+-            0xc0, 0xa1, 0x02, 0x85, 0xee, 0x75, 0x08, 0x95, 0x30, 0x09,
+-            0x01, 0xb1, 0x02, 0xc0, 0xa1, 0x02, 0x85, 0xef, 0x75, 0x08,
+-            0x95, 0x30, 0x09, 0x01, 0xb1, 0x02, 0xc0, 0xc0, 0x00
+-    };
+-
+-    record = sdp_record_alloc();
+-    if (!record)
+-        return NULL;
+-
+-    sdp_uuid16_create(&root_uuid, PUBLIC_BROWSE_GROUP);
+-    root = sdp_list_append(0, &root_uuid);
+-    sdp_set_browse_groups(record, root);
+-
+-    sdp_add_lang_attr(record);
+-
+-    sdp_uuid16_create(&hidkb_uuid, HID_SVCLASS_ID);
+-    svclass_id = sdp_list_append(0, &hidkb_uuid);
+-    sdp_set_service_classes(record, svclass_id);
+-
+-    sdp_uuid16_create(&profile.uuid, HID_PROFILE_ID);
+-    profile.version = 0x0100;
+-    pfseq = sdp_list_append(0, &profile);
+-    sdp_set_profile_descs(record, pfseq);
+-
+-    /* protocols */
+-    sdp_uuid16_create(&l2cap_uuid, L2CAP_UUID);
+-    proto[1] = sdp_list_append(0, &l2cap_uuid);
+-    psm = sdp_data_alloc(SDP_UINT16, &ctrl);
+-    proto[1] = sdp_list_append(proto[1], psm);
+-    apseq = sdp_list_append(0, proto[1]);
+-
+-    sdp_uuid16_create(&hidp_uuid, HIDP_UUID);
+-    proto[2] = sdp_list_append(0, &hidp_uuid);
+-    apseq = sdp_list_append(apseq, proto[2]);
+-
+-    aproto = sdp_list_append(0, apseq);
+-    sdp_set_access_protos(record, aproto);
+-
+-    /* additional protocols */
+-    proto[1] = sdp_list_append(0, &l2cap_uuid);
+-    psm = sdp_data_alloc(SDP_UINT16, &intr);
+-    proto[1] = sdp_list_append(proto[1], psm);
+-    apseq = sdp_list_append(0, proto[1]);
+-
+-    sdp_uuid16_create(&hidp_uuid, HIDP_UUID);
+-    proto[2] = sdp_list_append(0, &hidp_uuid);
+-    apseq = sdp_list_append(apseq, proto[2]);
+-
+-    aproto = sdp_list_append(0, apseq);
+-    sdp_set_add_access_protos(record, aproto);
+-
+-    sdp_set_info_attr(record, "Wireless Controller",
+-                      "Sony Computer Entertainment",
+-                      "Wireless Controller");
+-
+-    hid_release = 0x0100;
+-    sdp_attr_add_new(record, SDP_ATTR_HID_DEVICE_RELEASE_NUMBER, SDP_UINT16,
+-                     &hid_release);
+-
+-    hid_parser = 0x0100;
+-    sdp_attr_add_new(record, SDP_ATTR_HID_PARSER_VERSION, SDP_UINT16,
+-                     &hid_parser);
+-
+-    subclass = 0x00;
+-    sdp_attr_add_new(record, SDP_ATTR_HID_DEVICE_SUBCLASS, SDP_UINT8,
+-                     &subclass);
+-
+-    country = 0x21;
+-    sdp_attr_add_new(record, SDP_ATTR_HID_COUNTRY_CODE, SDP_UINT8,
+-                     &country);
+-
+-    virtual_cable = 0x01;
+-    sdp_attr_add_new(record, SDP_ATTR_HID_VIRTUAL_CABLE, SDP_BOOL,
+-                     &virtual_cable);
+-
+-    reconnect = 0x01;
+-    sdp_attr_add_new(record, SDP_ATTR_HID_RECONNECT_INITIATE, SDP_BOOL,
+-                     &reconnect);
+-
+-    dtds[0] = &dtd2;
+-    values[0] = &hid_spec_type;
+-    dtds[1] = &dtd_data;
+-    values[1] = hid_spec;
+-    leng[0] = 0;
+-    leng[1] = sizeof(hid_spec);
+-    hid_spec_lst = sdp_seq_alloc_with_length(dtds, values, leng, 2);
+-    hid_spec_lst2 = sdp_data_alloc(SDP_SEQ8, hid_spec_lst);
+-    sdp_attr_add(record, SDP_ATTR_HID_DESCRIPTOR_LIST, hid_spec_lst2);
+-
+-    dtds2[0] = &dtd;
+-    values2[0] = &hid_attr_lang[0];
+-    dtds2[1] = &dtd;
+-    values2[1] = &hid_attr_lang[1];
+-    lang_lst = sdp_seq_alloc(dtds2, values2, sizeof(hid_attr_lang) / 2);
+-    lang_lst2 = sdp_data_alloc(SDP_SEQ8, lang_lst);
+-    sdp_attr_add(record, SDP_ATTR_HID_LANG_ID_BASE_LIST, lang_lst2);
+-
+-    sdp_disable = 0x00;
+-    sdp_attr_add_new(record, SDP_ATTR_HID_SDP_DISABLE, SDP_BOOL,
+-                     &sdp_disable);
+-
+-    battery = 0x01;
+-    sdp_attr_add_new(record, SDP_ATTR_HID_BATTERY_POWER, SDP_BOOL,
+-                     &battery);
+-
+-    remote_wakeup = 0x01;
+-    sdp_attr_add_new(record, SDP_ATTR_HID_REMOTE_WAKEUP, SDP_BOOL,
+-                     &remote_wakeup);
+-
+-    version = 0x0100;
+-    sdp_attr_add_new(record, SDP_ATTR_HID_PROFILE_VERSION, SDP_UINT16,
+-                     &version);
+-
+-    timeout = 0x3e80;
+-    sdp_attr_add_new(record, SDP_ATTR_HID_SUPERVISION_TIMEOUT, SDP_UINT16,
+-                     &timeout);
+-
+-    norm_connect = 0x00;
+-    sdp_attr_add_new(record, SDP_ATTR_HID_NORMALLY_CONNECTABLE, SDP_BOOL,
+-                     &norm_connect);
+-
+-    boot_device = 0x00;
+-    sdp_attr_add_new(record, SDP_ATTR_HID_BOOT_DEVICE, SDP_BOOL,
+-                     &boot_device);
+-
+-    return record;
+-}
+-/* Make sure to unset auth_id if already handled */
+-static void auth_closure_destroy(struct authentication_closure *closure,
+-                                 bool remove_device) {
+-    if (closure->auth_id)
+-        btd_cancel_authorization(closure->auth_id);
+-
+-    if (remove_device)
+-        btd_adapter_remove_device(closure->adapter, closure->device);
+-    close(closure->fd);
+-    g_free(closure->sysfs_path);
+-    g_free(closure);
+-}
+ 
+ static int sixaxis_get_device_bdaddr(int fd, bdaddr_t *bdaddr) {
+     uint8_t buf[18];
+@@ -407,84 +230,6 @@ static int set_master_bdaddr(int fd, const bdaddr_t *bdaddr,
+     return -1;
+ }
+ 
+-static bool is_auth_pending(struct authentication_closure *closure) {
+-    GHashTableIter iter;
+-    gpointer value;
+-
+-    g_hash_table_iter_init(&iter, pending_auths);
+-    while (g_hash_table_iter_next(&iter, NULL, &value)) {
+-        struct authentication_closure *c = value;
+-        if (c == closure)
+-            return true;
+-    }
+-    return false;
+-}
+-
+-static gboolean auth_closure_destroy_idle(gpointer user_data) {
+-    struct authentication_destroy_closure *destroy = user_data;
+-
+-    auth_closure_destroy(destroy->closure, destroy->remove_device);
+-    g_free(destroy);
+-
+-    return false;
+-}
+-
+-static void agent_auth_cb(DBusError *derr, void *user_data) {
+-    struct authentication_closure *closure = user_data;
+-    struct authentication_destroy_closure *destroy;
+-    char master_addr[18], adapter_addr[18], device_addr[18];
+-    bdaddr_t master_bdaddr;
+-    const bdaddr_t *adapter_bdaddr;
+-    bool remove_device = true;
+-
+-    if (!is_auth_pending(closure))
+-        return;
+-
+-    /* Don't try to remove this auth, we're handling it already */
+-    closure->auth_id = 0;
+-
+-    if (derr != NULL) {
+-        DBG("Agent replied negatively, removing temporary device");
+-        goto out;
+-    }
+-
+-    if (get_master_bdaddr(closure->fd, &master_bdaddr, closure->type) < 0)
+-        goto out;
+-
+-    adapter_bdaddr = btd_adapter_get_address(closure->adapter);
+-    if (bacmp(adapter_bdaddr, &master_bdaddr)) {
+-        if (set_master_bdaddr(closure->fd, adapter_bdaddr,
+-                              closure->type) < 0)
+-            goto out;
+-    }
+-
+-    remove_device = false;
+-    btd_device_set_trusted(closure->device, true);
+-    btd_device_set_temporary(closure->device, false);
+-
+-    if (closure->type == CABLE_PAIRING_SIXAXIS) {
+-       // btd_device_set_record(closure->device, HID_UUID,
+-       //                       SIXAXIS_HID_SDP_RECORD);
+-        btd_device_set_record2(closure->device, HID_UUID, get_sdp_record());
+-    }
+-    ba2str(&closure->bdaddr, device_addr);
+-    ba2str(&master_bdaddr, master_addr);
+-    ba2str(adapter_bdaddr, adapter_addr);
+-    DBG("remote %s old_master %s new_master %s",
+-        device_addr, master_addr, adapter_addr);
+-
+-    out:
+-    g_hash_table_steal(pending_auths, closure->sysfs_path);
+-
+-    /* btd_adapter_remove_device() cannot be called in this
+-     * callback or it would lead to a double-free in while
+-     * trying to cancel the authentication that's being processed,
+-     * so clean up in an idle */
+-    destroy = g_new0(struct authentication_destroy_closure, 1);
+-    destroy->closure = closure;
+-    destroy->remove_device = remove_device;
+-    g_idle_add(auth_closure_destroy_idle, destroy);
+-}
+ 
+ static bool setup_device(int fd, const char *sysfs_path,
+                          const struct cable_pairing *cp,
+@@ -517,39 +262,41 @@ static bool setup_device(int fd, const char *sysfs_path,
+ 
+     btd_device_device_set_name(device, cp->name);
+ 
+-    //
++
+     /* if device reports different pid/vid on BT prefer those over USB */
+     if (cp->bt_pid)
+         btd_device_set_pnpid(device, cp->source, cp->vid, cp->bt_pid, cp->version);
+     else
+         btd_device_set_pnpid(device, cp->source, cp->vid, cp->pid, cp->version);
+-
+     btd_device_set_trusted(device, false);
+     btd_device_set_temporary(device, true);
+ 
+-    closure = g_new0(struct authentication_closure, 1);
+-    if (!closure) {
++    char master_addr[18], adapter_addr[18], device_addr[18];
++    bdaddr_t master_bdaddr;
++
++    if (get_master_bdaddr(fd, &master_bdaddr, cp->type) < 0) {
+         btd_adapter_remove_device(adapter, device);
+         return false;
+     }
+-    closure->adapter = adapter;
+-    closure->device = device;
+-    closure->sysfs_path = g_strdup(sysfs_path);
+-    closure->fd = fd;
+-    bacpy(&closure->bdaddr, &device_bdaddr);
+-    closure->type = cp->type;
+     adapter_bdaddr = btd_adapter_get_address(adapter);
+-    closure->auth_id = btd_request_authorization_cable_configured(
+-            adapter_bdaddr, &device_bdaddr,
+-            HID_UUID, agent_auth_cb, closure);
+-
+-    if (closure->auth_id == 0) {
+-        error("sixaxis: could not request cable authorization");
+-        auth_closure_destroy(closure, true);
+-        return false;
++    if (bacmp(adapter_bdaddr, &master_bdaddr)) {
++        if (set_master_bdaddr(fd, adapter_bdaddr,
++                              cp->type) < 0) {
++            btd_adapter_remove_device(adapter, device);
++            return false;
++        }
+     }
++    btd_device_set_trusted(device, true);
++    btd_device_set_temporary(device, false);
++    if (cp->type == CABLE_PAIRING_SIXAXIS)
++        btd_device_set_record(device, HID_UUID,
++                              SIXAXIS_HID_SDP_RECORD);
+ 
+-    g_hash_table_insert(pending_auths, closure->sysfs_path, closure);
++    ba2str(&device_bdaddr, device_addr);
++    ba2str(&master_bdaddr, master_addr);
++    ba2str(adapter_bdaddr, adapter_addr);
++    DBG("remote %s old_master %s new_master %s",
++        device_addr, master_addr, adapter_addr);
+ 
+     return true;
+ }
+@@ -613,19 +360,13 @@ static void device_added(struct udev_device *udevice) {
+ }
+ 
+ static void device_removed(struct udev_device *udevice) {
+-    struct authentication_closure *closure;
+     const char *sysfs_path;
+ 
+     sysfs_path = udev_device_get_syspath(udevice);
+     if (!sysfs_path)
+         return;
+ 
+-    closure = g_hash_table_lookup(pending_auths, sysfs_path);
+-    if (!closure)
+-        return;
+ 
+-    g_hash_table_steal(pending_auths, sysfs_path);
+-    auth_closure_destroy(closure, true);
+ }
+ 
+ static gboolean monitor_watch(GIOChannel *source, GIOCondition condition,
+@@ -672,26 +413,13 @@ static int sixaxis_init(void) {
+     watch_id = g_io_add_watch(channel, G_IO_IN, monitor_watch, NULL);
+     g_io_channel_unref(channel);
+ 
+-    pending_auths = g_hash_table_new(g_str_hash,
+-                                     g_str_equal);
+ 
+     return 0;
+ }
+ 
+ static void sixaxis_exit(void) {
+-    GHashTableIter iter;
+-    gpointer value;
+-
+     DBG("");
+ 
+-    g_hash_table_iter_init(&iter, pending_auths);
+-    while (g_hash_table_iter_next(&iter, NULL, &value)) {
+-        struct authentication_closure *closure = value;
+-        auth_closure_destroy(closure, true);
+-    }
+-    g_hash_table_destroy(pending_auths);
+-    pending_auths = NULL;
+-
+     g_source_remove(watch_id);
+     watch_id = 0;
+ 

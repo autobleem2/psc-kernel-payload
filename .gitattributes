@@ -1,0 +1,16 @@
+# Shell scripts, configs and patches must stay LF (they run on Linux).
+*.sh            text eol=lf
+*.mk            text eol=lf
+*.patch         text eol=lf
+Makefile        text eol=lf
+Config.in       text eol=lf
+external.*       text eol=lf
+configs/*        text eol=lf
+board/psc/linux_autobleem_config text eol=lf
+board/psc/kernel.its             text eol=lf
+board/psc/install_payload.sh     text eol=lf
+*.md            text eol=lf
+
+# Binary
+*.dtb           binary
+*.img           binary

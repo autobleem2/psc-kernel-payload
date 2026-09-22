@@ -1,0 +1,12 @@
+# Buildroot checkout (fetched by scripts/build.sh setup) and its output tree
+/buildroot/
+/output/
+/dl/
+/.ccache/
+
+# Built payload (copied out by `build.sh payload`) — regenerated, not tracked
+/payload/
+
+# local overrides
+local.mk
+*.log
