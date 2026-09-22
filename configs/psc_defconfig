@@ -21,8 +21,9 @@ BR2_ARM_EABIHF=y
 # ---- Toolchain (Buildroot-built, glibc — the overlay ships its own glibc) ----
 BR2_TOOLCHAIN_BUILDROOT_GLIBC=y
 BR2_TOOLCHAIN_BUILDROOT_CXX=y
-# Kernel headers come from the kernel we build in-tree (4.4.22).
-BR2_KERNEL_HEADERS_AS_KERNEL=y
+# Toolchain kernel headers: public 4.4.x from kernel.org (decoupled from our
+# private kernel repo; glibc min-kernel = 4.4, runs on the console's 4.4.22).
+BR2_KERNEL_HEADERS_4_4=y
 # Newer BlueZ (this Buildroot) uses its upstream sixaxis plugin; the archived
 # 5.54 DanTheMans patch is in board/psc/reference-patches (not applied).
 BR2_CCACHE=y

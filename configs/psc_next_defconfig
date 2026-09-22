@@ -22,7 +22,7 @@ BR2_ARM_EABIHF=y
 # ---- Toolchain (Buildroot-built glibc) ----
 BR2_TOOLCHAIN_BUILDROOT_GLIBC=y
 BR2_TOOLCHAIN_BUILDROOT_CXX=y
-BR2_KERNEL_HEADERS_AS_KERNEL=y
+BR2_KERNEL_HEADERS_4_4=y
 # `next` does NOT apply the 5.54 DanTheMans sixaxis patch (bluez is newer here);
 # it relies on upstream BlueZ DualShock support. Forward-ported PSC patches, if
 # needed after hardware testing, go in board/psc/patches-next.
