@@ -37,17 +37,10 @@ BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_PSC_PATH)/board/psc/overlay"
 BR2_ROOTFS_POST_BUILD_SCRIPT="$(BR2_EXTERNAL_PSC_PATH)/board/psc/post-build.sh"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="$(BR2_EXTERNAL_PSC_PATH)/board/psc/post-image.sh"
 
-# ---- Kernel: SAME 4.4 fork + SAME base config + additive WiFi fragment ----
-BR2_LINUX_KERNEL=y
-BR2_LINUX_KERNEL_CUSTOM_GIT=y
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/autobleem/psc-kernel.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="master"
-BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
-BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="$(BR2_EXTERNAL_PSC_PATH)/board/psc/linux_autobleem_config"
-BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(BR2_EXTERNAL_PSC_PATH)/board/psc/linux-extra-wifi.fragment"
-BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y
-BR2_LINUX_KERNEL_IMAGE_TARGET_NAME="Image"
-BR2_LINUX_KERNEL_NEEDS_HOST_LIBELF=y
+# ---- Kernel: built SEPARATELY (gcc-6), not by Buildroot ----
+# build.sh passes board/psc/linux-extra-wifi.fragment to build-kernel.sh for the
+# `next` variant, so the extra USB-WiFi drivers are added on top of the base config.
+# BR2_LINUX_KERNEL is OFF (see psc_defconfig for why).
 
 # ---- Host tools for FIT packaging ----
 BR2_PACKAGE_HOST_UBOOT_TOOLS=y

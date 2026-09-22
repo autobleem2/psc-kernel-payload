@@ -36,21 +36,12 @@ BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_PSC_PATH)/board/psc/overlay"
 BR2_ROOTFS_POST_BUILD_SCRIPT="$(BR2_EXTERNAL_PSC_PATH)/board/psc/post-build.sh"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="$(BR2_EXTERNAL_PSC_PATH)/board/psc/post-image.sh"
 
-# ---- Kernel: our psc-kernel 4.4.22 fork ----
-# CUSTOM_GIT names the archive repo; for the fast local loop, build.sh writes a
-# local.mk with LINUX_OVERRIDE_SRCDIR pointing at sources/psc-kernel (submodule),
-# so `make linux-rebuild` recompiles from the working checkout without re-fetching.
-BR2_LINUX_KERNEL=y
-BR2_LINUX_KERNEL_CUSTOM_GIT=y
-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="https://github.com/autobleem/psc-kernel.git"
-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="master"
-BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
-BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="$(BR2_EXTERNAL_PSC_PATH)/board/psc/linux_autobleem_config"
-# We need the uncompressed arch/arm/boot/Image; the FIT (boot.img) is built in
-# post-image.sh (lz4 + mkimage -f kernel.its), matching the old uboot-support flow.
-BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM=y
-BR2_LINUX_KERNEL_IMAGE_TARGET_NAME="Image"
-BR2_LINUX_KERNEL_NEEDS_HOST_LIBELF=y
+# ---- Kernel: built SEPARATELY, not by Buildroot ----
+# The 4.4 fork needs gcc-6 (gcc>=9/10 break its __asmeq register asserts), while
+# the userland here uses Buildroot's newer gcc. So board/psc/build-kernel.sh
+# builds the kernel + modules with the console gcc-6 toolchain; post-build.sh
+# folds the modules into the rootfs and post-image.sh wraps Image into boot.img.
+# BR2_LINUX_KERNEL is therefore OFF.
 
 # ---- Host tools for FIT packaging (post-image) ----
 # mkimage from host-uboot-tools; lz4 comes from the container (post-image.sh

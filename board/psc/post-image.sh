@@ -26,10 +26,13 @@ rm -rf "${OUT}" "${WORK}"
 mkdir -p "${OUT}" "${WORK}"
 
 # --- 1. boot.img : uncompressed Image -> lz4 (+8-byte LE size) -> FIT ---------
-if [ ! -f "${BINARIES_DIR}/Image" ]; then
-	echo "[post-image] ERROR: ${BINARIES_DIR}/Image not found (kernel image target)"; exit 1
+# The kernel is built separately (gcc-6) into $(O)/kernel-stage/Image.
+KIMAGE="${BASE_DIR:-}/kernel-stage/Image"
+[ -f "${KIMAGE}" ] || KIMAGE="${BINARIES_DIR}/Image"   # fallback if Buildroot built it
+if [ ! -f "${KIMAGE}" ]; then
+	echo "[post-image] ERROR: no kernel Image (looked in kernel-stage and ${BINARIES_DIR})"; exit 1
 fi
-cp "${BINARIES_DIR}/Image"      "${WORK}/Image"
+cp "${KIMAGE}"                  "${WORK}/Image"
 cp "${BOARD_DIR}/kernel.its"    "${WORK}/kernel.its"
 cp "${BOARD_DIR}/orig.dtb"      "${WORK}/orig.dtb"
 
