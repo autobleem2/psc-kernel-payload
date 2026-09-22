@@ -42,11 +42,12 @@
 			description = "Boot Linux kernel with FDT blob";
 			kernel = "kernel@1";
 			fdt = "fdt@1";
-			signature@1 {
-				algo = "sha256,rsa2048";
-				key-name-hint = "dev";
-				sign-images = "fdt", "kernel";
-			};
+			/*
+			 * No signature node: the console does not verify the FIT
+			 * signature (boot.img is dd'd straight to BOOTIMG1), and a
+			 * signature node makes modern mkimage try to sign (needs a
+			 * key). The per-image sha256 hashes above are kept.
+			 */
 		};
 	};
 };
