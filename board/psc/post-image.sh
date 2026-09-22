@@ -37,9 +37,15 @@ cp "${BOARD_DIR}/kernel.its"    "${WORK}/kernel.its"
 cp "${BOARD_DIR}/orig.dtb"      "${WORK}/orig.dtb"
 
 LZ4="${HOST_DIR}/bin/lz4";     [ -x "${LZ4}" ]     || LZ4="$(command -v lz4)"
-# Prefer the system mkimage: it is built with FIT support, while Buildroot's
-# host-uboot-tools mkimage is tools-only ("unsupported type Flat Device Tree").
-MKIMAGE="$(command -v mkimage || true)"; [ -x "${MKIMAGE}" ] || MKIMAGE="${HOST_DIR}/bin/mkimage"
+# Pick the first mkimage that actually supports FIT. Buildroot prepends its own
+# host bin to PATH, and that mkimage is tools-only (rejects the .its with
+# "unsupported type Flat Device Tree"); the system u-boot-tools mkimage has FIT.
+MKIMAGE=""
+for _mk in /usr/bin/mkimage "${HOST_DIR}/bin/mkimage" "$(command -v mkimage 2>/dev/null)"; do
+	if [ -x "${_mk}" ] && "${_mk}" 2>&1 | grep -q "fit-image.its"; then MKIMAGE="${_mk}"; break; fi
+done
+[ -n "${MKIMAGE}" ] || { echo "[post-image] ERROR: no FIT-capable mkimage found"; exit 1; }
+echo "[post-image] mkimage: ${MKIMAGE}"
 [ -x "${LZ4}" ]     || { echo "[post-image] ERROR: no lz4 (host-lz4 or system)"; exit 1; }
 [ -x "${MKIMAGE}" ] || { echo "[post-image] ERROR: no mkimage (host-uboot-tools or system u-boot-tools)"; exit 1; }
 ( cd "${WORK}"
