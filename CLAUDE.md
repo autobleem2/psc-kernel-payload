@@ -111,31 +111,43 @@ menuconfig** so the diff stays reviewable), `linux-menuconfig`, `verify`, `paylo
 
 Runs on Linux only (Buildroot). Author config/scripts anywhere; **build on `psc-build`**.
 
-## Status (2026-09-22) — scaffold complete, not yet green
+## Status (2026-09-22) — the `psc` baseline BUILDS end-to-end from source
 
-Done: the whole BR2_EXTERNAL scaffold; kernel.its/orig.dtb/linux config + sixaxis patch in place;
-a first-pass `psc_defconfig` covering the ~20 overlay packages; post-image FIT + payload assembly;
-build.sh/verify.sh; docker image extension; reference manifest.
+**First full from-source build is green.** `docker/run.sh scripts/build.sh all` on `psc-build`
+produces a complete, valid payload in `output/images/psc-payload/kernel/`:
+- `boot.img` 7.2 MB, FIT magic `d00dfeed` (shipped was 6.8 MB — different build, expected)
+- `abrootfs.tgz` 19.5 MB: **BlueZ 5.63** (`libbluetooth.so.3.19.6`, newer than the shipped 5.50) with
+  `bluetoothd` + `sixaxis.so`, wpa_supplicant/iw, dropbear, ntfs-3g, exfatprogs, mc, nano, and
+  **`lib/modules/4.4.22` — 107 `.ko` (91 WiFi)** freshly built.
 
-**To do (each is real work, best done iterating on the server):**
-1. `git submodule add` autobleem/psc-kernel at `sources/psc-kernel`, pin to the built commit.
-2. First `build.sh setup && build.sh all`, then fix `psc_defconfig` symbol names against real
-   Buildroot (`menuconfig` → `savedefconfig`). The draft config is best-effort; some symbol names
-   (ncurses target libs, bluez sub-options, exfat, firmware sets) need validation.
-3. Get the **kernel** building first and verify `boot.img` (FIT magic `d00dfeed`, `verify.sh`).
-   Building 4.4.22 with Buildroot 2020.02's gcc-9 may need a few kernel patches (old kernels vs
-   new host binutils/gcc) — collect them under `board/psc/patches/linux/` or the kernel repo.
-4. Populate `board/psc/overlay/` from the reference overlay — the AutoBleem-custom files ONLY
-   (`etc/autobleem/*`, systemd units, `bin/{abnet,start_pman,updaterootfs.sh,settime,ntpget}`,
-   `sbin/dhclient-script`, `etc/bluetooth/{main,input}.conf`, `etc/dhcpcd.conf`). Do NOT ship the
-   `etc/bluetooth/bluetoothd/<MAC>/` dirs (dev console pairing state) — post-build.sh also guards this.
-   Extract on Linux (Windows tar mangles symlinks/modes). `abnet`/`start_pman` sources aren't in the
-   archive yet — ship the prebuilt binaries in the overlay until located (check autobleem/AutoBleem2
-   history and `root-autobleem.git`).
-5. Firmware: enable the `linux-firmware` sets the shipped `/lib/firmware` carried (rtlwifi, mt7601u,
-   ralink, brcm...) to match the wireless `.ko` set.
-6. `verify.sh` will never show byte-identical tarballs (different build) — that's expected; the
-   flasher checks `boot.md5` of ITS OWN boot.img, and never checks `abrootfs.md5`.
+**How it actually builds** (the architecture settled during the first build):
+- Foundation is Buildroot **2022.02.x** (2020.02 host tools won't build on the Debian-12 host).
+- The **kernel is decoupled**: `board/psc/build-kernel.sh` builds it with the console **gcc-6**
+  (`/opt/psc`) — Buildroot's gcc-10 breaks the 4.4 fork's `__asmeq` register asserts. Buildroot
+  builds the userland (gcc-10) and folds the staged modules in. The kernel fork got 3 commits to
+  build under a modern host toolchain (still gcc-6 here, harmless): `-fcommon` for dtc,
+  drop fork-added `-Werror` from ~27 subdir Makefiles, `log2.h` attribute fix. **These live in the
+  local `sources/psc-kernel` checkout and must be pushed to autobleem/psc-kernel** for a fresh clone
+  to reproduce (the build uses the local checkout via the kernel build script).
+- FIT packaging needs the **system** `mkimage` (FIT-capable) + `dtc` (in the image); the `.its`
+  signature node was dropped (unsigned; the console doesn't verify it).
+- Docker image `autobleem-kernel-build` (docker/Dockerfile) now also carries `device-tree-compiler`.
+
+**To do:**
+1. **Push the 3 kernel fixes to autobleem/psc-kernel** (currently only in the server checkout).
+2. **`next` variant**: run `build.sh -V next all`; validate `psc_next_defconfig` symbols against
+   Buildroot 2024.02 (exfatprogs/pcre2 already set) and the sixaxis-on-newer-bluez behaviour.
+3. **hciconfig/hid2hci** are absent — BlueZ 5.63 gates them behind more than `DEPRECATED`; enable
+   them (needed for the PSC-Bios pairing flow, `docs/bt-pairing.md`).
+4. **Populate `board/psc/overlay/`** with the AutoBleem-custom files ONLY (`etc/autobleem/*`, systemd
+   units, `bin/{abnet,start_pman,updaterootfs.sh,settime,ntpget}`, `etc/bluetooth/{main,input}.conf`,
+   `etc/dhcpcd.conf`); NOT the `etc/bluetooth/bluetoothd/<MAC>/` dev pairing state (post-build.sh
+   strips it). `abnet`/`start_pman` sources aren't in the archive — ship prebuilt until located.
+   Note Buildroot's `/usr` layout (wpa_supplicant at `/usr/sbin`, etc.) vs the old merged `/bin`.
+5. **Hardware test** — NOTHING here has booted on a console yet. The kernel is the same source +
+   config, so it should, but it is unverified. Flash via abflashkit with an LBOOT.EPB backup ready.
+6. Out-of-tree modern USB-WiFi drivers (8812au/8821cu/88x2bu/mt76) as vendored kernel trees (the big
+   dongle win) — see `docs/kernel-and-drivers.md`.
 
 ## Gotchas
 
