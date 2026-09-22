@@ -41,6 +41,13 @@ fi
 
 M(){ make -C "${KSRC}" O="${KBUILD}" ARCH=arm CROSS_COMPILE="${CROSS}" "$@"; }
 
+# CONFIG_INITRAMFS_SOURCE is a relative path ("initramfs"); in an out-of-tree
+# build (O=) the kernel resolves it against the build dir, not the source, so
+# mirror the in-tree initramfs/ there (it holds the built-in /init).
+if [ -d "${KSRC}/initramfs" ]; then
+	rm -rf "${KBUILD}/initramfs"; cp -a "${KSRC}/initramfs" "${KBUILD}/initramfs"
+fi
+
 M olddefconfig
 M -j"${JOBS}" Image modules
 # install stripped modules into the stage rootfs (depmod runs here)
