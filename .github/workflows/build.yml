@@ -54,7 +54,9 @@ jobs:
     env:
       VARIANT: ${{ matrix.variant }}
       AB_KERNEL_IMAGE: autobleem-kernel-build
-      AB_KERNEL_CACHE: ${{ github.workspace }}/../kcache
+      # an absolute path outside the checkout - actions/cache refuses '..' ("Relative pathing '.' and '..' is
+      # not allowed"), which silently kept the first run's cache from being saved
+      AB_KERNEL_CACHE: /home/runner/kcache
     steps:
       - uses: actions/checkout@v7
         with:
@@ -63,10 +65,14 @@ jobs:
         run: |
           sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
           df -h /
+      # restore and save as two steps: the save right after the build, whatever verify says - a combined
+      # actions/cache saves only when the whole job succeeds, and a failed safety check must not cost the
+      # next run its warm cache. Downloads, Buildroot's ccache and the kernel's ccache (docker/run.sh).
       - name: Restore Buildroot downloads + ccache
-        uses: actions/cache@v6
+        id: kcache
+        uses: actions/cache/restore@v6
         with:
-          path: ${{ github.workspace }}/../kcache
+          path: /home/runner/kcache
           key: kernel-${{ matrix.variant }}-${{ hashFiles('configs/**', 'board/psc/linux_autobleem_config') }}-${{ github.sha }}
           restore-keys: |
             kernel-${{ matrix.variant }}-${{ hashFiles('configs/**', 'board/psc/linux_autobleem_config') }}-
@@ -78,6 +84,15 @@ jobs:
             --build-arg BASE=ghcr.io/autobleem2/autobleem-build:latest -f docker/Dockerfile docker
       - name: Build the payload (${{ matrix.variant }})
         run: docker/run.sh scripts/build.sh -V "${{ matrix.variant }}" all
+      - name: Cache sizes
+        if: always()
+        run: du -sh /home/runner/kcache/* 2>/dev/null || true
+      - name: Save Buildroot downloads + ccache
+        if: always() && steps.kcache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: /home/runner/kcache
+          key: kernel-${{ matrix.variant }}-${{ hashFiles('configs/**', 'board/psc/linux_autobleem_config') }}-${{ github.sha }}
       - name: Verify against the shipped payload
         run: docker/run.sh scripts/build.sh -V "${{ matrix.variant }}" verify
       - name: Package

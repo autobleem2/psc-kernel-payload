@@ -24,7 +24,7 @@ if [ -z "${IMAGE}" ]; then
 fi
 
 CACHE="${AB_KERNEL_CACHE:-${HOME}/.cache/autobleem-kernel}"
-mkdir -p "${CACHE}/dl" "${CACHE}/ccache"
+mkdir -p "${CACHE}/dl" "${CACHE}/ccache" "${CACHE}/ccache-kernel"
 
 ARGS=("$@"); [ ${#ARGS[@]} -eq 0 ] && ARGS=(scripts/build.sh all)
 
@@ -39,6 +39,7 @@ exec docker run --rm "${TTY[@]}" \
 	-e HOME=/work \
 	-e BR2_DL_DIR=/cache/dl \
 	-e BR2_CCACHE_DIR=/cache/ccache \
+	-e KCCACHE_DIR=/cache/ccache-kernel \
 	-e VARIANT="${VARIANT:-psc}" \
 	"${ENV_BR[@]}" \
 	-v "${HERE}:/work" \

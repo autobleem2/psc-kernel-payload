@@ -39,7 +39,19 @@ if [ ! -f "${KBUILD}/.config" ] || [ "${CONFIG}" -nt "${KBUILD}/.config" ]; then
 	done
 fi
 
-M(){ make -C "${KSRC}" O="${KBUILD}" ARCH=arm CROSS_COMPILE="${CROSS}" "$@"; }
+# ccache in front of the gcc-6 cross compiler when there is one: the kernel is the one part of the payload
+# Buildroot's BR2_CCACHE does not cover (it is built here, outside Buildroot), and CI starts from an empty
+# build dir every run. KCCACHE_DIR (docker/run.sh points it into the persisted cache) keeps it apart from
+# Buildroot's own ccache. AB_KERNEL_NO_CCACHE=1 turns it off.
+KCC=()
+if command -v ccache >/dev/null 2>&1 && [ -z "${AB_KERNEL_NO_CCACHE:-}" ]; then
+	export CCACHE_DIR="${KCCACHE_DIR:-${HOME}/.ccache-kernel}" CCACHE_MAXSIZE="${KCCACHE_MAXSIZE:-2G}"
+	# hits across checkouts at other paths and kbuild's timestamp macros
+	export CCACHE_BASEDIR="${KSRC}" CCACHE_SLOPPINESS="time_macros,include_file_mtime,include_file_ctime,file_macro"
+	KCC=(CC="ccache ${CROSS}gcc")
+	echo "[kernel] ccache: ${CCACHE_DIR} ($(ccache -s 2>/dev/null | grep -iE '^(cache size|hits)' | head -1 | tr -s ' '))"
+fi
+M(){ make -C "${KSRC}" O="${KBUILD}" ARCH=arm CROSS_COMPILE="${CROSS}" "${KCC[@]}" "$@"; }
 
 # CONFIG_INITRAMFS_SOURCE is a relative path ("initramfs"); in an out-of-tree
 # build (O=) the kernel resolves it against the build dir, not the source, so
