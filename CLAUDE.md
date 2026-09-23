@@ -157,8 +157,10 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
    `usr/bin/start_pman`, `sbin/dhclient-script`, `etc/bluetooth/{main,input}.conf`, `etc/dhcpcd.conf`,
    `etc/{hostname,inetd.conf,resolv.conf}`, `etc/systemd/{journald,system}.conf` (volatile journal).
    Left out on purpose: `etc/dropbear_key` (one private SSH host key shared by every console - `rndis` now
-   makes a per-console key with `dropbear -R`), `etc/shadow` (a root password hash replacing the console's -
-   the owner's call), the dev console's `home/root` histories and Bluetooth pairings, `hwdb.bin`.
+   makes a per-console key with `dropbear -R`), the dev console's `home/root` histories and Bluetooth
+   pairings, `hwdb.bin`. `etc/shadow` is the 2020 file's accounts with root's password **`autobleem`** (the
+   owner's choice, 2026-09-23; SHA-512 crypt - the old hash was MD5-crypt) for ssh/ftp over the USB network,
+   mode 0600 through `device_table.txt` (the 2020 file was world-readable).
    `ntpget` is the one prebuilt binary (its source was never found).
 5. **Hardware test** — NOTHING here has booted on a console yet. The kernel is the same source +
    config, so it should, but it is unverified. Flash via abflashkit with an LBOOT.EPB backup ready.

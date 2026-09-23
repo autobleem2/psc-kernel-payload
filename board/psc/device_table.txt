@@ -7,3 +7,6 @@
 /etc/systemd/system/syslog.service                            c 000 0 0 0 0 - - -
 /etc/systemd/system/multi-user.target.wants/busybox-syslog.service c 000 0 0 0 0 - - -
 /etc/systemd/system/multi-user.target.wants/busybox-klogd.service  c 000 0 0 0 0 - - -
+
+# root:autobleem (etc/shadow in the overlay; the 2020 file was world-readable) - root only
+/etc/shadow                                                   f 600 0 0 - - - - -
