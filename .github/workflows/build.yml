@@ -19,6 +19,10 @@ on:
         description: variants to build (space separated; psc next)
         type: string
         default: 'psc'
+      force_build:
+        description: build even when nothing changed since the last release (which is otherwise reused)
+        type: boolean
+        default: false
 
 concurrency:
   group: build-${{ github.ref }}
@@ -61,7 +65,44 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
+          fetch-depth: 0   # the tags, for the reuse check below
+      # The payload changes rarely and a cold build is ~50 min: when nothing that goes into it changed since
+      # the newest release carrying this variant's payload (anything but docs - configs, board files, scripts,
+      # the kernel submodule's pin, this workflow), that release's payload is taken as this build's, under this
+      # version. A release exists only after a build passed verify.sh's safety check, so only a verified
+      # payload is ever reused. force_build (dispatch) builds regardless. Assets are listed by release id:
+      # GitHub's tag view can go on missing an asset uploaded after publishing.
+      - name: Reuse the last release's payload when nothing changed
+        id: reuse
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          V="${{ needs.plan.outputs.version }}"; VAR="${{ matrix.variant }}"
+          echo "hit=false" >> "$GITHUB_OUTPUT"
+          if [ "${{ inputs.force_build }}" = true ]; then echo "force_build: building"; exit 0; fi
+          while IFS=$'\t' read -r id tag; do
+            [ "$tag" = "$GITHUB_REF_NAME" ] && continue   # this very tag's release is what this run makes
+            aids="$(gh api "repos/$GITHUB_REPOSITORY/releases/$id/assets" --paginate \
+                     --jq ".[] | select(.name | startswith(\"kernel-payload-$VAR-\")) | .id")"
+            aid="${aids%%$'\n'*}"
+            [ -n "$aid" ] || continue
+            if ! git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then echo "no tag $tag here - building"; exit 0; fi
+            changed="$(git diff --name-only "$tag" HEAD -- . ':(exclude)*.md' ':(exclude)docs/**' ':(exclude)LICENSE')"
+            if [ -n "$changed" ]; then
+              echo "changed since $tag - building:"; echo "$changed" | sed 's/^/  /'; exit 0
+            fi
+            mkdir -p out
+            gh api -H 'Accept: application/octet-stream' "repos/$GITHUB_REPOSITORY/releases/assets/$aid" \
+              > "out/kernel-payload-$VAR-$V.tar.gz"
+            tar -tzf "out/kernel-payload-$VAR-$V.tar.gz" kernel/boot.img kernel/abrootfs.tgz >/dev/null
+            echo "nothing changed since $tag: its payload reused as kernel-payload-$VAR-$V.tar.gz"
+            echo "hit=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          done < <(gh api "repos/$GITHUB_REPOSITORY/releases" --paginate --jq '.[] | select(.draft|not) | "\(.id)\t\(.tag_name)"')
+          echo "no earlier release with a $VAR payload - building"
       - name: Free disk space (Buildroot's output runs to several GB)
+        if: steps.reuse.outputs.hit != 'true'
         run: |
           sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
           df -h /
@@ -70,6 +111,7 @@ jobs:
       # next run its warm cache. Downloads, Buildroot's ccache and the kernel's ccache (docker/run.sh).
       - name: Restore Buildroot downloads + ccache
         id: kcache
+        if: steps.reuse.outputs.hit != 'true'
         uses: actions/cache/restore@v6
         with:
           path: /home/runner/kcache
@@ -78,24 +120,28 @@ jobs:
             kernel-${{ matrix.variant }}-${{ hashFiles('configs/**', 'board/psc/linux_autobleem_config') }}-
             kernel-${{ matrix.variant }}-
       - name: Build the image (autobleem-kernel-build)
+        if: steps.reuse.outputs.hit != 'true'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
           docker build -t autobleem-kernel-build \
             --build-arg BASE=ghcr.io/autobleem2/autobleem-build:latest -f docker/Dockerfile docker
       - name: Build the payload (${{ matrix.variant }})
+        if: steps.reuse.outputs.hit != 'true'
         run: docker/run.sh scripts/build.sh -V "${{ matrix.variant }}" all
       - name: Cache sizes
-        if: always()
+        if: always() && steps.reuse.outputs.hit != 'true'
         run: du -sh /home/runner/kcache/* 2>/dev/null || true
       - name: Save Buildroot downloads + ccache
-        if: always() && steps.kcache.outputs.cache-hit != 'true'
+        if: always() && steps.reuse.outputs.hit != 'true' && steps.kcache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v6
         with:
           path: /home/runner/kcache
           key: kernel-${{ matrix.variant }}-${{ hashFiles('configs/**', 'board/psc/linux_autobleem_config') }}-${{ github.sha }}
       - name: Verify against the shipped payload
+        if: steps.reuse.outputs.hit != 'true'
         run: docker/run.sh scripts/build.sh -V "${{ matrix.variant }}" verify
       - name: Package
+        if: steps.reuse.outputs.hit != 'true'
         run: |
           set -euo pipefail
           docker/run.sh scripts/build.sh -V "${{ matrix.variant }}" payload
