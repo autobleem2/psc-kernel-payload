@@ -43,6 +43,7 @@ BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV=y
 BR2_ROOTFS_DEVICE_TABLE="system/device_table.txt $(BR2_EXTERNAL_PSC_PATH)/board/psc/device_table.txt"
 BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_PSC_PATH)/board/psc/overlay"
 BR2_ROOTFS_POST_BUILD_SCRIPT="$(BR2_EXTERNAL_PSC_PATH)/board/psc/post-build.sh"
+BR2_ROOTFS_POST_FAKEROOT_SCRIPT="$(BR2_EXTERNAL_PSC_PATH)/board/psc/post-fakeroot.sh"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="$(BR2_EXTERNAL_PSC_PATH)/board/psc/post-image.sh"
 
 # ---- Kernel: built SEPARATELY (gcc-6), not by Buildroot ----

@@ -39,7 +39,8 @@ done
 # tools that link libdbus/libudev use the console's (stable sonames). scripts/verify.sh checks the result.
 cd "${TARGET_DIR}"
 rm -f  linuxrc init sbin/init lib32
-rm -f  etc/passwd etc/group etc/fstab etc/hosts etc/os-release etc/profile etc/nsswitch.conf etc/mtab \
+# (etc/passwd and etc/group too, but in post-fakeroot.sh: Buildroot's users/device tables still need them)
+rm -f  etc/fstab etc/hosts etc/os-release etc/profile etc/nsswitch.conf etc/mtab \
        etc/shells etc/issue etc/inittab usr/lib/os-release
 rm -rf etc/profile.d etc/init.d etc/network
 # D-Bus: the console's bus serves bluetoothd; keep only BlueZ's bus policy
