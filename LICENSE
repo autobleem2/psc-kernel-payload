@@ -7,15 +7,15 @@ not vendor the upstream sources it builds (Buildroot, the Linux kernel, BlueZ,
 busybox, etc. are fetched at build time).
 
 - AutoBleem-authored files in this repository (scripts/, board/psc/post-*.sh,
-  configs/, docs) are licensed GPL-3.0-or-later, matching autobleem/AutoBleem2.
+  configs/, docs) are licensed GPL-3.0-or-later, matching autobleem2/autobleem.
 
 - Each component this tree builds keeps its own upstream licence:
-    * Linux kernel (autobleem/psc-kernel) — GPL-2.0
-    * BlueZ + the sixaxis patch (autobleem/psc-bluez) — GPL-2.0 / LGPL-2.1
+    * Linux kernel (autobleem2/psc-kernel) — GPL-2.0
+    * BlueZ (upstream, built by Buildroot) — GPL-2.0 / LGPL-2.1
     * Buildroot and its package recipes — GPL-2.0-or-later
     * busybox — GPL-2.0; dropbear — MIT-style; ntfs-3g — GPL-2.0; etc.
 
 - The AutoBleem name, logo and theme artwork are NOT covered by this grant
-  (see autobleem/AutoBleem2 TRADEMARKS.md).
+  (see autobleem2/autobleem TRADEMARKS.md).
 
 The full GPL-3.0 text is at https://www.gnu.org/licenses/gpl-3.0.txt

@@ -1,0 +1,4 @@
+[submodule "sources/psc-kernel"]
+	path = sources/psc-kernel
+	url = https://github.com/autobleem2/psc-kernel.git
+	branch = master

@@ -2,7 +2,7 @@
 #
 # verify.sh — sanity-check a freshly built payload against the reference.
 #
-# The reference is the CURRENTLY SHIPPING payload from autobleem/AutoBleem2
+# The reference is the CURRENTLY SHIPPING payload from autobleem2/autobleem
 # (payload/Apps/abflashkit/kernel). A from-source rebuild is NOT expected to be
 # byte-identical (different Buildroot build), so this checks structure and the
 # things that actually matter at flash time, not md5 equality of the tarball.

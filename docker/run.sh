@@ -28,12 +28,19 @@ mkdir -p "${CACHE}/dl" "${CACHE}/ccache"
 
 ARGS=("$@"); [ ${#ARGS[@]} -eq 0 ] && ARGS=(scripts/build.sh all)
 
-exec docker run --rm -it \
+# a terminal only when there is one (-it without one fails: "the input device is not a TTY" - CI)
+TTY=(); [ -t 0 ] && [ -t 1 ] && TTY=(-it)
+# BR_VERSION only when the caller set one: scripts/build.sh picks each variant's own (psc 2022.02.x, next
+# 2024.02.x) - a forced default here overrode both with 2020.02.12, which does not build on this image
+ENV_BR=(); [ -n "${BR_VERSION:-}" ] && ENV_BR=(-e "BR_VERSION=${BR_VERSION}")
+
+exec docker run --rm "${TTY[@]}" \
 	-u "$(id -u):$(id -g)" \
 	-e HOME=/work \
 	-e BR2_DL_DIR=/cache/dl \
 	-e BR2_CCACHE_DIR=/cache/ccache \
-	-e BR_VERSION="${BR_VERSION:-2020.02.12}" \
+	-e VARIANT="${VARIANT:-psc}" \
+	"${ENV_BR[@]}" \
 	-v "${HERE}:/work" \
 	-v "${CACHE}:/cache" \
 	-w /work \

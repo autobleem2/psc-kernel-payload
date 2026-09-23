@@ -7,7 +7,7 @@
 #
 # Target: MediaTek MT8167 (4x Cortex-A35) running a 32-bit armv7 hardfloat
 # userland — Cortex-A7 codegen runs safely on the A35. Kernel is our own
-# 4.4.22 fork (autobleem/psc-kernel); userland is stock Buildroot built from
+# 4.4.22 fork (autobleem2/psc-kernel); userland is stock Buildroot built from
 # source; the AutoBleem-specific files come from board/psc/overlay; the BlueZ
 # DualShock (sixaxis) fix is board/psc/patches/bluez5_utils.
 #

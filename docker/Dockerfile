@@ -2,10 +2,12 @@
 # tools Buildroot needs. Buildroot builds its OWN cross toolchain + glibc from
 # source, so we only add generic host prerequisites here, not any cross compiler.
 #
-# Build on the server:  docker build -t autobleem-kernel-build -f docker/Dockerfile .
+# Build on the server:  docker build -t autobleem-kernel-build -f docker/Dockerfile docker
 # (or just use the base autobleem-build image — build.sh works there too, this
 #  image only guarantees every Buildroot host dependency is present.)
-FROM autobleem-build
+# BASE: the server's local tag by default; CI passes ghcr.io/autobleem2/autobleem-build:latest.
+ARG BASE=autobleem-build
+FROM ${BASE}
 
 USER root
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \

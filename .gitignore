@@ -10,3 +10,5 @@
 # local overrides
 local.mk
 *.log
+/buildroot-next/
+/output-next/

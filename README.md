@@ -15,7 +15,7 @@ source, incrementally and selectively, in the AutoBleem Docker build image.
 
 ## What builds what
 
-- **Kernel** → our own fork `autobleem/psc-kernel` (Linux 4.4.22, `board/psc/linux_autobleem_config`),
+- **Kernel** → our own fork `autobleem2/psc-kernel` (Linux 4.4.22, `board/psc/linux_autobleem_config`),
   built by Buildroot's `linux` package; `post-image.sh` wraps `Image` into the FIT `boot.img`
   exactly as the old `uboot-support/packit.sh` did (`lz4` + size trailer + `mkimage -f kernel.its`).
 - **Userland** → ~20 **stock Buildroot** packages (`configs/psc_defconfig`), built from source
@@ -25,13 +25,13 @@ source, incrementally and selectively, in the AutoBleem Docker build image.
 - **AutoBleem-specific files** (configs, systemd units, helper scripts, `abnet`) →
   `board/psc/overlay/` (the rootfs overlay).
 
-The archived sources live under **github.com/autobleem** (`psc-kernel`, `psc-bluez`,
-`psc-rootfs`, `abflashkit`) — mirrored from the old `gitlab.autobleem.tk`.
+The kernel is **autobleem2/psc-kernel** (public; `sources/psc-kernel` is its submodule). `psc-bluez`,
+`psc-rootfs` and the 2020 `abflashkit` are private archives, mirrored from the old `gitlab.autobleem.tk`.
 
 ## Quick start (on the build server)
 
 ```bash
-git clone --recurse-submodules git@github.com:autobleem/psc-kernel-payload.git
+git clone --recurse-submodules git@github.com:autobleem2/psc-kernel-payload.git
 cd psc-kernel-payload
 
 # one-time: extend the build image with Buildroot host deps (optional — the base
@@ -83,7 +83,7 @@ driver), so "newer" means a modernised 4.4 + newer userland, not a newer kernel.
 ## Installing a freshly built payload
 
 Copy `output/images/psc-payload/kernel/` over
-`autobleem/AutoBleem2 → payload/Apps/abflashkit/kernel/`, then build/flash through
+`autobleem2/autobleem-console-tools → payload/Apps/abflashkit/kernel/`, then build/flash through
 `abflashkit` as usual. **⚠ Flashing modifies the console's internal storage** — always
 keep the `LBOOT.EPB` recovery backup the flasher makes.
 

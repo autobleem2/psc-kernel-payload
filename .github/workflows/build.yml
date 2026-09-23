@@ -1,0 +1,111 @@
+# psc-kernel-payload CI: the kernel-flasher payload (boot.img + abrootfs.tgz) from source on a GitHub-hosted
+# runner - the kernel (sources/psc-kernel, a submodule) with the console's gcc-6 from the autobleem-build
+# image, the userland with Buildroot. Buildroot refuses to run as root, so this is not a container job: it
+# builds docker/Dockerfile (autobleem-kernel-build, on top of ghcr.io/autobleem2/autobleem-build) and runs
+# docker/run.sh, which runs as the runner's uid. Buildroot's downloads and ccache persist across runs in the
+# Actions cache (a cold build compiles Buildroot's toolchain and every package; a warm one mostly hits).
+# Gated by AB_CI_ENABLED.
+name: build
+
+on:
+  push:
+    branches: [develop, master]
+    tags: ['v*']
+  pull_request:
+    branches: [develop, master]
+  workflow_dispatch:
+    inputs:
+      variants:
+        description: variants to build (space separated; psc next)
+        type: string
+        default: 'psc'
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    if: vars.AB_CI_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    outputs:
+      variants: ${{ steps.p.outputs.json }}
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - id: p
+        run: |
+          p="${{ inputs.variants }}"; [ -n "$p" ] || p="psc"
+          echo "json=$(printf '%s\n' $p | jq -R . | jq -cs .)" >> "$GITHUB_OUTPUT"
+      - id: v
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then echo "version=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          else echo "version=$(date -u +%Y%m%d)-$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"; fi
+
+  build:
+    needs: plan
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: ${{ fromJSON(needs.plan.outputs.variants) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    env:
+      VARIANT: ${{ matrix.variant }}
+      AB_KERNEL_IMAGE: autobleem-kernel-build
+      AB_KERNEL_CACHE: ${{ github.workspace }}/../kcache
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - name: Free disk space (Buildroot's output runs to several GB)
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+      - name: Restore Buildroot downloads + ccache
+        uses: actions/cache@v6
+        with:
+          path: ${{ github.workspace }}/../kcache
+          key: kernel-${{ matrix.variant }}-${{ hashFiles('configs/**', 'board/psc/linux_autobleem_config') }}-${{ github.sha }}
+          restore-keys: |
+            kernel-${{ matrix.variant }}-${{ hashFiles('configs/**', 'board/psc/linux_autobleem_config') }}-
+            kernel-${{ matrix.variant }}-
+      - name: Build the image (autobleem-kernel-build)
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker build -t autobleem-kernel-build \
+            --build-arg BASE=ghcr.io/autobleem2/autobleem-build:latest -f docker/Dockerfile docker
+      - name: Build the payload (${{ matrix.variant }})
+        run: docker/run.sh scripts/build.sh -V "${{ matrix.variant }}" all
+      - name: Verify against the shipped payload
+        run: docker/run.sh scripts/build.sh -V "${{ matrix.variant }}" verify
+      - name: Package
+        run: |
+          set -euo pipefail
+          docker/run.sh scripts/build.sh -V "${{ matrix.variant }}" payload
+          V="${{ needs.plan.outputs.version }}"
+          mkdir -p out
+          tar -czf "out/kernel-payload-${{ matrix.variant }}-$V.tar.gz" -C "payload/${{ matrix.variant }}" kernel
+          ls -l out payload/${{ matrix.variant }}/kernel
+      - uses: actions/upload-artifact@v7
+        with:
+          name: kernel-payload-${{ matrix.variant }}
+          path: out/*.tar.gz
+          retention-days: 30
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [plan, build]
+    runs-on: ubuntu-24.04
+    permissions: { contents: write }
+    steps:
+      - uses: actions/download-artifact@v8
+        with: { pattern: kernel-payload-*, path: out, merge-multiple: true }
+      - name: Attach to the release
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          prerelease=""; case "${GITHUB_REF_NAME}" in *-*) prerelease="--prerelease";; esac
+          gh release create "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" \
+            --title "PSC kernel payload ${GITHUB_REF_NAME}" --generate-notes $prerelease out/*.tar.gz || \
+          gh release upload "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" out/*.tar.gz --clobber

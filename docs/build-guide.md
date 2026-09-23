@@ -60,7 +60,7 @@ scripts/build.sh payload                # copy payload -> payload/<variant>/kern
 ## Installing the result
 
 Copy `output/images/psc-payload/kernel/` (or `output-next/...`) over
-`autobleem/AutoBleem2 → payload/Apps/abflashkit/kernel/`, then flash via
+`autobleem2/autobleem-console-tools → payload/Apps/abflashkit/kernel/`, then flash via
 `abflashkit`. **⚠ modifies console internal storage** — keep the `LBOOT.EPB`
 recovery backup.
 

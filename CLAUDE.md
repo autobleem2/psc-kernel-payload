@@ -7,24 +7,24 @@ self-contained glibc-2.28 userland + kernel modules/firmware) that `abflashkit` 
 console. It replaces the lost old-GitLab pipeline, which shipped these as hand-assembled static
 artefacts (there was **no** overlay-assembly script anywhere — abrootfs.tgz was built by hand).
 
-Created 2026-09-22. Consumer: `autobleem/AutoBleem2 → payload/Apps/abflashkit/kernel/`
+Created 2026-09-22. Consumer: `autobleem2/autobleem-console-tools → payload/Apps/abflashkit/kernel/`
 (and its `apps/abflashkit` tool — see that repo's `apps/abflashkit/CLAUDE.md`).
 
 ## Where the sources came from
 
-Archived from the old `gitlab.autobleem.tk` (mirrored to **github.com/autobleem**, and bare in
-`psc-build:~/gitlab-mirror/*.git`):
+Archived from the old `gitlab.autobleem.tk` (mirrored to GitHub, and bare in `psc-build:~/gitlab-mirror/*.git`; the kernel is public as
+**autobleem2/psc-kernel**, the rest are private archives under the owner's account `screemerpl`):
 
-- **autobleem/psc-kernel** — Linux 4.4.22 fork for MT8167 ("Yocto aud Baseline/aiv8167-rockman").
+- **autobleem2/psc-kernel** — Linux 4.4.22 fork for MT8167 ("Yocto aud Baseline/aiv8167-rockman").
   Old build: `.gitlab-ci.yml` used Docker image `screemer/psc-toolchain5` (crosstool
   `arm-unknown-linux-gnueabihf`, still on Docker Hub), `autobleem_defconfig`, then
   `uboot-support/{kernel.its,orig.dtb,packit.sh}` for the FIT. We now build it as Buildroot's
   `linux` package instead. `board/psc/{kernel.its,orig.dtb,linux_autobleem_config}` are copied
   from that repo (the config is the full expanded 4.4.22 `.config`).
-- **autobleem/psc-bluez** — BlueZ 5.54 + the "DanTheMans" `plugins/sixaxis.c` patch (drops the
+- **psc-bluez** (archived, `screemerpl/psc-bluez`) — BlueZ 5.54 + the "DanTheMans" `plugins/sixaxis.c` patch (drops the
   SDP-record registration — the standard PSC DualShock pairing fix). Extracted to
   `board/psc/patches/bluez5_utils/0001-danthemans-sixaxis.patch`.
-- **autobleem/psc-rootfs** — only the hand-built extras (wpa_supplicant, iw, libnl, openssl); all
+- **psc-rootfs** (archived, `screemerpl/psc-rootfs`) — only the hand-built extras (wpa_supplicant, iw, libnl, openssl); all
   now come from stock Buildroot packages.
 - **autobleem/abflashkit** — the original 2020 tool. Its CI just compiled the app and copied a
   pre-assembled `package/kernel/`; it never regenerated boot.img/abrootfs.tgz.
@@ -42,7 +42,7 @@ Buildroot (`BR2_EXTERNAL` = this repo) does everything from source in one tree:
   toolchain + rootfs) is the right tool rather than cross-building against the console sysroot.
 - **Toolchain**: Buildroot-built glibc toolchain, `cortex_a7` + NEON-VFPv4 hardfloat (safe on the
   MT8167's Cortex-A35 running aarch32). Kernel headers = the in-tree 4.4.22 kernel's.
-- **Kernel**: Buildroot `linux` package, `CUSTOM_GIT` = autobleem/psc-kernel, custom config
+- **Kernel**: Buildroot `linux` package, `CUSTOM_GIT` = autobleem2/psc-kernel, custom config
   `board/psc/linux_autobleem_config`, image target `Image` (uncompressed). `build.sh` writes a
   `local.mk` with `LINUX_OVERRIDE_SRCDIR = sources/psc-kernel` so the kernel builds from the local
   submodule checkout (no private-repo fetch; instant `linux-rebuild`).
@@ -93,7 +93,7 @@ do NOT bump the kernel major version — see the plan below.
    morrownr/8821cu, morrownr/88x2bu, mt76 backport. Each is its own commit in the kernel repo,
    built as a module and shipped in the overlay's `/lib/modules`. Tracked here; not started.
 4. **exfatprogs** replaces the old exfat-utils in `next`; **pcre2** replaces pcre.
-5. **PSC-Bios controller pairing** (in `autobleem/AutoBleem2 → apps/pscbios`, NOT here): replace the
+5. **PSC-Bios controller pairing** (in `autobleem2/autobleem-console-tools → apps/pscbios`, NOT here): replace the
    "feature in progress" screen with a real DS4/BT-gamepad pairing flow driving this overlay's
    `bluetoothctl`/`hciconfig`/`hid2hci` + the sixaxis plugin (DS3 over USB). The `next` overlay's
    newer BlueZ is what makes modern controllers pair cleanly. Full spec: `docs/bt-pairing.md`.
@@ -126,15 +126,15 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
   (`/opt/psc`) — Buildroot's gcc-10 breaks the 4.4 fork's `__asmeq` register asserts. Buildroot
   builds the userland (gcc-10) and folds the staged modules in. The kernel fork got 3 commits to
   build under a modern host toolchain (still gcc-6 here, harmless): `-fcommon` for dtc,
-  drop fork-added `-Werror` from ~27 subdir Makefiles, `log2.h` attribute fix. **These live in the
-  local `sources/psc-kernel` checkout and must be pushed to autobleem/psc-kernel** for a fresh clone
-  to reproduce (the build uses the local checkout via the kernel build script).
+  drop fork-added `-Werror` from ~27 subdir Makefiles, `log2.h` attribute fix. They are on
+  autobleem2/psc-kernel `master` (pushed 2026-09-23), which `sources/psc-kernel` is a submodule of, so a
+  fresh `--recurse-submodules` clone reproduces the build.
 - FIT packaging needs the **system** `mkimage` (FIT-capable) + `dtc` (in the image); the `.its`
   signature node was dropped (unsigned; the console doesn't verify it).
 - Docker image `autobleem-kernel-build` (docker/Dockerfile) now also carries `device-tree-compiler`.
 
 **To do:**
-1. **Push the 3 kernel fixes to autobleem/psc-kernel** (currently only in the server checkout).
+1. ~~Push the 3 kernel fixes to autobleem2/psc-kernel~~ - DONE 2026-09-23 (submodule pinned to them).
 2. **`next` variant**: run `build.sh -V next all`; validate `psc_next_defconfig` symbols against
    Buildroot 2024.02 (exfatprogs/pcre2 already set) and the sixaxis-on-newer-bluez behaviour.
 3. ~~**hciconfig/hid2hci** absent~~ — DONE: `BR2_PACKAGE_BLUEZ5_UTILS_TOOLS` +

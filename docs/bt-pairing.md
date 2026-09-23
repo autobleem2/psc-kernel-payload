@@ -1,7 +1,7 @@
 # Bluetooth controller pairing (PSC-Bios integration)
 
 This build provides the **Bluetooth stack**; the **UI to pair a controller** lives
-in `autobleem/AutoBleem2 → apps/pscbios` (the PSC-Bios tool). Today PSC-Bios shows
+in `autobleem2/autobleem-console-tools → apps/pscbios` (the PSC-Bios tool). Today PSC-Bios shows
 a *"feature in progress"* screen for controller pairing; the goal is to make it
 actually pair DualShock 4 (and other BT gamepads). This doc records what each side
 must provide.

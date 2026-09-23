@@ -1,6 +1,6 @@
 # Source archaeology — where the payload comes from
 
-The abflashkit `kernel/` payload (shipped in `autobleem/AutoBleem2 →
+The abflashkit `kernel/` payload (shipped in `autobleem2/autobleem-console-tools →
 payload/Apps/abflashkit/kernel/`) was, until this project, a set of **hand-assembled
 static artefacts** with no build pipeline in the AutoBleem2 tree. This is the
 reconstruction of how it was made, from the archived old-GitLab repos.
