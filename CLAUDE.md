@@ -134,6 +134,14 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
 - Docker image `autobleem-kernel-build` (docker/Dockerfile) now also carries `device-tree-compiler`.
 
 **To do:**
+0. **DO NOT FLASH the current output - the overlay is unsafe** (found 2026-09-23, the first CI build).
+   `BR2_INIT_SYSTEMD=y` forces Buildroot's merged /usr, so abrootfs.tgz has `bin`, `lib`, `lib32`, `sbin`
+   as SYMLINKS into usr/, and carries its own systemd, systemd-udevd and /usr/sbin/init. Laid over the
+   console's root, the upper-layer `/lib` symlink hides the console's real /lib (systemd, firmware, Sony's
+   libraries) and Buildroot's systemd would run as PID 1 - most likely a console that does not boot. The
+   shipped overlay has real bin/lib/sbin directories and no init (glibc + tools only). Fix: `BR2_INIT_NONE`
+   (which drops merged /usr), the few unit files it needs (bluetooth etc.) in `board/psc/overlay` - to-do 4.
+   `scripts/verify.sh` now fails the build (and CI) on either, so no artifact is published until then.
 1. ~~Push the 3 kernel fixes to autobleem2/psc-kernel~~ - DONE 2026-09-23 (submodule pinned to them).
 2. **`next` variant**: run `build.sh -V next all`; validate `psc_next_defconfig` symbols against
    Buildroot 2024.02 (exfatprogs/pcre2 already set) and the sixaxis-on-newer-bluez behaviour.
