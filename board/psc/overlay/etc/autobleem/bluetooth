@@ -1,0 +1,8 @@
+#!/bin/bash
+#rm -rf /var/lib/bluetooth
+#ln -s /etc/bluetooth/bluetoothd /var/lib/bluetooth
+
+mkdir -p /var/lib/bluetooth
+mount --bind /etc/bluetooth/bluetoothd /var/lib/bluetooth
+/usr/libexec/bluetooth/bluetoothd -d 
+

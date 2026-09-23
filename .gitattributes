@@ -14,3 +14,8 @@ board/psc/install_payload.sh     text eol=lf
 # Binary
 *.dtb           binary
 *.img           binary
+
+# the rootfs overlay: scripts, configs and units without extensions run on the console - LF; the one binary
+board/psc/overlay/**        text eol=lf
+board/psc/overlay/bin/ntpget binary
+board/psc/device_table.txt   text eol=lf

@@ -1,0 +1,14 @@
+[Unit]
+Description=Internet Super Daemon
+
+[Service]
+ExecStart=/sbin/inetd -f
+ExecStop=killall inetd
+User=root
+Group=root
+Type=simple
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

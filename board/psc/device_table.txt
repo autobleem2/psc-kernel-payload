@@ -1,0 +1,9 @@
+# makedevs table (BR2_ROOTFS_DEVICE_TABLE), applied to the target under fakeroot.
+# <name> <type> <mode> <uid> <gid> <major> <minor> <start> <inc> <count>
+#
+# overlayfs whiteouts (a 0,0 character device in the upper layer deletes the lower file from the merged
+# root): the console's own syslog units are switched off, as the 2020 overlay did - journald keeps the log
+# in RAM instead (etc/systemd/journald.conf, Storage=volatile), so nothing logs to the eMMC.
+/etc/systemd/system/syslog.service                            c 000 0 0 0 0 - - -
+/etc/systemd/system/multi-user.target.wants/busybox-syslog.service c 000 0 0 0 0 - - -
+/etc/systemd/system/multi-user.target.wants/busybox-klogd.service  c 000 0 0 0 0 - - -

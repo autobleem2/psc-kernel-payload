@@ -1,0 +1,37 @@
+#!/bin/bash
+
+start() {
+
+# enable rndis and telnet and ssh
+echo 0       > /sys/class/android_usb/android0/enable
+echo rndis > /sys/class/android_usb/android0/functions
+echo 2d01    > /sys/class/android_usb/android0/idProduct
+echo 1       > /sys/class/android_usb/android0/enable
+
+busybox hostname autobleem 
+  ifconfig rndis0 169.254.215.100  netmask 255.255.255.0
+  # this console's own host key, made on the first start (-R) - the 2020 overlay shipped one private key
+  # for every console, which must never be published
+  mkdir -p /etc/dropbear
+  dropbear -R -a
+  tcpsvd -vE 0.0.0.0 21 ftpd -w /
+}
+
+ 
+stop() {
+  ifconfig rndis0 down
+  killall dropbear
+  killall tcpsvd
+}
+
+restart()
+{
+  stop
+  start
+}
+
+case $1 in
+  start|stop|restart) "$1" ;;
+esac
+
+

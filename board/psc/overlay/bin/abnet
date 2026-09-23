@@ -1,0 +1,90 @@
+#!/bin/bash
+
+trim()
+{
+  while read -r line; do echo "$line"; done;
+}
+list_ifaces()
+{
+  ifconfig -a | grep 'wlan\|eth'  | awk '{print $1;}'
+}
+
+scan()
+{
+  iw wlan0 scan | grep SSID | sed 's/^ *//;s/ *$//' | trim | cut -c 7-
+  iwlist wlan0 scanning | grep ESSID | trim | cut -c 8- | sed 's/.$//'
+  #add here iwlist for wext
+}
+
+is_up()
+{
+  IFACE=`ifconfig  | grep $1 | awk '{print $1;}'`
+  [ ! -z $IFACE ] && echo yes && return 0
+  echo no
+  return 1
+}
+
+bt_up()
+{
+  IFACE=`hciconfig  | grep hci0 | awk '{print $1;}'`
+  [ ! -z $IFACE ] && echo yes && return 0
+  echo no
+  return 1
+}
+
+bt_name()
+{
+  ISUP=`bt_up`;
+  [ $ISUP == "no" ] && return 0
+  CONTROLLER=$(bluetoothctl show | grep "Controller" | trim | cut -c 12-)
+  BTNAME=$(bluetoothctl show | grep "Name" | trim | cut -c 7-)
+  echo "$BTNAME ( $CONTROLLER )" 
+}
+wlan_on()
+{
+  IFACE=`ifconfig -a  | grep wlan0 | awk '{print $1;}'`
+  [ ! -z $IFACE ] && echo yes && return 0
+  echo no
+  return 1
+}
+
+configure()
+{
+  
+  echo SSID: $1 Pass $2
+  echo "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev" > /etc/wpa_supplicant.conf
+  echo "update_config=1" >> /etc/wpa_supplicant.conf
+
+  wpa_passphrase $1 $2 >> /etc/wpa_supplicant.conf
+}
+
+restart()
+{
+# ifconfig wlan0 down
+# ifconfig eth0 down
+#  ifconfig wlan0 up
+#  ifconfig eth0 up
+#/etc/autobleem/network-udev restart
+ killall wpa_supplicant
+ systemctl stop dhclient
+ systemctl start dhclient
+}
+
+show_ip()
+{
+  ifconfig $1 | grep "inet addr" | trim
+}
+
+driver_mode()
+{
+   if [ $1 == "wext" ]; then
+     cp -r /etc/autobleem/dhcpcd.conf.wext /etc/dhcpcd.conf
+   else
+     cp -r /etc/autobleem/dhcpcd.conf.nl80211 /etc/dhcpcd.conf
+   fi
+}
+
+case $1 in
+  list_ifaces|is_up|scan|configure|restart|show_ip|wlan_on|driver_mode|bt_up|bt_name) $1 $2 $3;;
+  *) echo "abnet (list_ifaces|is_up|scan|configure|restart|show_ip|wlan_on|driver_mode|bt_up|bt_name)" ;;
+esac

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+tzone()
+{
+  echo "New timezone: $1"
+  rm -rf /etc/localtime
+  ln -s /usr/share/zoneinfo/$1 /etc/localtime
+  echo "$1" > /etc/timezone 
+}
+
+update()
+{
+  TIME=$(ntpget)
+  echo Setting time to: $TIME
+  date +"%a %b %e %H:%M:%S %Y" -s "$TIME"
+  hwclock -w -l  
+}
+
+tz()
+{ 
+  cat /etc/timezone
+}
+
+case $1 in
+  tzone|update|tz) $1 $2 $3 ;;
+  *) echo "Usage: settime tzone TZNAME | update | tz" ;;
+esac

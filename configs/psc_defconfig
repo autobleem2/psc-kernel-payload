@@ -31,7 +31,15 @@ BR2_CCACHE=y
 # ---- System / init ----
 BR2_TARGET_GENERIC_HOSTNAME="PlayStationClassic"
 BR2_TARGET_GENERIC_ISSUE="AutoBleem"
-BR2_INIT_SYSTEMD=y
+# No init: the overlay is laid over the console's own root and must not bring one - BR2_INIT_SYSTEMD
+# forced merged /usr (bin, lib, sbin as symlinks, hiding the console's) and shipped its own systemd.
+# The console's systemd runs AutoBleem's units from board/psc/overlay (post-build.sh enables them).
+BR2_INIT_NONE=y
+# eudev only so BlueZ and hid2hci have libudev to build against - post-build.sh removes the daemon and
+# the library again; the console's systemd-udevd and libudev serve them at run time
+BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV=y
+# the overlayfs whiteouts that switch the console's syslog units off (board/psc/device_table.txt)
+BR2_ROOTFS_DEVICE_TABLE="system/device_table.txt $(BR2_EXTERNAL_PSC_PATH)/board/psc/device_table.txt"
 BR2_ROOTFS_OVERLAY="$(BR2_EXTERNAL_PSC_PATH)/board/psc/overlay"
 BR2_ROOTFS_POST_BUILD_SCRIPT="$(BR2_EXTERNAL_PSC_PATH)/board/psc/post-build.sh"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="$(BR2_EXTERNAL_PSC_PATH)/board/psc/post-image.sh"

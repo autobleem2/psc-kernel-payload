@@ -1,0 +1,36 @@
+#!/bin/bash
+
+
+LOG=/tmp/netlog.txt
+
+cleanup()
+{
+  killall udhcpc
+}
+
+start()
+{ 
+   udhcpc -i eth0 -n -t 3 -b
+   udhcpc -i wlan0 -t 5 -b /tmp/dhcp.wlan0.pid
+  
+}
+
+stop()
+{
+  cleanup
+}
+
+restart()
+{
+  stop
+  start
+}
+
+case $1 in
+  start|stop|restart) "$1" ;;
+  *) echo "dhcp (start|stop|restart)" ;;
+esac
+
+
+
+

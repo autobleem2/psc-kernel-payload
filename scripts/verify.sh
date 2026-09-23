@@ -56,16 +56,34 @@ echo ""
 echo "== overlay safety (must not break the console's root) =="
 unsafe=0
 if [ -f "${OUT}/abrootfs.tgz" ]; then
+	# its own listing: the coverage section above only makes one when the reference manifest is there
+	SAFE_LIST="$(mktemp)"
+	tar tzf "${OUT}/abrootfs.tgz" 2>/dev/null | sed 's#^\./##' | sort -u > "${SAFE_LIST}"
 	links="$(tar tvzf "${OUT}/abrootfs.tgz" 2>/dev/null | awk '$1 ~ /^l/ {print $6}' | sed 's#^\./##' | grep -xE 'bin|lib|lib32|sbin' || true)"
 	if [ -n "${links}" ]; then
 		echo "  [UNSAFE] top-level symlinks: $(echo ${links}) - they would hide the console's own directories"
 		unsafe=1
 	fi
-	inits="$(grep -E '(^|/)(systemd|systemd-udevd|init)$' /tmp/new.files 2>/dev/null | grep -vE '^etc/|/systemd/system$' || true)"
+	inits="$(grep -E '(^|/)(systemd|systemd-udevd|init)$' "${SAFE_LIST}" | grep -vE '^etc/|/systemd/system$' || true)"
 	if [ -n "${inits}" ]; then
 		echo "  [UNSAFE] an init system of its own: $(echo ${inits})"
 		unsafe=1
 	fi
-	[ "${unsafe}" = 0 ] && echo "  [ok ] no top-level symlinks, no init of its own"
+	# the console's own system: its /etc identity files, its D-Bus and its udev (post-build.sh removes them)
+	shadows="$(grep -xE 'etc/(passwd|group|fstab|nsswitch\.conf|profile|os-release|mtab)|(usr/)?s?bin/(dbus-daemon|udevd|udevadm)|(usr/)?lib/lib(dbus-1|udev)\.so.*|etc/dbus-1/(system|session)\.conf|linuxrc' "${SAFE_LIST}" || true)"
+	if [ -n "${shadows}" ]; then
+		echo "  [UNSAFE] files that would replace the console's own: $(echo ${shadows})"
+		unsafe=1
+	fi
+	# what the overlay switches on or off in the console's systemd: exactly the 2020 overlay's set (its units
+	# enabled, the syslog whiteouts) - anything else in etc/systemd/system would change the console's services
+	allowed='etc/systemd/system/(bluetooth\.target\.wants/bluetooth|dbus-org\.bluez|syslog|multi-user\.target\.wants/(autobleem|dhclient|inetd|busybox-syslog|busybox-klogd))\.service'
+	enabled="$(grep -E '^etc/systemd/system/.+\.(service|socket|target|timer|path|mount)$' "${SAFE_LIST}" | grep -vxE "${allowed}" || true)"
+	if [ -n "${enabled}" ]; then
+		echo "  [UNSAFE] units it would switch on in the console's systemd: $(echo ${enabled})"
+		unsafe=1
+	fi
+	[ "${unsafe}" = 0 ] && echo "  [ok ] no top-level symlinks, no init, nothing of the console's system shadowed or switched on"
+	rm -f "${SAFE_LIST}"
 fi
 exit "${unsafe}"

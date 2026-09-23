@@ -1,0 +1,14 @@
+[Unit]
+Description=USBWatcher
+After=powermanager.service
+
+[Service]
+;Type=oneshot
+Restart=on-failure
+ExecStart=/usr/bin/usb_watch
+User=root
+Group=root
+;StandardOutput=null
+
+[Install]
+WantedBy=multi-user.target

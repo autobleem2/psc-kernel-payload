@@ -134,14 +134,15 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
 - Docker image `autobleem-kernel-build` (docker/Dockerfile) now also carries `device-tree-compiler`.
 
 **To do:**
-0. **DO NOT FLASH the current output - the overlay is unsafe** (found 2026-09-23, the first CI build).
-   `BR2_INIT_SYSTEMD=y` forces Buildroot's merged /usr, so abrootfs.tgz has `bin`, `lib`, `lib32`, `sbin`
-   as SYMLINKS into usr/, and carries its own systemd, systemd-udevd and /usr/sbin/init. Laid over the
-   console's root, the upper-layer `/lib` symlink hides the console's real /lib (systemd, firmware, Sony's
-   libraries) and Buildroot's systemd would run as PID 1 - most likely a console that does not boot. The
-   shipped overlay has real bin/lib/sbin directories and no init (glibc + tools only). Fix: `BR2_INIT_NONE`
-   (which drops merged /usr), the few unit files it needs (bluetooth etc.) in `board/psc/overlay` - to-do 4.
-   `scripts/verify.sh` now fails the build (and CI) on either, so no artifact is published until then.
+0. **The overlay must only ADD to the console, never shadow it** (found 2026-09-23 on the first CI build,
+   fixed the same day, unflashed). The first build had `BR2_INIT_SYSTEMD=y`, which forced merged /usr:
+   `bin`/`lib`/`lib32`/`sbin` as symlinks into usr/ (laid over the console's root that hides its real /lib),
+   its own systemd/udevd/init, Buildroot's /etc identity files (passwd, group, fstab, ...), its own D-Bus
+   and udev daemons and libraries, and 16 systemd units enabled (networkd, resolved, timesyncd, ...). Now:
+   `BR2_INIT_NONE` (no merged /usr), eudev only at build time, and `board/psc/post-build.sh` removes
+   everything of the console's own system - the rule the 2020 overlay followed (glibc, BlueZ, tools,
+   AutoBleem's units; the console's dbus/udev/libudev serve them). `scripts/verify.sh` fails the build on
+   any symlinked top dir, init, shadowed system file or unit beyond the 2020 set - keep it that way.
 1. ~~Push the 3 kernel fixes to autobleem2/psc-kernel~~ - DONE 2026-09-23 (submodule pinned to them).
 2. **`next` variant**: run `build.sh -V next all`; validate `psc_next_defconfig` symbols against
    Buildroot 2024.02 (exfatprogs/pcre2 already set) and the sixaxis-on-newer-bluez behaviour.
@@ -149,11 +150,16 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
    `..._TOOLS_HID2HCI` build them (`/usr/bin/hciconfig`, `/usr/lib/udev/hid2hci`, + hcitool/l2ping).
    (The PSC-Bios pairing flow drives `bluetoothctl`, which was already present, so this is for HID-mode
    dongles; `docs/bt-pairing.md`.)
-4. **Populate `board/psc/overlay/`** with the AutoBleem-custom files ONLY (`etc/autobleem/*`, systemd
-   units, `bin/{abnet,start_pman,updaterootfs.sh,settime,ntpget}`, `etc/bluetooth/{main,input}.conf`,
-   `etc/dhcpcd.conf`); NOT the `etc/bluetooth/bluetoothd/<MAC>/` dev pairing state (post-build.sh
-   strips it). `abnet`/`start_pman` sources aren't in the archive — ship prebuilt until located.
-   Note Buildroot's `/usr` layout (wpa_supplicant at `/usr/sbin`, etc.) vs the old merged `/bin`.
+4. ~~Populate `board/psc/overlay/`~~ - DONE 2026-09-23 from the shipped abrootfs.tgz: `etc/autobleem/*`,
+   the units (`lib/systemd/system/{autobleem,dhclient,inetd,usbwatch}.service`,
+   `usr/lib/systemd/system/bluetooth.service`; post-build.sh makes the `.wants` links, `device_table.txt`
+   the three syslog whiteouts), `bin/{abnet,start_pman,updaterootfs.sh,settime,ntpget}`,
+   `usr/bin/start_pman`, `sbin/dhclient-script`, `etc/bluetooth/{main,input}.conf`, `etc/dhcpcd.conf`,
+   `etc/{hostname,inetd.conf,resolv.conf}`, `etc/systemd/{journald,system}.conf` (volatile journal).
+   Left out on purpose: `etc/dropbear_key` (one private SSH host key shared by every console - `rndis` now
+   makes a per-console key with `dropbear -R`), `etc/shadow` (a root password hash replacing the console's -
+   the owner's call), the dev console's `home/root` histories and Bluetooth pairings, `hwdb.bin`.
+   `ntpget` is the one prebuilt binary (its source was never found).
 5. **Hardware test** — NOTHING here has booted on a console yet. The kernel is the same source +
    config, so it should, but it is unverified. Flash via abflashkit with an LBOOT.EPB backup ready.
 6. Out-of-tree modern USB-WiFi drivers (8812au/8821cu/88x2bu/mt76) as vendored kernel trees (the big

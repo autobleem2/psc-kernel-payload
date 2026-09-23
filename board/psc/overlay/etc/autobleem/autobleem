@@ -1,0 +1,26 @@
+PWD=/etc/autobleem
+
+# ITS SAFE WE ARE IN OVERLAY
+mount -o remount,rw /
+mount -o remount,rw /data
+mkdir -p /var/lib/bluetooth
+mount --bind /etc/bluetooth/bluetoothd /var/lib/bluetooth
+
+start() {
+  $PWD/modules start 
+  $PWD/rndis start     
+  systemctl restart bluetooth
+  #rm -rf /var/lib/bluetooth
+  #ln -s /etc/bluetooth/bluetoothd /var/lib/bluetooth
+}
+
+stop() {
+  $PWD/modules stop
+  $PWD/rndis stop
+  systemctl stop bluetooth
+  }
+
+
+case $1 in
+  start|stop) "$1" ;;
+esac

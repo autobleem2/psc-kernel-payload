@@ -1,0 +1,12 @@
+[Unit]
+Description=AutoBleem RNDIS starter
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /etc/autobleem/autobleem start
+ExecStop=/bin/bash /etc/autobleem/autobleem stop
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+
