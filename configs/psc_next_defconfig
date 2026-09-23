@@ -73,6 +73,12 @@ BR2_PACKAGE_LIBNL=y
 BR2_PACKAGE_DHCPCD=y
 BR2_PACKAGE_WIRELESS_TOOLS=y
 BR2_PACKAGE_WIRELESS_TOOLS_LIB=y
+# curl over OpenSSL with the Mozilla CA bundle: the launcher's online update fetches the channel's
+# catalog and stick package with it (psc.ini update_download_command) - 2026-09-23
+BR2_PACKAGE_LIBCURL=y
+BR2_PACKAGE_LIBCURL_CURL=y
+BR2_PACKAGE_LIBCURL_OPENSSL=y
+BR2_PACKAGE_CA_CERTIFICATES=y
 
 # ---- Filesystems (exfatprogs replaces exfat-utils on modern Buildroot) ----
 BR2_PACKAGE_NTFS_3G=y
