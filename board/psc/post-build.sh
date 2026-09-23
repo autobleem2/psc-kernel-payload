@@ -33,24 +33,10 @@ for f in bin/updaterootfs.sh bin/settime bin/ntpget bin/abnet bin/start_pman usr
 	[ -f "${TARGET_DIR}/${f}" ] && chmod +x "${TARGET_DIR}/${f}" || true
 done
 
-# The overlay is laid over the console's own root, so it ADDS tools and must not shadow the console's
-# system: the 2020 overlay carried glibc, BlueZ, WiFi tools and AutoBleem's own units - never an init,
-# D-Bus, udev or the console's /etc files. Buildroot's skeleton and the daemons BlueZ pulls in go; the
-# tools that link libdbus/libudev use the console's (stable sonames). scripts/verify.sh checks the result.
+# What of Buildroot's must NOT reach the console (its skeleton /etc, D-Bus and udev) is removed in
+# post-fakeroot.sh, not here: Buildroot's user and device tables - packages add entries of their own, D-Bus
+# its launch helper's permissions - are applied after this script and fail on a file that is gone.
 cd "${TARGET_DIR}"
-rm -f  linuxrc init sbin/init lib32
-# (etc/passwd and etc/group too, but in post-fakeroot.sh: Buildroot's users/device tables still need them)
-rm -f  etc/fstab etc/hosts etc/os-release etc/profile etc/nsswitch.conf etc/mtab \
-       etc/shells etc/issue etc/inittab usr/lib/os-release
-rm -rf etc/profile.d etc/init.d etc/network
-# D-Bus: the console's bus serves bluetoothd; keep only BlueZ's bus policy
-rm -f  usr/bin/dbus-* usr/libexec/dbus-daemon-launch-helper lib/libdbus-1.so* usr/lib/libdbus-1.so*
-rm -f  etc/dbus-1/system.conf etc/dbus-1/session.conf usr/share/dbus-1/system.conf usr/share/dbus-1/session.conf
-# udev (eudev, built so hid2hci and BlueZ have libudev to link against): the console's systemd-udevd
-# runs; keep only BlueZ's rule and helper
-rm -f  sbin/udevd bin/udevadm sbin/udevadm usr/bin/udevadm lib/libudev.so* usr/lib/libudev.so* etc/udev/udev.conf
-find lib/udev/rules.d usr/lib/udev/rules.d -type f ! -name '97-hid2hci.rules' -delete 2>/dev/null || true
-rm -rf etc/udev/hwdb.d lib/udev/hwdb.d usr/lib/udev/hwdb.d
 
 # AutoBleem's units, enabled as the 2020 overlay enabled them (symlinks cannot live in a Windows checkout;
 # the three syslog whiteouts are character devices - board/psc/device_table.txt)
