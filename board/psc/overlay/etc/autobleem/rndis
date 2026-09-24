@@ -14,7 +14,10 @@ busybox hostname autobleem
   # for every console, which must never be published
   mkdir -p /etc/dropbear
   dropbear -R -a
-  tcpsvd -vE 0.0.0.0 21 ftpd -w /
+  # the FTP server in the background: in the foreground (as in 2020) start() never returned, so
+  # etc/autobleem/autobleem never reached `systemctl restart bluetooth` and autobleem.service (oneshot)
+  # stayed "activating" for the whole session
+  tcpsvd -vE 0.0.0.0 21 ftpd -w / &
 }
 
  
