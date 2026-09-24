@@ -63,7 +63,8 @@ BR2_PACKAGE_BLUEZ5_UTILS_CLIENT=y                 # bluetoothctl
 BR2_PACKAGE_BLUEZ5_UTILS_TOOLS=y                  # hciconfig, hcitool, l2ping ...
 BR2_PACKAGE_BLUEZ5_UTILS_TOOLS_HID2HCI=y          # hid2hci: switch HID-mode BT dongles to HCI
 BR2_PACKAGE_BLUEZ5_UTILS_DEPRECATED=y             # the deprecated tools (needs CLIENT or TOOLS)
-BR2_PACKAGE_BLUEZ5_UTILS_EXPERIMENTAL=y           # btmon etc
+BR2_PACKAGE_BLUEZ5_UTILS_EXPERIMENTAL=y
+BR2_PACKAGE_BLUEZ5_UTILS_MONITOR=y                # btmon (the 2020 overlay had it)
 BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_SIXAXIS=y        # DualShock 3 pairing (patched)
 
 # ---- WiFi / networking ----
@@ -108,6 +109,7 @@ BR2_PACKAGE_FILE=y
 BR2_PACKAGE_DROPBEAR=y
 BR2_PACKAGE_DROPBEAR_CLIENT=y
 BR2_PACKAGE_BUSYBOX_SHOW_OTHERS=y
+BR2_PACKAGE_BUSYBOX_CONFIG_FRAGMENT_FILES="$(BR2_EXTERNAL_PSC_PATH)/board/psc/busybox.fragment"  # tcpsvd, ftpd, telnetd, tftpd: the 2020 applets
 
 # ---- Firmware for USB WiFi/BT dongles (kernel modules already built) ----
 BR2_PACKAGE_LINUX_FIRMWARE=y

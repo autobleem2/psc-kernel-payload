@@ -1,0 +1,2585 @@
+# the stock PlayStation Classic root (ROOTFS1, md5 ca710a128b7da4a23ace840c9d16e745) - scripts/console-rootfs-list.py
+d	bin
+l	bin/ash	/bin/busybox.nosuid
+f	bin/bash
+l	bin/busybox	busybox.nosuid
+f	bin/busybox.nosuid
+f	bin/busybox.suid
+l	bin/cat	/bin/cat.coreutils
+f	bin/cat.coreutils
+l	bin/chattr	/bin/chattr.e2fsprogs
+f	bin/chattr.e2fsprogs
+l	bin/chgrp	/bin/chgrp.coreutils
+f	bin/chgrp.coreutils
+l	bin/chmod	/bin/chmod.coreutils
+f	bin/chmod.coreutils
+l	bin/chown	/bin/chown.coreutils
+f	bin/chown.coreutils
+f	bin/cover.png
+l	bin/cp	/bin/cp.coreutils
+f	bin/cp.coreutils
+l	bin/cpio	/bin/busybox.nosuid
+l	bin/date	/bin/date.coreutils
+f	bin/date.coreutils
+l	bin/dd	/bin/dd.coreutils
+f	bin/dd.coreutils
+l	bin/df	/bin/busybox.nosuid
+l	bin/dmesg	/bin/busybox.nosuid
+l	bin/dnsdomainname	/bin/busybox.nosuid
+l	bin/dumpkmap	/bin/busybox.nosuid
+l	bin/echo	/bin/echo.coreutils
+f	bin/echo.coreutils
+l	bin/egrep	/bin/busybox.nosuid
+l	bin/false	/bin/false.coreutils
+f	bin/false.coreutils
+l	bin/fgrep	/bin/busybox.nosuid
+l	bin/getopt	/bin/busybox.nosuid
+l	bin/grep	/bin/busybox.nosuid
+l	bin/gunzip	/bin/busybox.nosuid
+l	bin/gzip	/bin/busybox.nosuid
+l	bin/hostname	/bin/busybox.nosuid
+f	bin/hostname.coreutils
+f	bin/journalctl
+l	bin/kill	/bin/kill.coreutils
+f	bin/kill.coreutils
+f	bin/klogd-start
+f	bin/kmod
+l	bin/ln	/bin/ln.coreutils
+f	bin/ln.coreutils
+l	bin/login	/bin/login.shadow
+f	bin/login.shadow
+f	bin/loginctl
+l	bin/ls	/bin/ls.coreutils
+f	bin/ls.coreutils
+l	bin/lsmod	/bin/lsmod.kmod
+l	bin/lsmod.kmod	kmod
+f	bin/mdlogctl
+l	bin/mkdir	/bin/mkdir.coreutils
+f	bin/mkdir.coreutils
+l	bin/mknod	/bin/mknod.coreutils
+f	bin/mknod.coreutils
+l	bin/mktemp	/bin/busybox.nosuid
+l	bin/more	/bin/busybox.nosuid
+l	bin/mount	/bin/mount.util-linux
+f	bin/mount.util-linux
+l	bin/mv	/bin/mv.coreutils
+f	bin/mv.coreutils
+l	bin/netstat	/bin/busybox.nosuid
+l	bin/pidof	/bin/busybox.nosuid
+l	bin/ping	/bin/busybox.suid
+f	bin/power_manage
+f	bin/power_manage_test
+l	bin/ps	/bin/busybox.nosuid
+l	bin/pwd	/bin/pwd.coreutils
+f	bin/pwd.coreutils
+l	bin/rm	/bin/rm.coreutils
+f	bin/rm.coreutils
+l	bin/rmdir	/bin/rmdir.coreutils
+f	bin/rmdir.coreutils
+l	bin/run-parts	/bin/busybox.nosuid
+l	bin/sed	/bin/busybox.nosuid
+l	bin/sh	/bin/bash
+l	bin/sleep	/bin/sleep.coreutils
+f	bin/sleep.coreutils
+l	bin/stat	/bin/stat.coreutils
+f	bin/stat.coreutils
+l	bin/stty	/bin/stty.coreutils
+f	bin/stty.coreutils
+l	bin/su	/bin/su.shadow
+f	bin/su.shadow
+f	bin/surface
+l	bin/sync	/bin/sync.coreutils
+f	bin/sync.coreutils
+f	bin/syslog-start
+f	bin/syslogctl
+f	bin/systemctl
+f	bin/systemd-ask-password
+f	bin/systemd-escape
+f	bin/systemd-firstboot
+f	bin/systemd-inhibit
+f	bin/systemd-machine-id-setup
+f	bin/systemd-notify
+f	bin/systemd-tmpfiles
+f	bin/systemd-tty-ask-password-agent
+l	bin/tar	/bin/busybox.nosuid
+f	bin/tcpdump-start
+l	bin/touch	/bin/touch.coreutils
+f	bin/touch.coreutils
+l	bin/true	/bin/true.coreutils
+f	bin/true.coreutils
+f	bin/udevadm
+l	bin/umount	/bin/busybox.nosuid
+l	bin/uname	/bin/uname.coreutils
+f	bin/uname.coreutils
+f	bin/upgrade_app
+l	bin/usleep	/bin/busybox.nosuid
+l	bin/vi	/bin/busybox.nosuid
+l	bin/watch	/bin/busybox.nosuid
+l	bin/zcat	/bin/busybox.nosuid
+d	boot
+d	data
+d	dev
+d	etc
+d	etc/.tp
+f	etc/.tp/thermal.conf
+f	etc/.tp/thermal.conf.orig
+f	etc/busybox.links.nosuid
+f	etc/busybox.links.suid
+f	etc/data-ubi-mnt.sh
+d	etc/dbus-1
+f	etc/dbus-1/session.conf
+f	etc/dbus-1/system.conf
+d	etc/dbus-1/system.d
+f	etc/dbus-1/system.d/org.freedesktop.login1.conf
+f	etc/dbus-1/system.d/org.freedesktop.systemd1.conf
+f	etc/dbus-1/system.d/org.freedesktop.timedate1.conf
+d	etc/default
+f	etc/default/busybox-syslog
+f	etc/default/usbd
+d	etc/default/volatiles
+f	etc/default/volatiles/99_dbus
+f	etc/default/volatiles/99_pam
+d	etc/depmod.d
+f	etc/environment
+f	etc/filesystems
+d	etc/fonts
+d	etc/fonts/conf.d
+l	etc/fonts/conf.d/10-hinting-slight.conf	/usr/share/fontconfig/conf.avail/10-hinting-slight.conf
+l	etc/fonts/conf.d/10-scale-bitmap-fonts.conf	/usr/share/fontconfig/conf.avail/10-scale-bitmap-fonts.conf
+l	etc/fonts/conf.d/20-unhint-small-vera.conf	/usr/share/fontconfig/conf.avail/20-unhint-small-vera.conf
+f	etc/fonts/conf.d/30-liberation-aliases.conf
+l	etc/fonts/conf.d/30-metric-aliases.conf	/usr/share/fontconfig/conf.avail/30-metric-aliases.conf
+l	etc/fonts/conf.d/30-urw-aliases.conf	/usr/share/fontconfig/conf.avail/30-urw-aliases.conf
+l	etc/fonts/conf.d/40-nonlatin.conf	/usr/share/fontconfig/conf.avail/40-nonlatin.conf
+l	etc/fonts/conf.d/45-latin.conf	/usr/share/fontconfig/conf.avail/45-latin.conf
+l	etc/fonts/conf.d/49-sansserif.conf	/usr/share/fontconfig/conf.avail/49-sansserif.conf
+l	etc/fonts/conf.d/50-user.conf	/usr/share/fontconfig/conf.avail/50-user.conf
+l	etc/fonts/conf.d/51-local.conf	/usr/share/fontconfig/conf.avail/51-local.conf
+l	etc/fonts/conf.d/60-latin.conf	/usr/share/fontconfig/conf.avail/60-latin.conf
+l	etc/fonts/conf.d/65-fonts-persian.conf	/usr/share/fontconfig/conf.avail/65-fonts-persian.conf
+l	etc/fonts/conf.d/65-nonlatin.conf	/usr/share/fontconfig/conf.avail/65-nonlatin.conf
+l	etc/fonts/conf.d/69-unifont.conf	/usr/share/fontconfig/conf.avail/69-unifont.conf
+l	etc/fonts/conf.d/80-delicious.conf	/usr/share/fontconfig/conf.avail/80-delicious.conf
+l	etc/fonts/conf.d/90-synthetic.conf	/usr/share/fontconfig/conf.avail/90-synthetic.conf
+f	etc/fonts/conf.d/README
+f	etc/fonts/fonts.conf
+f	etc/fstab
+f	etc/group
+f	etc/group-
+f	etc/gshadow
+f	etc/gshadow-
+f	etc/host.conf
+f	etc/hostname
+f	etc/hosts
+f	etc/issue
+f	etc/issue.net
+f	etc/ld.so.cache
+f	etc/ld.so.conf
+l	etc/localtime	../usr/share/zoneinfo/UTC
+f	etc/login.defs
+f	etc/machine-id
+f	etc/mke2fs.conf
+d	etc/modprobe.d
+d	etc/modules-load.d
+f	etc/modules-load.d/fuse.conf
+f	etc/motd
+l	etc/mtab	../proc/self/mounts
+f	etc/nsswitch.conf
+f	etc/os-release
+d	etc/pam.d
+f	etc/pam.d/common-account
+f	etc/pam.d/common-auth
+f	etc/pam.d/common-password
+f	etc/pam.d/common-session
+f	etc/pam.d/common-session-noninteractive
+f	etc/pam.d/login
+f	etc/pam.d/other
+f	etc/pam.d/su
+f	etc/pam.d/systemd-user
+f	etc/passwd
+f	etc/passwd-
+f	etc/profile
+d	etc/profile.d
+f	etc/profile.d/gnupg.sh
+f	etc/profile.d/weston.sh
+f	etc/protocols
+l	etc/resolv.conf	../run/resolv.conf
+f	etc/rpc
+d	etc/rpm
+f	etc/rpm/platform
+d	etc/rpm/sysinfo
+f	etc/rpm/sysinfo/Dirnames
+f	etc/securetty
+d	etc/security
+f	etc/security/access.conf
+f	etc/security/group.conf
+f	etc/security/limits.conf
+d	etc/security/limits.d
+f	etc/security/namespace.conf
+d	etc/security/namespace.d
+f	etc/security/namespace.init
+f	etc/security/pam_env.conf
+f	etc/security/time.conf
+f	etc/services
+f	etc/shadow
+f	etc/shadow-
+f	etc/shells
+f	etc/sic.db
+d	etc/skel
+f	etc/skel/.bashrc
+f	etc/skel/.profile
+d	etc/ssl
+d	etc/ssl/certs
+f	etc/ssl/openssl.cnf
+d	etc/ssl/private
+d	etc/sysctl.d
+f	etc/syslog.conf
+f	etc/syslog.conf.busybox
+d	etc/systemd
+f	etc/systemd/coredump.conf
+f	etc/systemd/journald.conf
+f	etc/systemd/logind.conf
+d	etc/systemd/network
+d	etc/systemd/system
+f	etc/systemd/system.conf
+l	etc/systemd/system/default.target	/lib/systemd/system/multi-user.target
+d	etc/systemd/system/getty.target.wants
+l	etc/systemd/system/getty.target.wants/getty@tty1.service	../../../../lib/systemd/system/getty@.service
+l	etc/systemd/system/getty.target.wants/serial-getty@ttyMT0.service	/lib/systemd/system/serial-getty@.service
+d	etc/systemd/system/local-fs.target.wants
+l	etc/systemd/system/local-fs.target.wants/var-volatile-lib.service	/lib/systemd/system/var-volatile-lib.service
+d	etc/systemd/system/multi-user.target.wants
+l	etc/systemd/system/multi-user.target.wants/busybox-klogd.service	/lib/systemd/system/busybox-klogd.service
+l	etc/systemd/system/multi-user.target.wants/busybox-syslog.service	/lib/systemd/system/busybox-syslog.service
+l	etc/systemd/system/multi-user.target.wants/powermanage.service	/lib/systemd/system/powermanage.service
+l	etc/systemd/system/multi-user.target.wants/remote-fs.target	../../../../lib/systemd/system/remote-fs.target
+l	etc/systemd/system/multi-user.target.wants/sonyapp.service	/lib/systemd/system/sonyapp.service
+l	etc/systemd/system/multi-user.target.wants/tcpdump.service	/lib/systemd/system/tcpdump.service
+l	etc/systemd/system/multi-user.target.wants/thermal-manager.service	/lib/systemd/system/thermal-manager.service
+l	etc/systemd/system/multi-user.target.wants/usbwatch.service	/lib/systemd/system/usbwatch.service
+d	etc/systemd/system/sysinit.target.wants
+l	etc/systemd/system/sysinit.target.wants/mdpd.service	/lib/systemd/system/mdpd.service
+l	etc/systemd/system/sysinit.target.wants/systemd-timesyncd.service	../../../../lib/systemd/system/systemd-timesyncd.service
+l	etc/systemd/system/sysinit.target.wants/vpud.service	/lib/systemd/system/vpud.service
+l	etc/systemd/system/syslog.service	/lib/systemd/system/busybox-syslog.service
+d	etc/systemd/system/systemd-random-seed.service.wants
+l	etc/systemd/system/systemd-random-seed.service.wants/var-volatile-lib.service	/lib/systemd/system/var-volatile-lib.service
+f	etc/systemd/timesyncd.conf
+d	etc/systemd/user
+f	etc/systemd/user.conf
+d	etc/terminfo
+d	etc/terminfo/a
+f	etc/terminfo/a/ansi
+d	etc/terminfo/d
+f	etc/terminfo/d/dumb
+d	etc/terminfo/l
+f	etc/terminfo/l/linux
+d	etc/terminfo/r
+f	etc/terminfo/r/rxvt
+d	etc/terminfo/s
+f	etc/terminfo/s/screen
+f	etc/terminfo/s/screen-256color
+f	etc/terminfo/s/sun
+d	etc/terminfo/v
+f	etc/terminfo/v/vt100
+f	etc/terminfo/v/vt102
+f	etc/terminfo/v/vt200
+f	etc/terminfo/v/vt220
+f	etc/terminfo/v/vt52
+d	etc/terminfo/x
+l	etc/terminfo/x/xterm	xterm-color
+f	etc/terminfo/x/xterm-256color
+f	etc/terminfo/x/xterm-color
+f	etc/terminfo/x/xterm-xfree86
+d	etc/thermal
+f	etc/thermal/thermal.conf
+f	etc/thermal/thermal.conf.orig
+f	etc/timestamp
+d	etc/tmpfiles.d
+f	etc/tmpfiles.d/00-create-volatile.conf
+d	etc/udev
+d	etc/udev/rules.d
+f	etc/udev/rules.d/20-joystick.rules
+f	etc/udev/rules.d/99-fuse.rules
+f	etc/udev/rules.d/expand-fs-to-whole-partition-eMMC.rules
+f	etc/udev/rules.d/touchscreen.rules
+f	etc/udev/udev.conf
+d	etc/udhcpc.d
+f	etc/udhcpc.d/50default
+f	etc/upg_pubk.pem
+f	etc/version
+d	etc/versions
+f	etc/versions/target
+f	etc/versions/variant
+d	etc/xdg
+d	etc/xdg/systemd
+l	etc/xdg/systemd/user	../../systemd/user
+d	etc/xdg/weston
+f	etc/xdg/weston/weston.ini
+d	gaadata
+d	home
+d	home/root
+f	home/root/.drirc
+d	home/root/.gnupg
+d	home/root/.gnupg.orig
+f	home/root/.gnupg.orig/pubring.gpg
+f	home/root/.gnupg.orig/secring.gpg
+f	home/root/.gnupg/pass
+f	home/root/.gnupg/pubring.gpg
+f	home/root/.gnupg/pubring.gpg~
+f	home/root/.gnupg/random_seed
+f	home/root/.gnupg/secring.gpg
+f	home/root/.gnupg/siescph1000-sieupdate3@sieupdate3.sony.com-signed.gpg
+f	home/root/.gnupg/siescph1000-sieupdate4@sieupdate4.sony.com-signed.gpg
+f	home/root/.gnupg/siescph1000-sieupdate5@sieupdate5.sony.com-signed.gpg
+f	home/root/.gnupg/siescph1000-sieupdate6@sieupdate6.sony.com-signed.gpg
+f	home/root/.gnupg/siescph1000-sieupdate7@sieupdate7.sony.com-signed.gpg
+f	home/root/.gnupg/siescph1000-sieupdate8@sieupdate8.sony.com-signed.gpg
+f	home/root/.gnupg/siescph1000.gpg
+f	home/root/.gnupg/trustdb.gpg
+d	lib
+d	lib/depmod.d
+f	lib/depmod.d/search.conf
+d	lib/firmware
+f	lib/firmware/rgx.fw.22.40.54.30
+f	lib/ld-2.24.so
+l	lib/ld-linux-armhf.so.3	ld-2.24.so
+f	lib/libBrokenLocale-2.24.so
+l	lib/libBrokenLocale.so.1	libBrokenLocale-2.24.so
+f	lib/libanl-2.24.so
+l	lib/libanl.so.1	libanl-2.24.so
+l	lib/libblkid.so.1	libblkid.so.1.1.0
+f	lib/libblkid.so.1.1.0
+f	lib/libc-2.24.so
+l	lib/libc.so.6	libc-2.24.so
+l	lib/libcap.so.2	libcap.so.2.25
+f	lib/libcap.so.2.25
+l	lib/libcom_err.so.2	libcom_err.so.2.1
+f	lib/libcom_err.so.2.1
+f	lib/libcrypt-2.24.so
+l	lib/libcrypt.so.1	libcrypt-2.24.so
+f	lib/libdl-2.24.so
+l	lib/libdl.so.2	libdl-2.24.so
+l	lib/libe2p.so.2	libe2p.so.2.3
+f	lib/libe2p.so.2.3
+l	lib/libext2fs.so.2	libext2fs.so.2.4
+f	lib/libext2fs.so.2.4
+f	lib/libgcc_s.so.1
+f	lib/libm-2.24.so
+l	lib/libm.so.6	libm-2.24.so
+l	lib/libmount.so.1	libmount.so.1.1.0
+f	lib/libmount.so.1.1.0
+l	lib/libncursesw.so.5	libncursesw.so.5.9
+f	lib/libncursesw.so.5.9
+f	lib/libnsl-2.24.so
+l	lib/libnsl.so.1	libnsl-2.24.so
+f	lib/libnss_compat-2.24.so
+l	lib/libnss_compat.so.2	libnss_compat-2.24.so
+f	lib/libnss_dns-2.24.so
+l	lib/libnss_dns.so.2	libnss_dns-2.24.so
+f	lib/libnss_files-2.24.so
+l	lib/libnss_files.so.2	libnss_files-2.24.so
+l	lib/libpam.so.0	libpam.so.0.84.2
+f	lib/libpam.so.0.84.2
+l	lib/libpam_misc.so.0	libpam_misc.so.0.82.1
+f	lib/libpam_misc.so.0.82.1
+l	lib/libpamc.so.0	libpamc.so.0.82.1
+f	lib/libpamc.so.0.82.1
+f	lib/libpthread-2.24.so
+l	lib/libpthread.so.0	libpthread-2.24.so
+f	lib/libresolv-2.24.so
+l	lib/libresolv.so.2	libresolv-2.24.so
+f	lib/librt-2.24.so
+l	lib/librt.so.1	librt-2.24.so
+l	lib/libss.so.2	libss.so.2.0
+f	lib/libss.so.2.0
+l	lib/libsystemd.so.0	libsystemd.so.0.14.0
+f	lib/libsystemd.so.0.14.0
+l	lib/libtinfo.so.5	libtinfo.so.5.9
+f	lib/libtinfo.so.5.9
+l	lib/libudev.so.1	libudev.so.1.6.4
+f	lib/libudev.so.1.6.4
+f	lib/libutil-2.24.so
+l	lib/libutil.so.1	libutil-2.24.so
+l	lib/libuuid.so.1	libuuid.so.1.3.0
+f	lib/libuuid.so.1.3.0
+l	lib/libz.so.1	libz.so.1.2.8
+f	lib/libz.so.1.2.8
+d	lib/modprobe.d
+d	lib/security
+f	lib/security/pam_cap.so
+f	lib/security/pam_deny.so
+f	lib/security/pam_env.so
+f	lib/security/pam_faildelay.so
+f	lib/security/pam_group.so
+f	lib/security/pam_lastlog.so
+f	lib/security/pam_limits.so
+f	lib/security/pam_mail.so
+f	lib/security/pam_motd.so
+f	lib/security/pam_nologin.so
+f	lib/security/pam_permit.so
+f	lib/security/pam_rootok.so
+f	lib/security/pam_securetty.so
+f	lib/security/pam_shells.so
+f	lib/security/pam_systemd.so
+f	lib/security/pam_unix.so
+f	lib/security/pam_warn.so
+d	lib/systemd
+d	lib/systemd/network
+f	lib/systemd/network/80-container-host0.network
+f	lib/systemd/network/80-container-ve.network
+f	lib/systemd/network/99-default.link
+d	lib/systemd/system
+d	lib/systemd/system-generators
+f	lib/systemd/system-generators/systemd-dbus1-generator
+f	lib/systemd/system-generators/systemd-debug-generator
+f	lib/systemd/system-generators/systemd-fstab-generator
+f	lib/systemd/system-generators/systemd-getty-generator
+f	lib/systemd/system-generators/systemd-gpt-auto-generator
+f	lib/systemd/system-generators/systemd-hibernate-resume-generator
+f	lib/systemd/system-generators/systemd-rc-local-generator
+f	lib/systemd/system-generators/systemd-system-update-generator
+f	lib/systemd/system-generators/systemd-sysv-generator
+d	lib/systemd/system-preset
+f	lib/systemd/system-preset/90-systemd.preset
+d	lib/systemd/system-shutdown
+d	lib/systemd/system-sleep
+f	lib/systemd/system/-.slice
+f	lib/systemd/system/alsa-restore.service
+f	lib/systemd/system/alsa-state.service
+l	lib/systemd/system/autovt@.service	getty@.service
+f	lib/systemd/system/basic.target
+d	lib/systemd/system/basic.target.wants
+l	lib/systemd/system/basic.target.wants/alsa-restore.service	../alsa-restore.service
+l	lib/systemd/system/basic.target.wants/alsa-state.service	../alsa-state.service
+f	lib/systemd/system/bluetooth.target
+f	lib/systemd/system/busnames.target
+d	lib/systemd/system/busnames.target.wants
+l	lib/systemd/system/busnames.target.wants/org.freedesktop.login1.busname	../org.freedesktop.login1.busname
+l	lib/systemd/system/busnames.target.wants/org.freedesktop.systemd1.busname	../org.freedesktop.systemd1.busname
+l	lib/systemd/system/busnames.target.wants/org.freedesktop.timedate1.busname	../org.freedesktop.timedate1.busname
+f	lib/systemd/system/busybox-klogd.service
+f	lib/systemd/system/busybox-syslog.service
+f	lib/systemd/system/console-getty.service
+f	lib/systemd/system/console-shell.service
+f	lib/systemd/system/container-getty@.service
+l	lib/systemd/system/ctrl-alt-del.target	reboot.target
+l	lib/systemd/system/dbus-org.freedesktop.login1.service	systemd-logind.service
+l	lib/systemd/system/dbus-org.freedesktop.timedate1.service	systemd-timedated.service
+f	lib/systemd/system/dbus.service
+f	lib/systemd/system/dbus.socket
+d	lib/systemd/system/dbus.target.wants
+l	lib/systemd/system/dbus.target.wants/dbus.socket	../dbus.socket
+f	lib/systemd/system/debug-shell.service
+l	lib/systemd/system/default.target	graphical.target
+f	lib/systemd/system/dev-hugepages.mount
+f	lib/systemd/system/dev-mqueue.mount
+f	lib/systemd/system/emergency.service
+f	lib/systemd/system/emergency.target
+f	lib/systemd/system/exit.target
+f	lib/systemd/system/final.target
+f	lib/systemd/system/getty.target
+f	lib/systemd/system/getty@.service
+f	lib/systemd/system/graphical.target
+d	lib/systemd/system/graphical.target.wants
+l	lib/systemd/system/graphical.target.wants/systemd-update-utmp-runlevel.service	../systemd-update-utmp-runlevel.service
+f	lib/systemd/system/halt-local.service
+f	lib/systemd/system/halt.target
+f	lib/systemd/system/hibernate.target
+f	lib/systemd/system/hybrid-sleep.target
+f	lib/systemd/system/initrd-cleanup.service
+f	lib/systemd/system/initrd-fs.target
+f	lib/systemd/system/initrd-parse-etc.service
+f	lib/systemd/system/initrd-root-fs.target
+f	lib/systemd/system/initrd-switch-root.service
+f	lib/systemd/system/initrd-switch-root.target
+f	lib/systemd/system/initrd-udevadm-cleanup-db.service
+f	lib/systemd/system/initrd.target
+f	lib/systemd/system/kexec.target
+f	lib/systemd/system/ldconfig.service
+f	lib/systemd/system/local-fs-pre.target
+f	lib/systemd/system/local-fs.target
+d	lib/systemd/system/local-fs.target.wants
+l	lib/systemd/system/local-fs.target.wants/systemd-remount-fs.service	../systemd-remount-fs.service
+l	lib/systemd/system/local-fs.target.wants/tmp.mount	../tmp.mount
+l	lib/systemd/system/local-fs.target.wants/var-lib-machines.mount	../var-lib-machines.mount
+f	lib/systemd/system/machines.target
+f	lib/systemd/system/mdpd.service
+f	lib/systemd/system/multi-user.target
+d	lib/systemd/system/multi-user.target.wants
+l	lib/systemd/system/multi-user.target.wants/dbus.service	../dbus.service
+l	lib/systemd/system/multi-user.target.wants/getty.target	../getty.target
+l	lib/systemd/system/multi-user.target.wants/systemd-ask-password-wall.path	../systemd-ask-password-wall.path
+l	lib/systemd/system/multi-user.target.wants/systemd-logind.service	../systemd-logind.service
+l	lib/systemd/system/multi-user.target.wants/systemd-update-utmp-runlevel.service	../systemd-update-utmp-runlevel.service
+l	lib/systemd/system/multi-user.target.wants/systemd-user-sessions.service	../systemd-user-sessions.service
+f	lib/systemd/system/network-online.target
+f	lib/systemd/system/network-pre.target
+f	lib/systemd/system/network.target
+f	lib/systemd/system/nss-lookup.target
+f	lib/systemd/system/nss-user-lookup.target
+f	lib/systemd/system/org.freedesktop.login1.busname
+f	lib/systemd/system/org.freedesktop.systemd1.busname
+f	lib/systemd/system/org.freedesktop.timedate1.busname
+f	lib/systemd/system/paths.target
+f	lib/systemd/system/powermanage.service
+f	lib/systemd/system/poweroff.target
+d	lib/systemd/system/poweroff.target.wants
+l	lib/systemd/system/poweroff.target.wants/systemd-update-utmp-runlevel.service	../systemd-update-utmp-runlevel.service
+f	lib/systemd/system/printer.target
+f	lib/systemd/system/quotaon.service
+f	lib/systemd/system/rc-local.service
+f	lib/systemd/system/reboot.target
+d	lib/systemd/system/reboot.target.wants
+l	lib/systemd/system/reboot.target.wants/systemd-update-utmp-runlevel.service	../systemd-update-utmp-runlevel.service
+f	lib/systemd/system/remote-fs-pre.target
+f	lib/systemd/system/remote-fs.target
+f	lib/systemd/system/rescue.service
+f	lib/systemd/system/rescue.target
+d	lib/systemd/system/rescue.target.wants
+l	lib/systemd/system/rescue.target.wants/systemd-update-utmp-runlevel.service	../systemd-update-utmp-runlevel.service
+f	lib/systemd/system/rpcbind.target
+l	lib/systemd/system/runlevel0.target	poweroff.target
+l	lib/systemd/system/runlevel1.target	rescue.target
+d	lib/systemd/system/runlevel1.target.wants
+l	lib/systemd/system/runlevel2.target	multi-user.target
+d	lib/systemd/system/runlevel2.target.wants
+l	lib/systemd/system/runlevel3.target	multi-user.target
+d	lib/systemd/system/runlevel3.target.wants
+l	lib/systemd/system/runlevel4.target	multi-user.target
+d	lib/systemd/system/runlevel4.target.wants
+l	lib/systemd/system/runlevel5.target	graphical.target
+d	lib/systemd/system/runlevel5.target.wants
+l	lib/systemd/system/runlevel6.target	reboot.target
+f	lib/systemd/system/serial-getty@.service
+f	lib/systemd/system/shutdown.target
+f	lib/systemd/system/sigpwr.target
+f	lib/systemd/system/sleep.target
+f	lib/systemd/system/slices.target
+f	lib/systemd/system/smartcard.target
+f	lib/systemd/system/sockets.target
+d	lib/systemd/system/sockets.target.wants
+l	lib/systemd/system/sockets.target.wants/dbus.socket	../dbus.socket
+l	lib/systemd/system/sockets.target.wants/systemd-coredump.socket	../systemd-coredump.socket
+l	lib/systemd/system/sockets.target.wants/systemd-initctl.socket	../systemd-initctl.socket
+l	lib/systemd/system/sockets.target.wants/systemd-journald-audit.socket	../systemd-journald-audit.socket
+l	lib/systemd/system/sockets.target.wants/systemd-journald-dev-log.socket	../systemd-journald-dev-log.socket
+l	lib/systemd/system/sockets.target.wants/systemd-journald.socket	../systemd-journald.socket
+l	lib/systemd/system/sockets.target.wants/systemd-udevd-control.socket	../systemd-udevd-control.socket
+l	lib/systemd/system/sockets.target.wants/systemd-udevd-kernel.socket	../systemd-udevd-kernel.socket
+f	lib/systemd/system/sonyapp.service
+f	lib/systemd/system/sound.target
+f	lib/systemd/system/suspend.target
+f	lib/systemd/system/swap.target
+f	lib/systemd/system/sys-fs-fuse-connections.mount
+f	lib/systemd/system/sys-kernel-config.mount
+f	lib/systemd/system/sys-kernel-debug.mount
+f	lib/systemd/system/sysinit.target
+d	lib/systemd/system/sysinit.target.wants
+l	lib/systemd/system/sysinit.target.wants/dev-hugepages.mount	../dev-hugepages.mount
+l	lib/systemd/system/sysinit.target.wants/dev-mqueue.mount	../dev-mqueue.mount
+l	lib/systemd/system/sysinit.target.wants/ldconfig.service	../ldconfig.service
+l	lib/systemd/system/sysinit.target.wants/sys-fs-fuse-connections.mount	../sys-fs-fuse-connections.mount
+l	lib/systemd/system/sysinit.target.wants/sys-kernel-config.mount	../sys-kernel-config.mount
+l	lib/systemd/system/sysinit.target.wants/sys-kernel-debug.mount	../sys-kernel-debug.mount
+l	lib/systemd/system/sysinit.target.wants/systemd-ask-password-console.path	../systemd-ask-password-console.path
+l	lib/systemd/system/sysinit.target.wants/systemd-firstboot.service	../systemd-firstboot.service
+l	lib/systemd/system/sysinit.target.wants/systemd-journal-catalog-update.service	../systemd-journal-catalog-update.service
+l	lib/systemd/system/sysinit.target.wants/systemd-journal-flush.service	../systemd-journal-flush.service
+l	lib/systemd/system/sysinit.target.wants/systemd-journald.service	../systemd-journald.service
+l	lib/systemd/system/sysinit.target.wants/systemd-machine-id-commit.service	../systemd-machine-id-commit.service
+l	lib/systemd/system/sysinit.target.wants/systemd-random-seed.service	../systemd-random-seed.service
+l	lib/systemd/system/sysinit.target.wants/systemd-sysctl.service	../systemd-sysctl.service
+l	lib/systemd/system/sysinit.target.wants/systemd-tmpfiles-setup-dev.service	../systemd-tmpfiles-setup-dev.service
+l	lib/systemd/system/sysinit.target.wants/systemd-tmpfiles-setup.service	../systemd-tmpfiles-setup.service
+l	lib/systemd/system/sysinit.target.wants/systemd-udev-trigger.service	../systemd-udev-trigger.service
+l	lib/systemd/system/sysinit.target.wants/systemd-udevd.service	../systemd-udevd.service
+l	lib/systemd/system/sysinit.target.wants/systemd-update-done.service	../systemd-update-done.service
+l	lib/systemd/system/sysinit.target.wants/systemd-update-utmp.service	../systemd-update-utmp.service
+l	lib/systemd/system/sysinit.target.wants/systemd-vconsole-setup.service	../systemd-vconsole-setup.service
+l	lib/systemd/system/syslog.service	/dev/null
+f	lib/systemd/system/syslog.socket
+f	lib/systemd/system/system-update.target
+f	lib/systemd/system/system.slice
+f	lib/systemd/system/systemd-ask-password-console.path
+f	lib/systemd/system/systemd-ask-password-console.service
+f	lib/systemd/system/systemd-ask-password-wall.path
+f	lib/systemd/system/systemd-ask-password-wall.service
+f	lib/systemd/system/systemd-coredump.socket
+f	lib/systemd/system/systemd-coredump@.service
+f	lib/systemd/system/systemd-exit.service
+f	lib/systemd/system/systemd-firstboot.service
+f	lib/systemd/system/systemd-fsck-root.service
+f	lib/systemd/system/systemd-fsck@.service
+f	lib/systemd/system/systemd-halt.service
+f	lib/systemd/system/systemd-hibernate-resume@.service
+f	lib/systemd/system/systemd-hibernate.service
+f	lib/systemd/system/systemd-hwdb-update.service
+f	lib/systemd/system/systemd-hybrid-sleep.service
+f	lib/systemd/system/systemd-initctl.service
+f	lib/systemd/system/systemd-initctl.socket
+f	lib/systemd/system/systemd-journal-catalog-update.service
+f	lib/systemd/system/systemd-journal-flush.service
+f	lib/systemd/system/systemd-journald-audit.socket
+f	lib/systemd/system/systemd-journald-dev-log.socket
+f	lib/systemd/system/systemd-journald.service
+f	lib/systemd/system/systemd-journald.socket
+f	lib/systemd/system/systemd-kexec.service
+f	lib/systemd/system/systemd-logind.service
+f	lib/systemd/system/systemd-machine-id-commit.service
+f	lib/systemd/system/systemd-nspawn@.service
+f	lib/systemd/system/systemd-poweroff.service
+f	lib/systemd/system/systemd-random-seed.service
+f	lib/systemd/system/systemd-reboot.service
+f	lib/systemd/system/systemd-remount-fs.service
+f	lib/systemd/system/systemd-suspend.service
+f	lib/systemd/system/systemd-sysctl.service
+f	lib/systemd/system/systemd-timedated.service
+f	lib/systemd/system/systemd-timesyncd.service
+f	lib/systemd/system/systemd-tmpfiles-clean.service
+f	lib/systemd/system/systemd-tmpfiles-clean.timer
+f	lib/systemd/system/systemd-tmpfiles-setup-dev.service
+f	lib/systemd/system/systemd-tmpfiles-setup.service
+f	lib/systemd/system/systemd-udev-settle.service
+f	lib/systemd/system/systemd-udev-trigger.service
+f	lib/systemd/system/systemd-udevd-control.socket
+f	lib/systemd/system/systemd-udevd-kernel.socket
+f	lib/systemd/system/systemd-udevd.service
+f	lib/systemd/system/systemd-update-done.service
+f	lib/systemd/system/systemd-update-utmp-runlevel.service
+f	lib/systemd/system/systemd-update-utmp.service
+f	lib/systemd/system/systemd-user-sessions.service
+f	lib/systemd/system/systemd-vconsole-setup.service
+f	lib/systemd/system/tcpdump.service
+f	lib/systemd/system/thermal-manager.service
+f	lib/systemd/system/time-sync.target
+f	lib/systemd/system/timers.target
+d	lib/systemd/system/timers.target.wants
+l	lib/systemd/system/timers.target.wants/systemd-tmpfiles-clean.timer	../systemd-tmpfiles-clean.timer
+f	lib/systemd/system/tmp.mount
+f	lib/systemd/system/umount.target
+f	lib/systemd/system/usbwatch.service
+f	lib/systemd/system/user.slice
+f	lib/systemd/system/user@.service
+f	lib/systemd/system/var-lib-machines.mount
+f	lib/systemd/system/var-volatile-lib.service
+f	lib/systemd/system/vpud.service
+f	lib/systemd/system/weston.service
+f	lib/systemd/systemd
+f	lib/systemd/systemd-ac-power
+f	lib/systemd/systemd-cgroups-agent
+f	lib/systemd/systemd-coredump
+f	lib/systemd/systemd-fsck
+f	lib/systemd/systemd-hibernate-resume
+f	lib/systemd/systemd-initctl
+f	lib/systemd/systemd-journald
+f	lib/systemd/systemd-logind
+f	lib/systemd/systemd-random-seed
+f	lib/systemd/systemd-remount-fs
+f	lib/systemd/systemd-reply-password
+f	lib/systemd/systemd-shutdown
+f	lib/systemd/systemd-sleep
+f	lib/systemd/systemd-socket-proxyd
+f	lib/systemd/systemd-sysctl
+f	lib/systemd/systemd-sysv-install
+f	lib/systemd/systemd-timedated
+f	lib/systemd/systemd-timesyncd
+f	lib/systemd/systemd-udevd
+f	lib/systemd/systemd-update-done
+f	lib/systemd/systemd-update-utmp
+f	lib/systemd/systemd-user-sessions
+f	lib/systemd/systemd-vconsole-setup
+d	lib/udev
+f	lib/udev/ata_id
+f	lib/udev/cdrom_id
+f	lib/udev/collect
+d	lib/udev/hwdb.d
+f	lib/udev/hwdb.d/90-libinput-model-quirks.hwdb
+f	lib/udev/libinput-device-group
+f	lib/udev/libinput-model-quirks
+f	lib/udev/mtd_probe
+d	lib/udev/rules.d
+f	lib/udev/rules.d/50-firmware.rules
+f	lib/udev/rules.d/50-udev-default.rules
+f	lib/udev/rules.d/60-block.rules
+f	lib/udev/rules.d/60-cdrom_id.rules
+f	lib/udev/rules.d/60-drm.rules
+f	lib/udev/rules.d/60-evdev.rules
+f	lib/udev/rules.d/60-persistent-alsa.rules
+f	lib/udev/rules.d/60-persistent-input.rules
+f	lib/udev/rules.d/60-persistent-storage-tape.rules
+f	lib/udev/rules.d/60-persistent-storage.rules
+f	lib/udev/rules.d/60-persistent-v4l.rules
+f	lib/udev/rules.d/60-serial.rules
+f	lib/udev/rules.d/64-btrfs.rules
+f	lib/udev/rules.d/70-mouse.rules
+f	lib/udev/rules.d/70-power-switch.rules
+f	lib/udev/rules.d/70-uaccess.rules
+f	lib/udev/rules.d/71-seat.rules
+f	lib/udev/rules.d/73-seat-late.rules
+f	lib/udev/rules.d/75-net-description.rules
+f	lib/udev/rules.d/75-probe_mtd.rules
+f	lib/udev/rules.d/78-sound-card.rules
+f	lib/udev/rules.d/80-libinput-device-groups.rules
+f	lib/udev/rules.d/80-net-setup-link.rules
+f	lib/udev/rules.d/90-alsa-restore.rules
+f	lib/udev/rules.d/90-libinput-model-quirks.rules
+f	lib/udev/rules.d/90-vconsole.rules
+f	lib/udev/rules.d/99-systemd.rules
+f	lib/udev/scsi_id
+f	lib/udev/v4l_id
+d	media
+d	mnt
+d	proc
+d	run
+d	sbin
+f	sbin/agetty
+f	sbin/badblocks
+l	sbin/blkid	/bin/busybox.nosuid
+f	sbin/debugfs
+l	sbin/depmod	/sbin/depmod.kmod
+l	sbin/depmod.kmod	../bin/kmod
+f	sbin/dumpe2fs
+f	sbin/e2freefrag
+f	sbin/e2fsck
+f	sbin/e2image
+f	sbin/e2undo
+f	sbin/e4crypt
+f	sbin/e4defrag
+l	sbin/fdisk	/bin/busybox.nosuid
+f	sbin/filefrag
+l	sbin/fsck	/sbin/fsck.util-linux
+f	sbin/fsck.ext2
+f	sbin/fsck.ext3
+f	sbin/fsck.ext4
+f	sbin/fsck.ext4dev
+f	sbin/fsck.util-linux
+l	sbin/fstrim	/bin/busybox.nosuid
+l	sbin/getty	/sbin/agetty
+l	sbin/halt	/bin/systemctl
+l	sbin/hwclock	/bin/busybox.nosuid
+l	sbin/ifconfig	/bin/busybox.nosuid
+l	sbin/ifdown	/bin/busybox.nosuid
+l	sbin/ifup	/bin/busybox.nosuid
+l	sbin/init	/lib/systemd/systemd
+l	sbin/insmod	/sbin/insmod.kmod
+l	sbin/insmod.kmod	../bin/kmod
+l	sbin/ip	/bin/busybox.nosuid
+l	sbin/klogd	/bin/busybox.nosuid
+f	sbin/ldconfig
+l	sbin/loadkmap	/bin/busybox.nosuid
+l	sbin/logread	/bin/busybox.nosuid
+f	sbin/logsave
+l	sbin/losetup	/bin/busybox.nosuid
+l	sbin/lsmod	/bin/lsmod.kmod
+f	sbin/mke2fs
+f	sbin/mkfs.ext2
+f	sbin/mkfs.ext3
+f	sbin/mkfs.ext4
+f	sbin/mkfs.ext4dev
+f	sbin/mklost+found
+l	sbin/mkswap	/bin/busybox.nosuid
+l	sbin/modinfo	/sbin/modinfo.kmod
+l	sbin/modinfo.kmod	../bin/kmod
+l	sbin/modprobe	/sbin/modprobe.kmod
+l	sbin/modprobe.kmod	../bin/kmod
+f	sbin/mount-copybind
+f	sbin/mount.fuse
+l	sbin/pivot_root	/bin/busybox.nosuid
+f	sbin/populate-extfs.sh
+l	sbin/poweroff	/bin/systemctl
+l	sbin/reboot	/bin/systemctl
+f	sbin/resize2fs
+l	sbin/rmmod	/sbin/rmmod.kmod
+l	sbin/rmmod.kmod	../bin/kmod
+l	sbin/route	/bin/busybox.nosuid
+l	sbin/runlevel	/bin/systemctl
+l	sbin/setconsole	/bin/busybox.nosuid
+l	sbin/shutdown	/bin/systemctl
+l	sbin/start-stop-daemon	/bin/busybox.nosuid
+l	sbin/sulogin	/sbin/sulogin.util-linux
+f	sbin/sulogin.util-linux
+l	sbin/swapoff	/bin/busybox.nosuid
+l	sbin/swapon	/bin/busybox.nosuid
+l	sbin/switch_root	/bin/busybox.nosuid
+l	sbin/sysctl	/bin/busybox.nosuid
+l	sbin/syslogd	/bin/busybox.nosuid
+l	sbin/udevd	/lib/systemd/systemd-udevd
+l	sbin/udhcpc	/bin/busybox.nosuid
+d	sys
+d	temp
+d	temp/version
+f	temp/version/version.ini
+d	tmp
+d	usr
+d	usr/bin
+l	usr/bin/[	/usr/bin/lbracket.coreutils
+l	usr/bin/[[	/bin/busybox.nosuid
+f	usr/bin/alsamixer
+f	usr/bin/amixer
+f	usr/bin/aplay
+l	usr/bin/arecord	aplay
+l	usr/bin/awk	/bin/busybox.nosuid
+l	usr/bin/base64	/usr/bin/base64.coreutils
+f	usr/bin/base64.coreutils
+l	usr/bin/basename	/usr/bin/basename.coreutils
+f	usr/bin/basename.coreutils
+f	usr/bin/bashbug
+l	usr/bin/bunzip2	/bin/busybox.nosuid
+f	usr/bin/busctl
+l	usr/bin/bzcat	/bin/busybox.nosuid
+f	usr/bin/c_rehash
+f	usr/bin/check_version
+l	usr/bin/chvt	/bin/busybox.nosuid
+l	usr/bin/cksum	/usr/bin/cksum.coreutils
+f	usr/bin/cksum.coreutils
+l	usr/bin/clear	/bin/busybox.nosuid
+l	usr/bin/cmp	/bin/busybox.nosuid
+l	usr/bin/comm	/usr/bin/comm.coreutils
+f	usr/bin/comm.coreutils
+f	usr/bin/coredumpctl
+f	usr/bin/cpu_mode
+f	usr/bin/crypt_target_tool
+l	usr/bin/csplit	/usr/bin/csplit.coreutils
+f	usr/bin/csplit.coreutils
+l	usr/bin/cut	/usr/bin/cut.coreutils
+f	usr/bin/cut.coreutils
+f	usr/bin/dbus-cleanup-sockets
+f	usr/bin/dbus-daemon
+f	usr/bin/dbus-launch
+f	usr/bin/dbus-monitor
+f	usr/bin/dbus-run-session
+f	usr/bin/dbus-send
+f	usr/bin/dbus-update-activation-environment
+f	usr/bin/dbus-uuidgen
+l	usr/bin/dc	/bin/busybox.nosuid
+l	usr/bin/deallocvt	/bin/busybox.nosuid
+f	usr/bin/df
+l	usr/bin/diff	/bin/busybox.nosuid
+l	usr/bin/dir	/usr/bin/dir.coreutils
+f	usr/bin/dir.coreutils
+l	usr/bin/dircolors	/usr/bin/dircolors.coreutils
+f	usr/bin/dircolors.coreutils
+l	usr/bin/dirname	/usr/bin/dirname.coreutils
+f	usr/bin/dirname.coreutils
+f	usr/bin/dmsetup
+l	usr/bin/du	/usr/bin/du.coreutils
+f	usr/bin/du.coreutils
+l	usr/bin/dumpleases	/bin/busybox.nosuid
+l	usr/bin/env	/usr/bin/env.coreutils
+f	usr/bin/env.coreutils
+l	usr/bin/expand	/usr/bin/expand.coreutils
+f	usr/bin/expand.coreutils
+l	usr/bin/expr	/usr/bin/expr.coreutils
+f	usr/bin/expr.coreutils
+l	usr/bin/factor	/usr/bin/factor.coreutils
+f	usr/bin/factor.coreutils
+f	usr/bin/fc-cache
+f	usr/bin/fc-cat
+f	usr/bin/fc-list
+f	usr/bin/fc-match
+f	usr/bin/fc-pattern
+f	usr/bin/fc-query
+f	usr/bin/fc-scan
+f	usr/bin/fc-validate
+l	usr/bin/find	/bin/busybox.nosuid
+l	usr/bin/flock	/bin/busybox.nosuid
+l	usr/bin/fmt	/usr/bin/fmt.coreutils
+f	usr/bin/fmt.coreutils
+l	usr/bin/fold	/usr/bin/fold.coreutils
+f	usr/bin/fold.coreutils
+l	usr/bin/free	/bin/busybox.nosuid
+l	usr/bin/fuser	/bin/busybox.nosuid
+f	usr/bin/fusermount
+f	usr/bin/gpg
+f	usr/bin/gpg-zip
+f	usr/bin/gpgsplit
+l	usr/bin/groups	/usr/bin/groups.shadow
+f	usr/bin/groups.coreutils
+f	usr/bin/groups.shadow
+l	usr/bin/head	/usr/bin/head.coreutils
+f	usr/bin/head.coreutils
+l	usr/bin/hexdump	/bin/busybox.nosuid
+l	usr/bin/hostid	/usr/bin/hostid.coreutils
+f	usr/bin/hostid.coreutils
+l	usr/bin/id	/usr/bin/id.coreutils
+f	usr/bin/id.coreutils
+f	usr/bin/image_verify_tool
+l	usr/bin/install	/usr/bin/install.coreutils
+f	usr/bin/install.coreutils
+l	usr/bin/join	/usr/bin/join.coreutils
+f	usr/bin/join.coreutils
+l	usr/bin/killall	/bin/busybox.nosuid
+f	usr/bin/lbracket.coreutils
+l	usr/bin/less	/bin/busybox.nosuid
+f	usr/bin/libevdev-tweak-device
+f	usr/bin/libinput-debug-events
+f	usr/bin/libinput-list-devices
+l	usr/bin/link	/usr/bin/link.coreutils
+f	usr/bin/link.coreutils
+l	usr/bin/logger	/bin/busybox.nosuid
+l	usr/bin/logname	/usr/bin/logname.coreutils
+f	usr/bin/logname.coreutils
+f	usr/bin/lsattr
+l	usr/bin/md5sum	/usr/bin/md5sum.coreutils
+f	usr/bin/md5sum.coreutils
+f	usr/bin/mdpd
+l	usr/bin/mesg	/bin/busybox.nosuid
+l	usr/bin/microcom	/bin/busybox.nosuid
+l	usr/bin/mkfifo	/usr/bin/mkfifo.coreutils
+f	usr/bin/mkfifo.coreutils
+f	usr/bin/mtdev-test
+f	usr/bin/mtkthermal_interval
+f	usr/bin/mtkthermal_signal
+l	usr/bin/nc	/bin/busybox.nosuid
+l	usr/bin/newgrp	/usr/bin/newgrp.shadow
+f	usr/bin/newgrp.shadow
+l	usr/bin/nice	/usr/bin/nice.coreutils
+f	usr/bin/nice.coreutils
+l	usr/bin/nl	/usr/bin/nl.coreutils
+f	usr/bin/nl.coreutils
+l	usr/bin/nohup	/usr/bin/nohup.coreutils
+f	usr/bin/nohup.coreutils
+l	usr/bin/nslookup	/bin/busybox.nosuid
+l	usr/bin/od	/usr/bin/od.coreutils
+f	usr/bin/od.coreutils
+f	usr/bin/openssl
+l	usr/bin/openvt	/bin/busybox.nosuid
+l	usr/bin/passwd	/bin/busybox.suid
+l	usr/bin/paste	/usr/bin/paste.coreutils
+f	usr/bin/paste.coreutils
+l	usr/bin/patch	/bin/busybox.nosuid
+l	usr/bin/pathchk	/usr/bin/pathchk.coreutils
+f	usr/bin/pathchk.coreutils
+l	usr/bin/pinky	/usr/bin/pinky.coreutils
+f	usr/bin/pinky.coreutils
+l	usr/bin/pr	/usr/bin/pr.coreutils
+f	usr/bin/pr.coreutils
+l	usr/bin/printenv	/usr/bin/printenv.coreutils
+f	usr/bin/printenv.coreutils
+l	usr/bin/printf	/usr/bin/printf.coreutils
+f	usr/bin/printf.coreutils
+l	usr/bin/ptx	/usr/bin/ptx.coreutils
+f	usr/bin/ptx.coreutils
+l	usr/bin/readlink	/usr/bin/readlink.coreutils
+f	usr/bin/readlink.coreutils
+l	usr/bin/realpath	/bin/busybox.nosuid
+f	usr/bin/reboot_s
+l	usr/bin/renice	/bin/busybox.nosuid
+l	usr/bin/reset	/bin/busybox.nosuid
+l	usr/bin/resize	/bin/busybox.nosuid
+f	usr/bin/resume_run
+l	usr/bin/seq	/usr/bin/seq.coreutils
+f	usr/bin/seq.coreutils
+l	usr/bin/sg	newgrp.shadow
+l	usr/bin/sha1sum	/usr/bin/sha1sum.coreutils
+f	usr/bin/sha1sum.coreutils
+l	usr/bin/sha224sum	/usr/bin/sha224sum.coreutils
+f	usr/bin/sha224sum.coreutils
+l	usr/bin/sha256sum	/usr/bin/sha256sum.coreutils
+f	usr/bin/sha256sum.coreutils
+l	usr/bin/sha384sum	/usr/bin/sha384sum.coreutils
+f	usr/bin/sha384sum.coreutils
+l	usr/bin/sha512sum	/usr/bin/sha512sum.coreutils
+f	usr/bin/sha512sum.coreutils
+l	usr/bin/shred	/usr/bin/shred.coreutils
+f	usr/bin/shred.coreutils
+l	usr/bin/shuf	/usr/bin/shuf.coreutils
+f	usr/bin/shuf.coreutils
+f	usr/bin/sic
+f	usr/bin/sonyapp-launch
+l	usr/bin/sort	/usr/bin/sort.coreutils
+f	usr/bin/sort.coreutils
+l	usr/bin/split	/usr/bin/split.coreutils
+f	usr/bin/split.coreutils
+f	usr/bin/start_pman
+l	usr/bin/strings	/bin/busybox.nosuid
+l	usr/bin/sum	/usr/bin/sum.coreutils
+f	usr/bin/sum.coreutils
+f	usr/bin/systemd-analyze
+f	usr/bin/systemd-cat
+f	usr/bin/systemd-cgls
+f	usr/bin/systemd-cgtop
+f	usr/bin/systemd-delta
+f	usr/bin/systemd-detect-virt
+f	usr/bin/systemd-nspawn
+f	usr/bin/systemd-path
+f	usr/bin/systemd-run
+f	usr/bin/systemd-socket-activate
+f	usr/bin/systemd-stdio-bridge
+l	usr/bin/tac	/usr/bin/tac.coreutils
+f	usr/bin/tac.coreutils
+l	usr/bin/tail	/usr/bin/tail.coreutils
+f	usr/bin/tail.coreutils
+l	usr/bin/tee	/usr/bin/tee.coreutils
+f	usr/bin/tee.coreutils
+l	usr/bin/telnet	/bin/busybox.nosuid
+d	usr/bin/test
+f	usr/bin/test.coreutils
+f	usr/bin/test/axis.bmp
+f	usr/bin/test/button.bmp
+f	usr/bin/test/controllermap
+f	usr/bin/test/controllermap.bmp
+f	usr/bin/test/testdraw2
+f	usr/bin/test/testgles2
+f	usr/bin/test/testjoystick
+f	usr/bin/test/testmultiaudio
+l	usr/bin/tftp	/bin/busybox.nosuid
+f	usr/bin/thermal_manager
+l	usr/bin/time	/bin/busybox.nosuid
+f	usr/bin/timedatectl
+l	usr/bin/top	/bin/busybox.nosuid
+l	usr/bin/tr	/usr/bin/tr.coreutils
+f	usr/bin/tr.coreutils
+l	usr/bin/traceroute	/bin/busybox.suid
+l	usr/bin/tsort	/usr/bin/tsort.coreutils
+f	usr/bin/tsort.coreutils
+l	usr/bin/tty	/usr/bin/tty.coreutils
+f	usr/bin/tty.coreutils
+f	usr/bin/ulockmgr_server
+l	usr/bin/unexpand	/usr/bin/unexpand.coreutils
+f	usr/bin/unexpand.coreutils
+l	usr/bin/uniq	/usr/bin/uniq.coreutils
+f	usr/bin/uniq.coreutils
+l	usr/bin/unlink	/usr/bin/unlink.coreutils
+f	usr/bin/unlink.coreutils
+l	usr/bin/unzip	/bin/busybox.nosuid
+l	usr/bin/uptime	/bin/busybox.nosuid
+f	usr/bin/uptime.coreutils
+f	usr/bin/usb_watch
+f	usr/bin/usbreset
+f	usr/bin/usbreset_auto
+l	usr/bin/users	/usr/bin/users.coreutils
+f	usr/bin/users.coreutils
+l	usr/bin/vdir	/usr/bin/vdir.coreutils
+f	usr/bin/vdir.coreutils
+f	usr/bin/verstr
+l	usr/bin/vlock	/bin/busybox.suid
+f	usr/bin/vpud
+f	usr/bin/wait_sdl
+l	usr/bin/wc	/usr/bin/wc.coreutils
+f	usr/bin/wc.coreutils
+f	usr/bin/wcap-decode
+f	usr/bin/weston
+f	usr/bin/weston-launch
+f	usr/bin/weston-simple-configure-mtk
+l	usr/bin/wget	/bin/busybox.nosuid
+l	usr/bin/which	/bin/busybox.nosuid
+l	usr/bin/who	/usr/bin/who.coreutils
+f	usr/bin/who.coreutils
+l	usr/bin/whoami	/usr/bin/whoami.coreutils
+f	usr/bin/whoami.coreutils
+l	usr/bin/xargs	/bin/busybox.nosuid
+l	usr/bin/yes	/usr/bin/yes.coreutils
+f	usr/bin/yes.coreutils
+d	usr/games
+d	usr/include
+d	usr/lib
+d	usr/lib/alsa-lib
+d	usr/lib/alsa-lib/smixer
+f	usr/lib/alsa-lib/smixer/smixer-ac97.so
+f	usr/lib/alsa-lib/smixer/smixer-hda.so
+f	usr/lib/alsa-lib/smixer/smixer-sbase.so
+f	usr/lib/e2initrd_helper
+f	usr/lib/libEGL.so
+f	usr/lib/libEGL.so.1
+f	usr/lib/libEGL.so.1.0.0
+f	usr/lib/libGLESv1_CM.so
+f	usr/lib/libGLESv1_CM.so.1
+f	usr/lib/libGLESv1_CM.so.1.1.0
+f	usr/lib/libGLESv1_CM_PVR_MESA.so
+f	usr/lib/libGLESv2.so
+f	usr/lib/libGLESv2.so.2
+f	usr/lib/libGLESv2.so.2.0.0
+f	usr/lib/libGLESv2_PVR_MESA.so
+f	usr/lib/libPVROCL.so
+f	usr/lib/libPVRScopeServices.so
+l	usr/lib/libSDL2-2.0.so.0	libSDL2-2.0.so.0.4.0
+f	usr/lib/libSDL2-2.0.so.0.4.0
+l	usr/lib/libSDL2_image-2.0.so.0	libSDL2_image-2.0.so.0.0.1
+f	usr/lib/libSDL2_image-2.0.so.0.0.1
+l	usr/lib/libSDL2_mixer-2.0.so.0	libSDL2_mixer-2.0.so.0.0.1
+f	usr/lib/libSDL2_mixer-2.0.so.0.0.1
+l	usr/lib/libSDL2_ttf-2.0.so.0	libSDL2_ttf-2.0.so.0.14.0
+f	usr/lib/libSDL2_ttf-2.0.so.0.14.0
+l	usr/lib/libasound.so.2	libasound.so.2.0.0
+f	usr/lib/libasound.so.2.0.0
+l	usr/lib/libbz2.so.1	libbz2.so.1.0.6
+f	usr/lib/libbz2.so.1.0.6
+l	usr/lib/libcairo.so.2	libcairo.so.2.11400.6
+f	usr/lib/libcairo.so.2.11400.6
+f	usr/lib/libcrypto.so.1.0.0
+l	usr/lib/libdbus-1.so.3	libdbus-1.so.3.14.7
+f	usr/lib/libdbus-1.so.3.14.7
+f	usr/lib/libdevmapper.so.1.02
+l	usr/lib/libdrm.so.2	libdrm.so.2.4.0
+f	usr/lib/libdrm.so.2.4.0
+l	usr/lib/libevdev.so.2	libevdev.so.2.1.14
+f	usr/lib/libevdev.so.2.1.14
+l	usr/lib/libexpat.so.1	libexpat.so.1.6.2
+f	usr/lib/libexpat.so.1.6.2
+l	usr/lib/libffi.so.6	libffi.so.6.0.4
+f	usr/lib/libffi.so.6.0.4
+l	usr/lib/libfontconfig.so.1	libfontconfig.so.1.9.2
+f	usr/lib/libfontconfig.so.1.9.2
+l	usr/lib/libformw.so.5	libformw.so.5.9
+f	usr/lib/libformw.so.5.9
+l	usr/lib/libfreetype.so.6	libfreetype.so.6.12.5
+f	usr/lib/libfreetype.so.6.12.5
+l	usr/lib/libfuse.so.2	libfuse.so.2.9.4
+f	usr/lib/libfuse.so.2.9.4
+f	usr/lib/libgbm.so
+f	usr/lib/libgbm.so.1
+f	usr/lib/libgbm.so.1.0.0
+f	usr/lib/libglapi.so
+f	usr/lib/libglapi.so.0
+f	usr/lib/libglapi.so.0.0.0
+f	usr/lib/libglslcompiler.so
+f	usr/lib/libherope_sa.ca7.so
+l	usr/lib/libhistory.so.5	libhistory.so.5.2
+f	usr/lib/libhistory.so.5.2
+f	usr/lib/libimg_vfy.so
+l	usr/lib/libinput.so.10	libinput.so.10.9.2
+f	usr/lib/libinput.so.10.9.2
+l	usr/lib/libjpeg.so.62	libjpeg.so.62.2.0
+f	usr/lib/libjpeg.so.62.2.0
+f	usr/lib/liblic_divx.so
+f	usr/lib/liblic_s263.so
+l	usr/lib/liblzma.so.5	liblzma.so.5.2.2
+f	usr/lib/liblzma.so.5.2.2
+f	usr/lib/libmdp.mt8167.so
+f	usr/lib/libmdpd.so
+f	usr/lib/libmdppq.so
+l	usr/lib/libmenuw.so.5	libmenuw.so.5.9
+f	usr/lib/libmenuw.so.5.9
+f	usr/lib/libmtcloader.so
+l	usr/lib/libmtdev.so.1	libmtdev.so.1.0.0
+f	usr/lib/libmtdev.so.1.0.0
+l	usr/lib/libpanelw.so.5	libpanelw.so.5.9
+f	usr/lib/libpanelw.so.5.9
+l	usr/lib/libpixman-1.so.0	libpixman-1.so.0.34.0
+f	usr/lib/libpixman-1.so.0.34.0
+l	usr/lib/libpng16.so.16	libpng16.so.16.24.0
+f	usr/lib/libpng16.so.16.24.0
+f	usr/lib/libpvr_dri_support.so
+l	usr/lib/libreadline.so.5	libreadline.so.5.2
+f	usr/lib/libreadline.so.5.2
+f	usr/lib/libsecure_api.so
+f	usr/lib/libsrv_um.so
+f	usr/lib/libssl.so.1.0.0
+l	usr/lib/libstdc++.so.6	libstdc++.so.6.0.22
+f	usr/lib/libstdc++.so.6.0.22
+l	usr/lib/libtiff.so.5	libtiff.so.5.2.5
+f	usr/lib/libtiff.so.5.2.5
+f	usr/lib/libtz_efuse.so
+f	usr/lib/libtz_uree.so
+f	usr/lib/libufwriter.so
+l	usr/lib/libulockmgr.so.1	libulockmgr.so.1.0.1
+f	usr/lib/libulockmgr.so.1.0.1
+f	usr/lib/libusc.so
+f	usr/lib/libvcodec_oal.so
+f	usr/lib/libvpud_vcodec.so
+l	usr/lib/libwayland-client.so.0	libwayland-client.so.0.3.0
+f	usr/lib/libwayland-client.so.0.3.0
+l	usr/lib/libwayland-cursor.so.0	libwayland-cursor.so.0.0.0
+f	usr/lib/libwayland-cursor.so.0.0.0
+f	usr/lib/libwayland-egl.so
+f	usr/lib/libwayland-egl.so.1
+f	usr/lib/libwayland-egl.so.1.0.0
+l	usr/lib/libwayland-server.so.0	libwayland-server.so.0.1.0
+f	usr/lib/libwayland-server.so.0.1.0
+l	usr/lib/libxkbcommon.so.0	libxkbcommon.so.0.0.0
+f	usr/lib/libxkbcommon.so.0.0.0
+d	usr/lib/modules-load.d
+d	usr/lib/opkg
+d	usr/lib/opkg/alternatives
+f	usr/lib/opkg/alternatives/[[
+f	usr/lib/opkg/alternatives/addgroup
+f	usr/lib/opkg/alternatives/adduser
+f	usr/lib/opkg/alternatives/ash
+f	usr/lib/opkg/alternatives/awk
+f	usr/lib/opkg/alternatives/base64
+f	usr/lib/opkg/alternatives/basename
+f	usr/lib/opkg/alternatives/bin-lsmod
+f	usr/lib/opkg/alternatives/blkid
+f	usr/lib/opkg/alternatives/bunzip2
+f	usr/lib/opkg/alternatives/bzcat
+f	usr/lib/opkg/alternatives/cat
+f	usr/lib/opkg/alternatives/chattr
+f	usr/lib/opkg/alternatives/chgrp
+f	usr/lib/opkg/alternatives/chmod
+f	usr/lib/opkg/alternatives/chown
+f	usr/lib/opkg/alternatives/chroot
+f	usr/lib/opkg/alternatives/chvt
+f	usr/lib/opkg/alternatives/cksum
+f	usr/lib/opkg/alternatives/clear
+f	usr/lib/opkg/alternatives/cmp
+f	usr/lib/opkg/alternatives/comm
+f	usr/lib/opkg/alternatives/cp
+f	usr/lib/opkg/alternatives/cpio
+f	usr/lib/opkg/alternatives/csplit
+f	usr/lib/opkg/alternatives/cut
+f	usr/lib/opkg/alternatives/date
+f	usr/lib/opkg/alternatives/dc
+f	usr/lib/opkg/alternatives/dd
+f	usr/lib/opkg/alternatives/deallocvt
+f	usr/lib/opkg/alternatives/delgroup
+f	usr/lib/opkg/alternatives/deluser
+f	usr/lib/opkg/alternatives/depmod
+f	usr/lib/opkg/alternatives/df
+f	usr/lib/opkg/alternatives/diff
+f	usr/lib/opkg/alternatives/dir
+f	usr/lib/opkg/alternatives/dircolors
+f	usr/lib/opkg/alternatives/dirname
+f	usr/lib/opkg/alternatives/dmesg
+f	usr/lib/opkg/alternatives/dnsdomainname
+f	usr/lib/opkg/alternatives/du
+f	usr/lib/opkg/alternatives/dumpkmap
+f	usr/lib/opkg/alternatives/dumpleases
+f	usr/lib/opkg/alternatives/echo
+f	usr/lib/opkg/alternatives/egrep
+f	usr/lib/opkg/alternatives/env
+f	usr/lib/opkg/alternatives/expand
+f	usr/lib/opkg/alternatives/expr
+f	usr/lib/opkg/alternatives/factor
+f	usr/lib/opkg/alternatives/false
+f	usr/lib/opkg/alternatives/fbset
+f	usr/lib/opkg/alternatives/fdisk
+f	usr/lib/opkg/alternatives/fgrep
+f	usr/lib/opkg/alternatives/find
+f	usr/lib/opkg/alternatives/flock
+f	usr/lib/opkg/alternatives/fmt
+f	usr/lib/opkg/alternatives/fold
+f	usr/lib/opkg/alternatives/free
+f	usr/lib/opkg/alternatives/fsck
+f	usr/lib/opkg/alternatives/fstrim
+f	usr/lib/opkg/alternatives/fuser
+f	usr/lib/opkg/alternatives/getopt
+f	usr/lib/opkg/alternatives/getty
+f	usr/lib/opkg/alternatives/grep
+f	usr/lib/opkg/alternatives/groups
+f	usr/lib/opkg/alternatives/gunzip
+f	usr/lib/opkg/alternatives/gzip
+f	usr/lib/opkg/alternatives/halt
+f	usr/lib/opkg/alternatives/head
+f	usr/lib/opkg/alternatives/hexdump
+f	usr/lib/opkg/alternatives/hostid
+f	usr/lib/opkg/alternatives/hostname
+f	usr/lib/opkg/alternatives/hwclock
+f	usr/lib/opkg/alternatives/id
+f	usr/lib/opkg/alternatives/ifconfig
+f	usr/lib/opkg/alternatives/ifdown
+f	usr/lib/opkg/alternatives/ifup
+f	usr/lib/opkg/alternatives/init
+f	usr/lib/opkg/alternatives/insmod
+f	usr/lib/opkg/alternatives/install
+f	usr/lib/opkg/alternatives/ip
+f	usr/lib/opkg/alternatives/join
+f	usr/lib/opkg/alternatives/kill
+f	usr/lib/opkg/alternatives/killall
+f	usr/lib/opkg/alternatives/klogd
+f	usr/lib/opkg/alternatives/lbracket
+f	usr/lib/opkg/alternatives/less
+f	usr/lib/opkg/alternatives/link
+f	usr/lib/opkg/alternatives/ln
+f	usr/lib/opkg/alternatives/loadfont
+f	usr/lib/opkg/alternatives/loadkmap
+f	usr/lib/opkg/alternatives/logger
+f	usr/lib/opkg/alternatives/login
+f	usr/lib/opkg/alternatives/logname
+f	usr/lib/opkg/alternatives/logread
+f	usr/lib/opkg/alternatives/losetup
+f	usr/lib/opkg/alternatives/ls
+f	usr/lib/opkg/alternatives/lsmod
+f	usr/lib/opkg/alternatives/md5sum
+f	usr/lib/opkg/alternatives/mesg
+f	usr/lib/opkg/alternatives/microcom
+f	usr/lib/opkg/alternatives/mkdir
+f	usr/lib/opkg/alternatives/mkfifo
+f	usr/lib/opkg/alternatives/mknod
+f	usr/lib/opkg/alternatives/mkswap
+f	usr/lib/opkg/alternatives/mktemp
+f	usr/lib/opkg/alternatives/modinfo
+f	usr/lib/opkg/alternatives/modprobe
+f	usr/lib/opkg/alternatives/more
+f	usr/lib/opkg/alternatives/mount
+f	usr/lib/opkg/alternatives/mv
+f	usr/lib/opkg/alternatives/nc
+f	usr/lib/opkg/alternatives/netstat
+f	usr/lib/opkg/alternatives/newgrp
+f	usr/lib/opkg/alternatives/nice
+f	usr/lib/opkg/alternatives/nl
+f	usr/lib/opkg/alternatives/nohup
+f	usr/lib/opkg/alternatives/nslookup
+f	usr/lib/opkg/alternatives/od
+f	usr/lib/opkg/alternatives/openvt
+f	usr/lib/opkg/alternatives/passwd
+f	usr/lib/opkg/alternatives/paste
+f	usr/lib/opkg/alternatives/patch
+f	usr/lib/opkg/alternatives/pathchk
+f	usr/lib/opkg/alternatives/pidof
+f	usr/lib/opkg/alternatives/ping
+f	usr/lib/opkg/alternatives/pinky
+f	usr/lib/opkg/alternatives/pivot_root
+f	usr/lib/opkg/alternatives/poweroff
+f	usr/lib/opkg/alternatives/pr
+f	usr/lib/opkg/alternatives/printenv
+f	usr/lib/opkg/alternatives/printf
+f	usr/lib/opkg/alternatives/ps
+f	usr/lib/opkg/alternatives/ptx
+f	usr/lib/opkg/alternatives/pwd
+f	usr/lib/opkg/alternatives/rdate
+f	usr/lib/opkg/alternatives/readlink
+f	usr/lib/opkg/alternatives/realpath
+f	usr/lib/opkg/alternatives/reboot
+f	usr/lib/opkg/alternatives/renice
+f	usr/lib/opkg/alternatives/reset
+f	usr/lib/opkg/alternatives/resize
+f	usr/lib/opkg/alternatives/rm
+f	usr/lib/opkg/alternatives/rmdir
+f	usr/lib/opkg/alternatives/rmmod
+f	usr/lib/opkg/alternatives/route
+f	usr/lib/opkg/alternatives/run-parts
+f	usr/lib/opkg/alternatives/runlevel
+f	usr/lib/opkg/alternatives/sed
+f	usr/lib/opkg/alternatives/seq
+f	usr/lib/opkg/alternatives/setconsole
+f	usr/lib/opkg/alternatives/sh
+f	usr/lib/opkg/alternatives/sha1sum
+f	usr/lib/opkg/alternatives/sha224sum
+f	usr/lib/opkg/alternatives/sha256sum
+f	usr/lib/opkg/alternatives/sha384sum
+f	usr/lib/opkg/alternatives/sha512sum
+f	usr/lib/opkg/alternatives/shred
+f	usr/lib/opkg/alternatives/shuf
+f	usr/lib/opkg/alternatives/shutdown
+f	usr/lib/opkg/alternatives/sleep
+f	usr/lib/opkg/alternatives/sort
+f	usr/lib/opkg/alternatives/split
+f	usr/lib/opkg/alternatives/start-stop-daemon
+f	usr/lib/opkg/alternatives/stat
+f	usr/lib/opkg/alternatives/strings
+f	usr/lib/opkg/alternatives/stty
+f	usr/lib/opkg/alternatives/su
+f	usr/lib/opkg/alternatives/sulogin
+f	usr/lib/opkg/alternatives/sum
+f	usr/lib/opkg/alternatives/swapoff
+f	usr/lib/opkg/alternatives/swapon
+f	usr/lib/opkg/alternatives/switch_root
+f	usr/lib/opkg/alternatives/sync
+f	usr/lib/opkg/alternatives/sysctl
+f	usr/lib/opkg/alternatives/syslog-conf
+f	usr/lib/opkg/alternatives/syslogd
+f	usr/lib/opkg/alternatives/tac
+f	usr/lib/opkg/alternatives/tail
+f	usr/lib/opkg/alternatives/tar
+f	usr/lib/opkg/alternatives/tee
+f	usr/lib/opkg/alternatives/telnet
+f	usr/lib/opkg/alternatives/test
+f	usr/lib/opkg/alternatives/tftp
+f	usr/lib/opkg/alternatives/time
+f	usr/lib/opkg/alternatives/top
+f	usr/lib/opkg/alternatives/touch
+f	usr/lib/opkg/alternatives/tr
+f	usr/lib/opkg/alternatives/traceroute
+f	usr/lib/opkg/alternatives/true
+f	usr/lib/opkg/alternatives/tsort
+f	usr/lib/opkg/alternatives/tty
+f	usr/lib/opkg/alternatives/udhcpc
+f	usr/lib/opkg/alternatives/udhcpd
+f	usr/lib/opkg/alternatives/umount
+f	usr/lib/opkg/alternatives/uname
+f	usr/lib/opkg/alternatives/unexpand
+f	usr/lib/opkg/alternatives/uniq
+f	usr/lib/opkg/alternatives/unlink
+f	usr/lib/opkg/alternatives/unzip
+f	usr/lib/opkg/alternatives/uptime
+f	usr/lib/opkg/alternatives/users
+f	usr/lib/opkg/alternatives/usleep
+f	usr/lib/opkg/alternatives/vdir
+f	usr/lib/opkg/alternatives/vi
+f	usr/lib/opkg/alternatives/vlock
+f	usr/lib/opkg/alternatives/watch
+f	usr/lib/opkg/alternatives/wc
+f	usr/lib/opkg/alternatives/wget
+f	usr/lib/opkg/alternatives/which
+f	usr/lib/opkg/alternatives/who
+f	usr/lib/opkg/alternatives/whoami
+f	usr/lib/opkg/alternatives/xargs
+f	usr/lib/opkg/alternatives/yes
+f	usr/lib/opkg/alternatives/zcat
+d	usr/lib/ssl
+l	usr/lib/ssl/certs	/etc/ssl/certs
+l	usr/lib/ssl/openssl.cnf	/etc/ssl/openssl.cnf
+l	usr/lib/ssl/private	/etc/ssl/private
+d	usr/lib/sysctl.d
+f	usr/lib/sysctl.d/50-coredump.conf
+f	usr/lib/sysctl.d/50-default.conf
+d	usr/lib/systemd
+d	usr/lib/systemd/catalog
+f	usr/lib/systemd/catalog/systemd.be.catalog
+f	usr/lib/systemd/catalog/systemd.be@latin.catalog
+f	usr/lib/systemd/catalog/systemd.catalog
+f	usr/lib/systemd/catalog/systemd.fr.catalog
+f	usr/lib/systemd/catalog/systemd.it.catalog
+f	usr/lib/systemd/catalog/systemd.pl.catalog
+f	usr/lib/systemd/catalog/systemd.pt_BR.catalog
+f	usr/lib/systemd/catalog/systemd.ru.catalog
+f	usr/lib/systemd/catalog/systemd.zh_CN.catalog
+f	usr/lib/systemd/catalog/systemd.zh_TW.catalog
+d	usr/lib/systemd/network
+d	usr/lib/systemd/user
+d	usr/lib/systemd/user-generators
+l	usr/lib/systemd/user-generators/systemd-dbus1-generator	../../../../lib/systemd/system-generators/systemd-dbus1-generator
+f	usr/lib/systemd/user/basic.target
+l	usr/lib/systemd/user/bluetooth.target	../../../../lib/systemd/system/bluetooth.target
+l	usr/lib/systemd/user/busnames.target	../../../../lib/systemd/system/busnames.target
+f	usr/lib/systemd/user/default.target
+f	usr/lib/systemd/user/exit.target
+l	usr/lib/systemd/user/paths.target	../../../../lib/systemd/system/paths.target
+l	usr/lib/systemd/user/printer.target	../../../../lib/systemd/system/printer.target
+l	usr/lib/systemd/user/shutdown.target	../../../../lib/systemd/system/shutdown.target
+l	usr/lib/systemd/user/smartcard.target	../../../../lib/systemd/system/smartcard.target
+l	usr/lib/systemd/user/sockets.target	../../../../lib/systemd/system/sockets.target
+l	usr/lib/systemd/user/sound.target	../../../../lib/systemd/system/sound.target
+f	usr/lib/systemd/user/systemd-exit.service
+l	usr/lib/systemd/user/timers.target	../../../../lib/systemd/system/timers.target
+d	usr/lib/tmpfiles.d
+f	usr/lib/tmpfiles.d/etc.conf
+f	usr/lib/tmpfiles.d/home.conf
+f	usr/lib/tmpfiles.d/journal-nocow.conf
+f	usr/lib/tmpfiles.d/legacy.conf
+f	usr/lib/tmpfiles.d/systemd-nologin.conf
+f	usr/lib/tmpfiles.d/systemd-nspawn.conf
+f	usr/lib/tmpfiles.d/systemd.conf
+f	usr/lib/tmpfiles.d/tmp.conf
+f	usr/lib/tmpfiles.d/var.conf
+f	usr/lib/tmpfiles.d/x11.conf
+d	usr/lib/weston
+f	usr/lib/weston/desktop-shell.so
+f	usr/lib/weston/drm-backend.so
+f	usr/lib/weston/fbdev-backend.so
+f	usr/lib/weston/fullscreen-shell.so
+f	usr/lib/weston/gl-renderer.so
+f	usr/lib/weston/hmi-controller.so
+f	usr/lib/weston/ivi-shell.so
+f	usr/lib/weston/wayland-backend.so
+d	usr/libexec
+f	usr/libexec/dbus-daemon-launch-helper
+d	usr/libexec/gnupg
+f	usr/libexec/gnupg/gpgkeys_curl
+f	usr/libexec/gnupg/gpgkeys_finger
+f	usr/libexec/gnupg/gpgkeys_hkp
+f	usr/libexec/weston-desktop-shell
+f	usr/libexec/weston-ivi-shell-user-interface
+f	usr/libexec/weston-keyboard
+f	usr/libexec/weston-notification-mtk
+f	usr/libexec/weston-screenshooter
+f	usr/libexec/weston-simple-im
+d	usr/local
+d	usr/local/etc
+f	usr/local/etc/drirc
+d	usr/local/lib
+d	usr/local/lib/dri
+f	usr/local/lib/dri/pvr_dri.so
+d	usr/local/share
+f	usr/local/share/wayland-drm.xml
+d	usr/sbin
+l	usr/sbin/addgroup	/bin/busybox.nosuid
+l	usr/sbin/adduser	/bin/busybox.nosuid
+f	usr/sbin/alsactl
+l	usr/sbin/chroot	/usr/sbin/chroot.coreutils
+f	usr/sbin/chroot.coreutils
+l	usr/sbin/delgroup	/bin/busybox.nosuid
+l	usr/sbin/deluser	/bin/busybox.nosuid
+l	usr/sbin/fbset	/bin/busybox.nosuid
+l	usr/sbin/loadfont	/bin/busybox.nosuid
+l	usr/sbin/rdate	/bin/busybox.nosuid
+l	usr/sbin/udhcpd	/bin/busybox.nosuid
+f	usr/sbin/unix_chkpwd
+f	usr/sbin/unix_update
+d	usr/share
+d	usr/share/X11
+d	usr/share/X11/xkb
+d	usr/share/X11/xkb/compat
+f	usr/share/X11/xkb/compat/README
+f	usr/share/X11/xkb/compat/accessx
+f	usr/share/X11/xkb/compat/basic
+f	usr/share/X11/xkb/compat/caps
+f	usr/share/X11/xkb/compat/complete
+f	usr/share/X11/xkb/compat/iso9995
+f	usr/share/X11/xkb/compat/japan
+f	usr/share/X11/xkb/compat/ledcaps
+f	usr/share/X11/xkb/compat/lednum
+f	usr/share/X11/xkb/compat/ledscroll
+f	usr/share/X11/xkb/compat/level5
+f	usr/share/X11/xkb/compat/misc
+f	usr/share/X11/xkb/compat/mousekeys
+f	usr/share/X11/xkb/compat/olpc
+f	usr/share/X11/xkb/compat/pc
+f	usr/share/X11/xkb/compat/pc98
+f	usr/share/X11/xkb/compat/xfree86
+f	usr/share/X11/xkb/compat/xtest
+d	usr/share/X11/xkb/compiled
+d	usr/share/X11/xkb/geometry
+f	usr/share/X11/xkb/geometry/README
+f	usr/share/X11/xkb/geometry/amiga
+f	usr/share/X11/xkb/geometry/ataritt
+f	usr/share/X11/xkb/geometry/chicony
+f	usr/share/X11/xkb/geometry/dell
+d	usr/share/X11/xkb/geometry/digital_vndr
+f	usr/share/X11/xkb/geometry/digital_vndr/lk
+f	usr/share/X11/xkb/geometry/digital_vndr/pc
+f	usr/share/X11/xkb/geometry/digital_vndr/unix
+f	usr/share/X11/xkb/geometry/everex
+f	usr/share/X11/xkb/geometry/fujitsu
+f	usr/share/X11/xkb/geometry/hhk
+f	usr/share/X11/xkb/geometry/hp
+f	usr/share/X11/xkb/geometry/keytronic
+f	usr/share/X11/xkb/geometry/kinesis
+f	usr/share/X11/xkb/geometry/macintosh
+f	usr/share/X11/xkb/geometry/microsoft
+f	usr/share/X11/xkb/geometry/nec
+f	usr/share/X11/xkb/geometry/nokia
+f	usr/share/X11/xkb/geometry/northgate
+f	usr/share/X11/xkb/geometry/pc
+f	usr/share/X11/xkb/geometry/sanwa
+d	usr/share/X11/xkb/geometry/sgi_vndr
+f	usr/share/X11/xkb/geometry/sgi_vndr/O2
+f	usr/share/X11/xkb/geometry/sgi_vndr/indigo
+f	usr/share/X11/xkb/geometry/sgi_vndr/indy
+f	usr/share/X11/xkb/geometry/sony
+f	usr/share/X11/xkb/geometry/sun
+f	usr/share/X11/xkb/geometry/teck
+f	usr/share/X11/xkb/geometry/thinkpad
+f	usr/share/X11/xkb/geometry/typematrix
+f	usr/share/X11/xkb/geometry/winbook
+d	usr/share/X11/xkb/keycodes
+f	usr/share/X11/xkb/keycodes/README
+f	usr/share/X11/xkb/keycodes/aliases
+f	usr/share/X11/xkb/keycodes/amiga
+f	usr/share/X11/xkb/keycodes/ataritt
+d	usr/share/X11/xkb/keycodes/digital_vndr
+f	usr/share/X11/xkb/keycodes/digital_vndr/lk
+f	usr/share/X11/xkb/keycodes/digital_vndr/pc
+f	usr/share/X11/xkb/keycodes/empty
+f	usr/share/X11/xkb/keycodes/evdev
+f	usr/share/X11/xkb/keycodes/fujitsu
+f	usr/share/X11/xkb/keycodes/hp
+f	usr/share/X11/xkb/keycodes/ibm
+f	usr/share/X11/xkb/keycodes/jolla
+f	usr/share/X11/xkb/keycodes/macintosh
+f	usr/share/X11/xkb/keycodes/olpc
+d	usr/share/X11/xkb/keycodes/sgi_vndr
+f	usr/share/X11/xkb/keycodes/sgi_vndr/indigo
+f	usr/share/X11/xkb/keycodes/sgi_vndr/indy
+f	usr/share/X11/xkb/keycodes/sgi_vndr/iris
+f	usr/share/X11/xkb/keycodes/sony
+f	usr/share/X11/xkb/keycodes/sun
+f	usr/share/X11/xkb/keycodes/xfree86
+f	usr/share/X11/xkb/keycodes/xfree98
+d	usr/share/X11/xkb/rules
+f	usr/share/X11/xkb/rules/README
+f	usr/share/X11/xkb/rules/base
+f	usr/share/X11/xkb/rules/base.extras.xml
+f	usr/share/X11/xkb/rules/base.lst
+f	usr/share/X11/xkb/rules/base.xml
+f	usr/share/X11/xkb/rules/evdev
+f	usr/share/X11/xkb/rules/evdev.extras.xml
+f	usr/share/X11/xkb/rules/evdev.lst
+f	usr/share/X11/xkb/rules/evdev.xml
+f	usr/share/X11/xkb/rules/xfree98
+f	usr/share/X11/xkb/rules/xkb.dtd
+l	usr/share/X11/xkb/rules/xorg	base
+l	usr/share/X11/xkb/rules/xorg.lst	base.lst
+l	usr/share/X11/xkb/rules/xorg.xml	base.xml
+d	usr/share/X11/xkb/symbols
+f	usr/share/X11/xkb/symbols/af
+f	usr/share/X11/xkb/symbols/al
+f	usr/share/X11/xkb/symbols/altwin
+f	usr/share/X11/xkb/symbols/am
+f	usr/share/X11/xkb/symbols/apl
+f	usr/share/X11/xkb/symbols/ara
+f	usr/share/X11/xkb/symbols/at
+f	usr/share/X11/xkb/symbols/az
+f	usr/share/X11/xkb/symbols/ba
+f	usr/share/X11/xkb/symbols/bd
+f	usr/share/X11/xkb/symbols/be
+f	usr/share/X11/xkb/symbols/bg
+f	usr/share/X11/xkb/symbols/bn
+f	usr/share/X11/xkb/symbols/br
+f	usr/share/X11/xkb/symbols/brai
+f	usr/share/X11/xkb/symbols/bt
+f	usr/share/X11/xkb/symbols/bw
+f	usr/share/X11/xkb/symbols/by
+f	usr/share/X11/xkb/symbols/ca
+f	usr/share/X11/xkb/symbols/capslock
+f	usr/share/X11/xkb/symbols/cd
+f	usr/share/X11/xkb/symbols/ch
+f	usr/share/X11/xkb/symbols/cm
+f	usr/share/X11/xkb/symbols/cn
+f	usr/share/X11/xkb/symbols/compose
+f	usr/share/X11/xkb/symbols/ctrl
+f	usr/share/X11/xkb/symbols/cz
+f	usr/share/X11/xkb/symbols/de
+d	usr/share/X11/xkb/symbols/digital_vndr
+f	usr/share/X11/xkb/symbols/digital_vndr/lk
+f	usr/share/X11/xkb/symbols/digital_vndr/pc
+f	usr/share/X11/xkb/symbols/digital_vndr/us
+f	usr/share/X11/xkb/symbols/digital_vndr/vt
+f	usr/share/X11/xkb/symbols/dk
+f	usr/share/X11/xkb/symbols/dz
+f	usr/share/X11/xkb/symbols/ee
+f	usr/share/X11/xkb/symbols/empty
+f	usr/share/X11/xkb/symbols/epo
+f	usr/share/X11/xkb/symbols/es
+f	usr/share/X11/xkb/symbols/et
+f	usr/share/X11/xkb/symbols/eu
+f	usr/share/X11/xkb/symbols/eurosign
+f	usr/share/X11/xkb/symbols/fi
+f	usr/share/X11/xkb/symbols/fo
+f	usr/share/X11/xkb/symbols/fr
+d	usr/share/X11/xkb/symbols/fujitsu_vndr
+f	usr/share/X11/xkb/symbols/fujitsu_vndr/jp
+f	usr/share/X11/xkb/symbols/fujitsu_vndr/us
+f	usr/share/X11/xkb/symbols/gb
+f	usr/share/X11/xkb/symbols/ge
+f	usr/share/X11/xkb/symbols/gh
+f	usr/share/X11/xkb/symbols/gn
+f	usr/share/X11/xkb/symbols/gr
+f	usr/share/X11/xkb/symbols/group
+d	usr/share/X11/xkb/symbols/hp_vndr
+f	usr/share/X11/xkb/symbols/hp_vndr/us
+f	usr/share/X11/xkb/symbols/hr
+f	usr/share/X11/xkb/symbols/hu
+f	usr/share/X11/xkb/symbols/id
+f	usr/share/X11/xkb/symbols/ie
+f	usr/share/X11/xkb/symbols/il
+f	usr/share/X11/xkb/symbols/in
+f	usr/share/X11/xkb/symbols/inet
+f	usr/share/X11/xkb/symbols/iq
+f	usr/share/X11/xkb/symbols/ir
+f	usr/share/X11/xkb/symbols/is
+f	usr/share/X11/xkb/symbols/it
+d	usr/share/X11/xkb/symbols/jolla_vndr
+f	usr/share/X11/xkb/symbols/jolla_vndr/sbj
+f	usr/share/X11/xkb/symbols/jp
+f	usr/share/X11/xkb/symbols/ke
+f	usr/share/X11/xkb/symbols/keypad
+f	usr/share/X11/xkb/symbols/kg
+f	usr/share/X11/xkb/symbols/kh
+f	usr/share/X11/xkb/symbols/kpdl
+f	usr/share/X11/xkb/symbols/kr
+f	usr/share/X11/xkb/symbols/kz
+f	usr/share/X11/xkb/symbols/la
+f	usr/share/X11/xkb/symbols/latam
+f	usr/share/X11/xkb/symbols/latin
+f	usr/share/X11/xkb/symbols/level3
+f	usr/share/X11/xkb/symbols/level5
+f	usr/share/X11/xkb/symbols/lk
+f	usr/share/X11/xkb/symbols/lt
+f	usr/share/X11/xkb/symbols/lv
+f	usr/share/X11/xkb/symbols/ma
+d	usr/share/X11/xkb/symbols/macintosh_vndr
+f	usr/share/X11/xkb/symbols/macintosh_vndr/apple
+f	usr/share/X11/xkb/symbols/macintosh_vndr/ch
+f	usr/share/X11/xkb/symbols/macintosh_vndr/de
+f	usr/share/X11/xkb/symbols/macintosh_vndr/dk
+f	usr/share/X11/xkb/symbols/macintosh_vndr/fi
+f	usr/share/X11/xkb/symbols/macintosh_vndr/fr
+f	usr/share/X11/xkb/symbols/macintosh_vndr/gb
+f	usr/share/X11/xkb/symbols/macintosh_vndr/is
+f	usr/share/X11/xkb/symbols/macintosh_vndr/it
+f	usr/share/X11/xkb/symbols/macintosh_vndr/jp
+f	usr/share/X11/xkb/symbols/macintosh_vndr/latam
+f	usr/share/X11/xkb/symbols/macintosh_vndr/nl
+f	usr/share/X11/xkb/symbols/macintosh_vndr/no
+f	usr/share/X11/xkb/symbols/macintosh_vndr/pt
+f	usr/share/X11/xkb/symbols/macintosh_vndr/se
+f	usr/share/X11/xkb/symbols/macintosh_vndr/us
+f	usr/share/X11/xkb/symbols/mao
+f	usr/share/X11/xkb/symbols/md
+f	usr/share/X11/xkb/symbols/me
+f	usr/share/X11/xkb/symbols/mk
+f	usr/share/X11/xkb/symbols/ml
+f	usr/share/X11/xkb/symbols/mm
+f	usr/share/X11/xkb/symbols/mn
+f	usr/share/X11/xkb/symbols/mt
+f	usr/share/X11/xkb/symbols/mv
+f	usr/share/X11/xkb/symbols/my
+f	usr/share/X11/xkb/symbols/nbsp
+d	usr/share/X11/xkb/symbols/nec_vndr
+f	usr/share/X11/xkb/symbols/nec_vndr/jp
+f	usr/share/X11/xkb/symbols/ng
+f	usr/share/X11/xkb/symbols/nl
+f	usr/share/X11/xkb/symbols/no
+d	usr/share/X11/xkb/symbols/nokia_vndr
+f	usr/share/X11/xkb/symbols/nokia_vndr/rx-44
+f	usr/share/X11/xkb/symbols/nokia_vndr/rx-51
+f	usr/share/X11/xkb/symbols/nokia_vndr/su-8w
+f	usr/share/X11/xkb/symbols/np
+f	usr/share/X11/xkb/symbols/olpc
+f	usr/share/X11/xkb/symbols/pc
+f	usr/share/X11/xkb/symbols/ph
+f	usr/share/X11/xkb/symbols/pk
+f	usr/share/X11/xkb/symbols/pl
+f	usr/share/X11/xkb/symbols/pt
+f	usr/share/X11/xkb/symbols/ro
+f	usr/share/X11/xkb/symbols/rs
+f	usr/share/X11/xkb/symbols/ru
+f	usr/share/X11/xkb/symbols/rupeesign
+f	usr/share/X11/xkb/symbols/se
+d	usr/share/X11/xkb/symbols/sgi_vndr
+f	usr/share/X11/xkb/symbols/sgi_vndr/jp
+d	usr/share/X11/xkb/symbols/sharp_vndr
+f	usr/share/X11/xkb/symbols/sharp_vndr/sl-c3x00
+f	usr/share/X11/xkb/symbols/sharp_vndr/ws003sh
+f	usr/share/X11/xkb/symbols/sharp_vndr/ws007sh
+f	usr/share/X11/xkb/symbols/sharp_vndr/ws011sh
+f	usr/share/X11/xkb/symbols/sharp_vndr/ws020sh
+f	usr/share/X11/xkb/symbols/shift
+f	usr/share/X11/xkb/symbols/si
+f	usr/share/X11/xkb/symbols/sk
+f	usr/share/X11/xkb/symbols/sn
+d	usr/share/X11/xkb/symbols/sony_vndr
+f	usr/share/X11/xkb/symbols/sony_vndr/us
+f	usr/share/X11/xkb/symbols/srvr_ctrl
+d	usr/share/X11/xkb/symbols/sun_vndr
+f	usr/share/X11/xkb/symbols/sun_vndr/ara
+f	usr/share/X11/xkb/symbols/sun_vndr/be
+f	usr/share/X11/xkb/symbols/sun_vndr/br
+f	usr/share/X11/xkb/symbols/sun_vndr/ca
+f	usr/share/X11/xkb/symbols/sun_vndr/ch
+f	usr/share/X11/xkb/symbols/sun_vndr/cz
+f	usr/share/X11/xkb/symbols/sun_vndr/de
+f	usr/share/X11/xkb/symbols/sun_vndr/dk
+f	usr/share/X11/xkb/symbols/sun_vndr/ee
+f	usr/share/X11/xkb/symbols/sun_vndr/es
+f	usr/share/X11/xkb/symbols/sun_vndr/fi
+f	usr/share/X11/xkb/symbols/sun_vndr/fr
+f	usr/share/X11/xkb/symbols/sun_vndr/gb
+f	usr/share/X11/xkb/symbols/sun_vndr/gr
+f	usr/share/X11/xkb/symbols/sun_vndr/it
+f	usr/share/X11/xkb/symbols/sun_vndr/jp
+f	usr/share/X11/xkb/symbols/sun_vndr/kr
+f	usr/share/X11/xkb/symbols/sun_vndr/lt
+f	usr/share/X11/xkb/symbols/sun_vndr/lv
+f	usr/share/X11/xkb/symbols/sun_vndr/nl
+f	usr/share/X11/xkb/symbols/sun_vndr/no
+f	usr/share/X11/xkb/symbols/sun_vndr/pl
+f	usr/share/X11/xkb/symbols/sun_vndr/pt
+f	usr/share/X11/xkb/symbols/sun_vndr/ro
+f	usr/share/X11/xkb/symbols/sun_vndr/ru
+f	usr/share/X11/xkb/symbols/sun_vndr/se
+f	usr/share/X11/xkb/symbols/sun_vndr/sk
+f	usr/share/X11/xkb/symbols/sun_vndr/solaris
+f	usr/share/X11/xkb/symbols/sun_vndr/tr
+f	usr/share/X11/xkb/symbols/sun_vndr/tw
+f	usr/share/X11/xkb/symbols/sun_vndr/ua
+f	usr/share/X11/xkb/symbols/sun_vndr/us
+f	usr/share/X11/xkb/symbols/sy
+f	usr/share/X11/xkb/symbols/terminate
+f	usr/share/X11/xkb/symbols/tg
+f	usr/share/X11/xkb/symbols/th
+f	usr/share/X11/xkb/symbols/tj
+f	usr/share/X11/xkb/symbols/tm
+f	usr/share/X11/xkb/symbols/tr
+f	usr/share/X11/xkb/symbols/tw
+f	usr/share/X11/xkb/symbols/typo
+f	usr/share/X11/xkb/symbols/tz
+f	usr/share/X11/xkb/symbols/ua
+f	usr/share/X11/xkb/symbols/us
+f	usr/share/X11/xkb/symbols/uz
+f	usr/share/X11/xkb/symbols/vn
+d	usr/share/X11/xkb/symbols/xfree68_vndr
+f	usr/share/X11/xkb/symbols/xfree68_vndr/amiga
+f	usr/share/X11/xkb/symbols/xfree68_vndr/ataritt
+f	usr/share/X11/xkb/symbols/za
+d	usr/share/X11/xkb/types
+f	usr/share/X11/xkb/types/README
+f	usr/share/X11/xkb/types/basic
+f	usr/share/X11/xkb/types/cancel
+f	usr/share/X11/xkb/types/caps
+f	usr/share/X11/xkb/types/complete
+f	usr/share/X11/xkb/types/default
+f	usr/share/X11/xkb/types/extra
+f	usr/share/X11/xkb/types/iso9995
+f	usr/share/X11/xkb/types/level5
+f	usr/share/X11/xkb/types/mousekeys
+f	usr/share/X11/xkb/types/nokia
+f	usr/share/X11/xkb/types/numpad
+f	usr/share/X11/xkb/types/pc
+d	usr/share/alsa
+f	usr/share/alsa/alsa.conf
+d	usr/share/alsa/alsa.conf.d
+f	usr/share/alsa/alsa.conf.d/README
+d	usr/share/alsa/cards
+f	usr/share/alsa/cards/AACI.conf
+f	usr/share/alsa/cards/ATIIXP-MODEM.conf
+f	usr/share/alsa/cards/ATIIXP-SPDMA.conf
+f	usr/share/alsa/cards/ATIIXP.conf
+f	usr/share/alsa/cards/AU8810.conf
+f	usr/share/alsa/cards/AU8820.conf
+f	usr/share/alsa/cards/AU8830.conf
+f	usr/share/alsa/cards/Audigy.conf
+f	usr/share/alsa/cards/Audigy2.conf
+f	usr/share/alsa/cards/Aureon51.conf
+f	usr/share/alsa/cards/Aureon71.conf
+f	usr/share/alsa/cards/CA0106.conf
+f	usr/share/alsa/cards/CMI8338-SWIEC.conf
+f	usr/share/alsa/cards/CMI8338.conf
+f	usr/share/alsa/cards/CMI8738-MC6.conf
+f	usr/share/alsa/cards/CMI8738-MC8.conf
+f	usr/share/alsa/cards/CMI8788.conf
+f	usr/share/alsa/cards/CS46xx.conf
+f	usr/share/alsa/cards/EMU10K1.conf
+f	usr/share/alsa/cards/EMU10K1X.conf
+f	usr/share/alsa/cards/ENS1370.conf
+f	usr/share/alsa/cards/ENS1371.conf
+f	usr/share/alsa/cards/ES1968.conf
+f	usr/share/alsa/cards/Echo_Echo3G.conf
+f	usr/share/alsa/cards/FM801.conf
+f	usr/share/alsa/cards/FWSpeakers.conf
+f	usr/share/alsa/cards/FireWave.conf
+f	usr/share/alsa/cards/GUS.conf
+f	usr/share/alsa/cards/HDA-Intel.conf
+f	usr/share/alsa/cards/ICE1712.conf
+f	usr/share/alsa/cards/ICE1724.conf
+f	usr/share/alsa/cards/ICH-MODEM.conf
+f	usr/share/alsa/cards/ICH.conf
+f	usr/share/alsa/cards/ICH4.conf
+f	usr/share/alsa/cards/Loopback.conf
+f	usr/share/alsa/cards/Maestro3.conf
+f	usr/share/alsa/cards/NFORCE.conf
+f	usr/share/alsa/cards/PC-Speaker.conf
+f	usr/share/alsa/cards/PMac.conf
+f	usr/share/alsa/cards/PMacToonie.conf
+f	usr/share/alsa/cards/PS3.conf
+f	usr/share/alsa/cards/RME9636.conf
+f	usr/share/alsa/cards/RME9652.conf
+f	usr/share/alsa/cards/SB-XFi.conf
+d	usr/share/alsa/cards/SI7018
+f	usr/share/alsa/cards/SI7018.conf
+f	usr/share/alsa/cards/SI7018/sndoc-mixer.alisp
+f	usr/share/alsa/cards/SI7018/sndop-mixer.alisp
+f	usr/share/alsa/cards/TRID4DWAVENX.conf
+f	usr/share/alsa/cards/USB-Audio.conf
+f	usr/share/alsa/cards/VIA686A.conf
+f	usr/share/alsa/cards/VIA8233.conf
+f	usr/share/alsa/cards/VIA8233A.conf
+f	usr/share/alsa/cards/VIA8237.conf
+f	usr/share/alsa/cards/VX222.conf
+f	usr/share/alsa/cards/VXPocket.conf
+f	usr/share/alsa/cards/VXPocket440.conf
+f	usr/share/alsa/cards/YMF744.conf
+f	usr/share/alsa/cards/aliases.alisp
+f	usr/share/alsa/cards/aliases.conf
+d	usr/share/alsa/init
+f	usr/share/alsa/init/00main
+f	usr/share/alsa/init/ca0106
+f	usr/share/alsa/init/default
+f	usr/share/alsa/init/hda
+f	usr/share/alsa/init/help
+f	usr/share/alsa/init/info
+f	usr/share/alsa/init/test
+d	usr/share/alsa/pcm
+f	usr/share/alsa/pcm/center_lfe.conf
+f	usr/share/alsa/pcm/default.conf
+f	usr/share/alsa/pcm/dmix.conf
+f	usr/share/alsa/pcm/dpl.conf
+f	usr/share/alsa/pcm/dsnoop.conf
+f	usr/share/alsa/pcm/front.conf
+f	usr/share/alsa/pcm/hdmi.conf
+f	usr/share/alsa/pcm/iec958.conf
+f	usr/share/alsa/pcm/modem.conf
+f	usr/share/alsa/pcm/rear.conf
+f	usr/share/alsa/pcm/side.conf
+f	usr/share/alsa/pcm/surround21.conf
+f	usr/share/alsa/pcm/surround40.conf
+f	usr/share/alsa/pcm/surround41.conf
+f	usr/share/alsa/pcm/surround50.conf
+f	usr/share/alsa/pcm/surround51.conf
+f	usr/share/alsa/pcm/surround71.conf
+f	usr/share/alsa/smixer.conf
+f	usr/share/alsa/sndo-mixer.alisp
+d	usr/share/alsa/topology
+d	usr/share/alsa/topology/broadwell
+f	usr/share/alsa/topology/broadwell/broadwell.conf
+d	usr/share/alsa/topology/sklrt286
+f	usr/share/alsa/topology/sklrt286/codec0_in-cpr-1.bin
+f	usr/share/alsa/topology/sklrt286/codec0_in-mi.bin
+f	usr/share/alsa/topology/sklrt286/codec0_out-cpr-4.bin
+f	usr/share/alsa/topology/sklrt286/codec0_out-mo.bin
+f	usr/share/alsa/topology/sklrt286/codec1_out-cpr-5.bin
+f	usr/share/alsa/topology/sklrt286/codec1_out-mo.bin
+f	usr/share/alsa/topology/sklrt286/dmic01_hifi_in-cpr-3.bin
+f	usr/share/alsa/topology/sklrt286/dmic01_hifi_in-mi.bin
+f	usr/share/alsa/topology/sklrt286/hdmi1_pt_out-cpr-7.bin
+f	usr/share/alsa/topology/sklrt286/hdmi1_pt_out-cpr-8.bin
+f	usr/share/alsa/topology/sklrt286/hdmi2_pt_out-cpr-10.bin
+f	usr/share/alsa/topology/sklrt286/hdmi2_pt_out-cpr-9.bin
+f	usr/share/alsa/topology/sklrt286/hdmi3_pt_out-cpr-11.bin
+f	usr/share/alsa/topology/sklrt286/hdmi3_pt_out-cpr-12.bin
+f	usr/share/alsa/topology/sklrt286/media0_in-cpr-0.bin
+f	usr/share/alsa/topology/sklrt286/media0_in-mi.bin
+f	usr/share/alsa/topology/sklrt286/media0_out-cpr-6.bin
+f	usr/share/alsa/topology/sklrt286/media0_out-mo.bin
+f	usr/share/alsa/topology/sklrt286/skl_i2s.conf
+d	usr/share/alsa/ucm
+d	usr/share/alsa/ucm/DAISY-I2S
+f	usr/share/alsa/ucm/DAISY-I2S/DAISY-I2S.conf
+f	usr/share/alsa/ucm/DAISY-I2S/HiFi.conf
+d	usr/share/alsa/ucm/GoogleNyan
+f	usr/share/alsa/ucm/GoogleNyan/GoogleNyan.conf
+f	usr/share/alsa/ucm/GoogleNyan/HiFi.conf
+d	usr/share/alsa/ucm/PAZ00
+f	usr/share/alsa/ucm/PAZ00/HiFi.conf
+f	usr/share/alsa/ucm/PAZ00/PAZ00.conf
+f	usr/share/alsa/ucm/PAZ00/Record.conf
+d	usr/share/alsa/ucm/PandaBoard
+f	usr/share/alsa/ucm/PandaBoard/FMAnalog
+f	usr/share/alsa/ucm/PandaBoard/PandaBoard.conf
+f	usr/share/alsa/ucm/PandaBoard/hifi
+f	usr/share/alsa/ucm/PandaBoard/hifiLP
+f	usr/share/alsa/ucm/PandaBoard/record
+f	usr/share/alsa/ucm/PandaBoard/voice
+f	usr/share/alsa/ucm/PandaBoard/voiceCall
+d	usr/share/alsa/ucm/PandaBoardES
+f	usr/share/alsa/ucm/PandaBoardES/FMAnalog
+f	usr/share/alsa/ucm/PandaBoardES/PandaBoardES.conf
+f	usr/share/alsa/ucm/PandaBoardES/hifi
+f	usr/share/alsa/ucm/PandaBoardES/hifiLP
+f	usr/share/alsa/ucm/PandaBoardES/record
+f	usr/share/alsa/ucm/PandaBoardES/voice
+f	usr/share/alsa/ucm/PandaBoardES/voiceCall
+d	usr/share/alsa/ucm/SDP4430
+f	usr/share/alsa/ucm/SDP4430/FMAnalog
+f	usr/share/alsa/ucm/SDP4430/SDP4430.conf
+f	usr/share/alsa/ucm/SDP4430/hifi
+f	usr/share/alsa/ucm/SDP4430/hifiLP
+f	usr/share/alsa/ucm/SDP4430/record
+f	usr/share/alsa/ucm/SDP4430/voice
+f	usr/share/alsa/ucm/SDP4430/voiceCall
+d	usr/share/alsa/ucm/VEYRON-I2S
+f	usr/share/alsa/ucm/VEYRON-I2S/HiFi.conf
+f	usr/share/alsa/ucm/VEYRON-I2S/VEYRON-I2S.conf
+d	usr/share/alsa/ucm/broadwell-rt286
+f	usr/share/alsa/ucm/broadwell-rt286/HiFi
+f	usr/share/alsa/ucm/broadwell-rt286/broadwell-rt286.conf
+d	usr/share/alsa/ucm/chtrt5645
+f	usr/share/alsa/ucm/chtrt5645/HiFi.conf
+f	usr/share/alsa/ucm/chtrt5645/chtrt5645.conf
+d	usr/share/alsa/ucm/tegraalc5632
+f	usr/share/alsa/ucm/tegraalc5632/tegraalc5632.conf
+d	usr/share/bash-completion
+d	usr/share/bash-completion/completions
+f	usr/share/bash-completion/completions/udevadm
+d	usr/share/dbus-1
+d	usr/share/dbus-1/services
+l	usr/share/dbus-1/services/org.freedesktop.systemd1.service	../system-services/org.freedesktop.systemd1.service
+f	usr/share/dbus-1/session.conf
+d	usr/share/dbus-1/session.d
+d	usr/share/dbus-1/system-services
+f	usr/share/dbus-1/system-services/org.freedesktop.login1.service
+f	usr/share/dbus-1/system-services/org.freedesktop.systemd1.service
+f	usr/share/dbus-1/system-services/org.freedesktop.timedate1.service
+f	usr/share/dbus-1/system.conf
+d	usr/share/dbus-1/system.d
+d	usr/share/dict
+d	usr/share/doc
+d	usr/share/doc/liberation-fonts
+f	usr/share/doc/liberation-fonts/License.txt
+d	usr/share/factory
+d	usr/share/factory/etc
+f	usr/share/factory/etc/nsswitch.conf
+d	usr/share/factory/etc/pam.d
+f	usr/share/factory/etc/pam.d/other
+f	usr/share/factory/etc/pam.d/system-auth
+d	usr/share/fontconfig
+d	usr/share/fontconfig/conf.avail
+f	usr/share/fontconfig/conf.avail/10-autohint.conf
+f	usr/share/fontconfig/conf.avail/10-hinting-full.conf
+f	usr/share/fontconfig/conf.avail/10-hinting-medium.conf
+f	usr/share/fontconfig/conf.avail/10-hinting-none.conf
+f	usr/share/fontconfig/conf.avail/10-hinting-slight.conf
+f	usr/share/fontconfig/conf.avail/10-no-sub-pixel.conf
+f	usr/share/fontconfig/conf.avail/10-scale-bitmap-fonts.conf
+f	usr/share/fontconfig/conf.avail/10-sub-pixel-bgr.conf
+f	usr/share/fontconfig/conf.avail/10-sub-pixel-rgb.conf
+f	usr/share/fontconfig/conf.avail/10-sub-pixel-vbgr.conf
+f	usr/share/fontconfig/conf.avail/10-sub-pixel-vrgb.conf
+f	usr/share/fontconfig/conf.avail/10-unhinted.conf
+f	usr/share/fontconfig/conf.avail/11-lcdfilter-default.conf
+f	usr/share/fontconfig/conf.avail/11-lcdfilter-legacy.conf
+f	usr/share/fontconfig/conf.avail/11-lcdfilter-light.conf
+f	usr/share/fontconfig/conf.avail/20-unhint-small-vera.conf
+f	usr/share/fontconfig/conf.avail/25-unhint-nonlatin.conf
+f	usr/share/fontconfig/conf.avail/30-metric-aliases.conf
+f	usr/share/fontconfig/conf.avail/30-urw-aliases.conf
+f	usr/share/fontconfig/conf.avail/40-nonlatin.conf
+f	usr/share/fontconfig/conf.avail/45-latin.conf
+f	usr/share/fontconfig/conf.avail/49-sansserif.conf
+f	usr/share/fontconfig/conf.avail/50-user.conf
+f	usr/share/fontconfig/conf.avail/51-local.conf
+f	usr/share/fontconfig/conf.avail/60-latin.conf
+f	usr/share/fontconfig/conf.avail/65-fonts-persian.conf
+f	usr/share/fontconfig/conf.avail/65-khmer.conf
+f	usr/share/fontconfig/conf.avail/65-nonlatin.conf
+f	usr/share/fontconfig/conf.avail/69-unifont.conf
+f	usr/share/fontconfig/conf.avail/70-no-bitmaps.conf
+f	usr/share/fontconfig/conf.avail/70-yes-bitmaps.conf
+f	usr/share/fontconfig/conf.avail/80-delicious.conf
+f	usr/share/fontconfig/conf.avail/90-synthetic.conf
+d	usr/share/fonts
+d	usr/share/fonts/ttf
+f	usr/share/fonts/ttf/LiberationMono-Bold.ttf
+f	usr/share/fonts/ttf/LiberationMono-BoldItalic.ttf
+f	usr/share/fonts/ttf/LiberationMono-Italic.ttf
+f	usr/share/fonts/ttf/LiberationMono-Regular.ttf
+f	usr/share/fonts/ttf/LiberationSans-Bold.ttf
+f	usr/share/fonts/ttf/LiberationSans-BoldItalic.ttf
+f	usr/share/fonts/ttf/LiberationSans-Italic.ttf
+f	usr/share/fonts/ttf/LiberationSans-Regular.ttf
+f	usr/share/fonts/ttf/LiberationSerif-Bold.ttf
+f	usr/share/fonts/ttf/LiberationSerif-BoldItalic.ttf
+f	usr/share/fonts/ttf/LiberationSerif-Italic.ttf
+f	usr/share/fonts/ttf/LiberationSerif-Regular.ttf
+d	usr/share/gnupg
+d	usr/share/info
+d	usr/share/locale
+d	usr/share/locale/de
+d	usr/share/locale/de/LC_MESSAGES
+f	usr/share/locale/de/LC_MESSAGES/alsa-utils.mo
+d	usr/share/locale/fr
+d	usr/share/locale/fr/LC_MESSAGES
+f	usr/share/locale/fr/LC_MESSAGES/alsa-utils.mo
+d	usr/share/locale/ja
+d	usr/share/locale/ja/LC_MESSAGES
+f	usr/share/locale/ja/LC_MESSAGES/alsa-utils.mo
+f	usr/share/locale/ja/LC_MESSAGES/alsaconf.mo
+d	usr/share/locale/ru
+d	usr/share/locale/ru/LC_MESSAGES
+f	usr/share/locale/ru/LC_MESSAGES/alsaconf.mo
+d	usr/share/man
+d	usr/share/misc
+d	usr/share/misc/sony
+f	usr/share/misc/sony/20-joystick.rules
+f	usr/share/misc/sony/check_version
+f	usr/share/misc/sony/cpu_mode
+f	usr/share/misc/sony/powermanage.service
+f	usr/share/misc/sony/reboot_s
+f	usr/share/misc/sony/resume_run
+f	usr/share/misc/sony/showLogo
+f	usr/share/misc/sony/sic
+f	usr/share/misc/sony/sic.db
+f	usr/share/misc/sony/sonyapp
+f	usr/share/misc/sony/sonyapp-copy
+f	usr/share/misc/sony/sonyapp-copylink
+f	usr/share/misc/sony/sonyapp-launch
+f	usr/share/misc/sony/sonyapp.service
+f	usr/share/misc/sony/start_pman
+f	usr/share/misc/sony/usb_watch
+f	usr/share/misc/sony/usbreset
+f	usr/share/misc/sony/usbreset_auto
+f	usr/share/misc/sony/usbwatch.service
+f	usr/share/misc/sony/verstr
+f	usr/share/misc/sony/wait_sdl
+d	usr/share/polkit-1
+d	usr/share/polkit-1/actions
+f	usr/share/polkit-1/actions/org.freedesktop.login1.policy
+f	usr/share/polkit-1/actions/org.freedesktop.systemd1.policy
+f	usr/share/polkit-1/actions/org.freedesktop.timedate1.policy
+d	usr/share/udhcpc
+f	usr/share/udhcpc/default.script
+d	usr/share/wayland-sessions
+f	usr/share/wayland-sessions/weston.desktop
+d	usr/share/weston
+f	usr/share/weston/background.png
+f	usr/share/weston/border.png
+f	usr/share/weston/fullscreen.png
+f	usr/share/weston/home.png
+f	usr/share/weston/icon_editor.png
+f	usr/share/weston/icon_flower.png
+f	usr/share/weston/icon_ivi_clickdot.png
+f	usr/share/weston/icon_ivi_flower.png
+f	usr/share/weston/icon_ivi_simple-egl.png
+f	usr/share/weston/icon_ivi_simple-shm.png
+f	usr/share/weston/icon_ivi_smoke.png
+f	usr/share/weston/icon_terminal.png
+f	usr/share/weston/icon_window.png
+f	usr/share/weston/panel.png
+f	usr/share/weston/pattern.png
+f	usr/share/weston/random.png
+f	usr/share/weston/sgmoconf.png
+f	usr/share/weston/sidebyside.png
+f	usr/share/weston/sign_close.png
+f	usr/share/weston/sign_maximize.png
+f	usr/share/weston/sign_minimize.png
+f	usr/share/weston/sorry-unstable.png
+f	usr/share/weston/sorry-weston.ini
+f	usr/share/weston/terminal.png
+f	usr/share/weston/tiling.png
+f	usr/share/weston/wayland.png
+f	usr/share/weston/wayland.svg
+d	usr/share/xml
+d	usr/share/xml/fontconfig
+f	usr/share/xml/fontconfig/fonts.dtd
+d	usr/sony
+d	usr/sony/bin
+f	usr/sony/bin/auto_dimmer
+f	usr/sony/bin/checkcurrentlog.sh
+f	usr/sony/bin/killp
+f	usr/sony/bin/pcsx
+d	usr/sony/bin/plugins
+f	usr/sony/bin/plugins/gpu_peops.so
+f	usr/sony/bin/recovery.sh
+f	usr/sony/bin/recovery2.sh
+f	usr/sony/bin/showCopyright.sh
+f	usr/sony/bin/showLogo
+f	usr/sony/bin/showVersion.sh
+f	usr/sony/bin/sonyapp
+f	usr/sony/bin/sonyapp-copy
+f	usr/sony/bin/sonyapp-copylink
+f	usr/sony/bin/ui_menu
+d	usr/sony/lib
+f	usr/sony/lib/charset.alias
+l	usr/sony/lib/libSDL2_mixer-2.0.so.0	/usr/sony/lib/libSDL2_mixer-2.0.so.0.0.0
+f	usr/sony/lib/libSDL2_mixer-2.0.so.0.0.0
+l	usr/sony/lib/libSDL2_mixer.so	/usr/sony/lib/libSDL2_mixer-2.0.so.0.0.0
+f	usr/sony/lib/libcharset.a
+f	usr/sony/lib/libcharset.la
+l	usr/sony/lib/libcharset.so	libcharset.so.1.0.0
+l	usr/sony/lib/libcharset.so.1	libcharset.so.1.0.0
+f	usr/sony/lib/libcharset.so.1.0.0
+f	usr/sony/lib/libiconv.la
+l	usr/sony/lib/libiconv.so	libiconv.so.2.6.0
+l	usr/sony/lib/libiconv.so.2	libiconv.so.2.6.0
+f	usr/sony/lib/libiconv.so.2.6.0
+l	usr/sony/lib/libsqlite3.so	/usr/sony/lib/libsqlite3.so.0.8.6
+l	usr/sony/lib/libsqlite3.so.0	/usr/sony/lib/libsqlite3.so.0.8.6
+f	usr/sony/lib/libsqlite3.so.0.8.6
+f	usr/sony/lib/preloadable_libiconv.so
+d	usr/sony/share
+d	usr/sony/share/data
+f	usr/sony/share/data/REGION
+d	usr/sony/share/data/database
+d	usr/sony/share/data/databases
+f	usr/sony/share/data/databases/regional_EK.db
+f	usr/sony/share/data/databases/regional_ET.db
+f	usr/sony/share/data/databases/regional_J.db
+f	usr/sony/share/data/databases/regional_UC.db
+f	usr/sony/share/data/databases/system.db
+d	usr/sony/share/data/font
+f	usr/sony/share/data/font/SST-Bold.ttf
+f	usr/sony/share/data/font/SST-Medium.ttf
+f	usr/sony/share/data/font/SSTJapanese-Bold.ttf
+f	usr/sony/share/data/font/SSTJapanese-Regular.ttf
+d	usr/sony/share/data/images
+d	usr/sony/share/data/images/BMP_TXT_SST
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_now_Dutch.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_now_E.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_now_E_UK.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_now_French.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_now_French_CA.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_now_German.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_now_Italian.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_now_J.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_now_Portuguese.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_now_Portuguese_BR.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_now_Russian.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_now_Spanish.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_now_Spanish_LA.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_this_game_Dutch.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_this_game_E.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_this_game_E_UK.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_this_game_French.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_this_game_French_CA.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_this_game_German.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_this_game_Italian.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_this_game_J.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_this_game_Portuguese.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_this_game_Portuguese_BR.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_this_game_Russian.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_this_game_Spanish.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_cant_change_discs_this_game_Spanish_LA.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_current_inserted_disc_info_Dutch.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_current_inserted_disc_info_E.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_current_inserted_disc_info_E_UK.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_current_inserted_disc_info_French.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_current_inserted_disc_info_French_CA.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_current_inserted_disc_info_German.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_current_inserted_disc_info_Italian.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_current_inserted_disc_info_J.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_current_inserted_disc_info_Portuguese.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_current_inserted_disc_info_Portuguese_BR.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_current_inserted_disc_info_Russian.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_current_inserted_disc_info_Spanish.png
+f	usr/sony/share/data/images/BMP_TXT_SST/msg_current_inserted_disc_info_Spanish_LA.png
+d	usr/sony/share/data/images/BMP_Text
+f	usr/sony/share/data/images/BMP_Text/Delete_Text.png
+f	usr/sony/share/data/images/BMP_Text/Delete_Text_Dutch.png
+f	usr/sony/share/data/images/BMP_Text/Delete_Text_E.png
+f	usr/sony/share/data/images/BMP_Text/Delete_Text_E_UK.png
+f	usr/sony/share/data/images/BMP_Text/Delete_Text_French.png
+f	usr/sony/share/data/images/BMP_Text/Delete_Text_French_CA.png
+f	usr/sony/share/data/images/BMP_Text/Delete_Text_German.png
+f	usr/sony/share/data/images/BMP_Text/Delete_Text_Italian.png
+f	usr/sony/share/data/images/BMP_Text/Delete_Text_Portuguese.png
+f	usr/sony/share/data/images/BMP_Text/Delete_Text_Portuguese_BR.png
+f	usr/sony/share/data/images/BMP_Text/Delete_Text_Russian.png
+f	usr/sony/share/data/images/BMP_Text/Delete_Text_Spanish.png
+f	usr/sony/share/data/images/BMP_Text/Delete_Text_Spanish_LA.png
+f	usr/sony/share/data/images/BMP_Text/MC_Dutch.png
+f	usr/sony/share/data/images/BMP_Text/MC_Dutch_S.png
+f	usr/sony/share/data/images/BMP_Text/MC_E.png
+f	usr/sony/share/data/images/BMP_Text/MC_E_S.png
+f	usr/sony/share/data/images/BMP_Text/MC_E_UK.png
+f	usr/sony/share/data/images/BMP_Text/MC_E_UK_S.png
+f	usr/sony/share/data/images/BMP_Text/MC_Franch_CA.png
+f	usr/sony/share/data/images/BMP_Text/MC_French.png
+f	usr/sony/share/data/images/BMP_Text/MC_French_CA_S.png
+f	usr/sony/share/data/images/BMP_Text/MC_French_S.png
+f	usr/sony/share/data/images/BMP_Text/MC_German.png
+f	usr/sony/share/data/images/BMP_Text/MC_German_S.png
+f	usr/sony/share/data/images/BMP_Text/MC_Italian.png
+f	usr/sony/share/data/images/BMP_Text/MC_Italian_S.png
+f	usr/sony/share/data/images/BMP_Text/MC_J.png
+f	usr/sony/share/data/images/BMP_Text/MC_J_S .png
+f	usr/sony/share/data/images/BMP_Text/MC_Portuguese.png
+f	usr/sony/share/data/images/BMP_Text/MC_Portuguese_BR.png
+f	usr/sony/share/data/images/BMP_Text/MC_Portuguese_BR_S.png
+f	usr/sony/share/data/images/BMP_Text/MC_Portuguese_S.png
+f	usr/sony/share/data/images/BMP_Text/MC_Russian.png
+f	usr/sony/share/data/images/BMP_Text/MC_Russian_S.png
+f	usr/sony/share/data/images/BMP_Text/MC_Spanish.png
+f	usr/sony/share/data/images/BMP_Text/MC_Spanish_LA.png
+f	usr/sony/share/data/images/BMP_Text/MC_Spanish_LA_S.png
+f	usr/sony/share/data/images/BMP_Text/MC_Spanish_S.png
+f	usr/sony/share/data/images/BMP_Text/Manual_Dutch.png
+f	usr/sony/share/data/images/BMP_Text/Manual_Dutch_S.png
+f	usr/sony/share/data/images/BMP_Text/Manual_E.png
+f	usr/sony/share/data/images/BMP_Text/Manual_E_S.png
+f	usr/sony/share/data/images/BMP_Text/Manual_E_UK.png
+f	usr/sony/share/data/images/BMP_Text/Manual_E_UK_S.png
+f	usr/sony/share/data/images/BMP_Text/Manual_French.png
+f	usr/sony/share/data/images/BMP_Text/Manual_French_CA.png
+f	usr/sony/share/data/images/BMP_Text/Manual_French_CA_S.png
+f	usr/sony/share/data/images/BMP_Text/Manual_French_S.png
+f	usr/sony/share/data/images/BMP_Text/Manual_German.png
+f	usr/sony/share/data/images/BMP_Text/Manual_German_S.png
+f	usr/sony/share/data/images/BMP_Text/Manual_Italian.png
+f	usr/sony/share/data/images/BMP_Text/Manual_Italian_S.png
+f	usr/sony/share/data/images/BMP_Text/Manual_J.png
+f	usr/sony/share/data/images/BMP_Text/Manual_J_S.png
+f	usr/sony/share/data/images/BMP_Text/Manual_Portuguese.png
+f	usr/sony/share/data/images/BMP_Text/Manual_Portuguese_BR.png
+f	usr/sony/share/data/images/BMP_Text/Manual_Portuguese_BR_S.png
+f	usr/sony/share/data/images/BMP_Text/Manual_Portuguese_S.png
+f	usr/sony/share/data/images/BMP_Text/Manual_Russian.png
+f	usr/sony/share/data/images/BMP_Text/Manual_Russian_S.png
+f	usr/sony/share/data/images/BMP_Text/Manual_Spanish.png
+f	usr/sony/share/data/images/BMP_Text/Manual_Spanish_LA.png
+f	usr/sony/share/data/images/BMP_Text/Manual_Spanish_LA_S.png
+f	usr/sony/share/data/images/BMP_Text/Manual_Spanish_S.png
+f	usr/sony/share/data/images/BMP_Text/No_Btn.png
+f	usr/sony/share/data/images/BMP_Text/No_Btn_Dutch.png
+f	usr/sony/share/data/images/BMP_Text/No_Btn_E.png
+f	usr/sony/share/data/images/BMP_Text/No_Btn_E_UK.png
+f	usr/sony/share/data/images/BMP_Text/No_Btn_French.png
+f	usr/sony/share/data/images/BMP_Text/No_Btn_French_CA.png
+f	usr/sony/share/data/images/BMP_Text/No_Btn_German.png
+f	usr/sony/share/data/images/BMP_Text/No_Btn_Italian.png
+f	usr/sony/share/data/images/BMP_Text/No_Btn_Portuguese.png
+f	usr/sony/share/data/images/BMP_Text/No_Btn_Portuguese_BR.png
+f	usr/sony/share/data/images/BMP_Text/No_Btn_Russian.png
+f	usr/sony/share/data/images/BMP_Text/No_Btn_Spanish.png
+f	usr/sony/share/data/images/BMP_Text/No_Btn_Spanish_LA.png
+f	usr/sony/share/data/images/BMP_Text/OK_Btn.png
+f	usr/sony/share/data/images/BMP_Text/OK_Btn_Dutch.png
+f	usr/sony/share/data/images/BMP_Text/OK_Btn_E.png
+f	usr/sony/share/data/images/BMP_Text/OK_Btn_E_UK.png
+f	usr/sony/share/data/images/BMP_Text/OK_Btn_French.png
+f	usr/sony/share/data/images/BMP_Text/OK_Btn_French_CA.png
+f	usr/sony/share/data/images/BMP_Text/OK_Btn_German.png
+f	usr/sony/share/data/images/BMP_Text/OK_Btn_Italian.png
+f	usr/sony/share/data/images/BMP_Text/OK_Btn_Portuguese.png
+f	usr/sony/share/data/images/BMP_Text/OK_Btn_Portuguese_BR.png
+f	usr/sony/share/data/images/BMP_Text/OK_Btn_Russian.png
+f	usr/sony/share/data/images/BMP_Text/OK_Btn_Spanish.png
+f	usr/sony/share/data/images/BMP_Text/OK_Btn_Spanish_LA.png
+f	usr/sony/share/data/images/BMP_Text/Play_Text.png
+f	usr/sony/share/data/images/BMP_Text/Play_Text_Dutch.png
+f	usr/sony/share/data/images/BMP_Text/Play_Text_E.png
+f	usr/sony/share/data/images/BMP_Text/Play_Text_E_UK.png
+f	usr/sony/share/data/images/BMP_Text/Play_Text_French.png
+f	usr/sony/share/data/images/BMP_Text/Play_Text_French_CA.png
+f	usr/sony/share/data/images/BMP_Text/Play_Text_German.png
+f	usr/sony/share/data/images/BMP_Text/Play_Text_Italian.png
+f	usr/sony/share/data/images/BMP_Text/Play_Text_Portuguese.png
+f	usr/sony/share/data/images/BMP_Text/Play_Text_Portuguese_BR.png
+f	usr/sony/share/data/images/BMP_Text/Play_Text_Rossian.png
+f	usr/sony/share/data/images/BMP_Text/Play_Text_Spanish.png
+f	usr/sony/share/data/images/BMP_Text/Play_Text_Spanish_LA.png
+f	usr/sony/share/data/images/BMP_Text/ResumeSave_Dutch_S.png
+f	usr/sony/share/data/images/BMP_Text/ResumeSave_E_S.png
+f	usr/sony/share/data/images/BMP_Text/ResumeSave_E_UK_S.png
+f	usr/sony/share/data/images/BMP_Text/ResumeSave_French_CA_S.png
+f	usr/sony/share/data/images/BMP_Text/ResumeSave_French_S.png
+f	usr/sony/share/data/images/BMP_Text/ResumeSave_German_S.png
+f	usr/sony/share/data/images/BMP_Text/ResumeSave_Italian_S.png
+f	usr/sony/share/data/images/BMP_Text/ResumeSave_J_S.png
+f	usr/sony/share/data/images/BMP_Text/ResumeSave_Portuguese_BR_S.png
+f	usr/sony/share/data/images/BMP_Text/ResumeSave_Portuguese_S.png
+f	usr/sony/share/data/images/BMP_Text/ResumeSave_Russian_S.png
+f	usr/sony/share/data/images/BMP_Text/ResumeSave_Spanish_LA_S.png
+f	usr/sony/share/data/images/BMP_Text/ResumeSave_Spanish_S.png
+f	usr/sony/share/data/images/BMP_Text/Setting_Dutch.png
+f	usr/sony/share/data/images/BMP_Text/Setting_Dutch_S.png
+f	usr/sony/share/data/images/BMP_Text/Setting_E.png
+f	usr/sony/share/data/images/BMP_Text/Setting_E_S.png
+f	usr/sony/share/data/images/BMP_Text/Setting_E_UK.png
+f	usr/sony/share/data/images/BMP_Text/Setting_E_UK_S.png
+f	usr/sony/share/data/images/BMP_Text/Setting_French.png
+f	usr/sony/share/data/images/BMP_Text/Setting_French_CA.png
+f	usr/sony/share/data/images/BMP_Text/Setting_French_CA_S.png
+f	usr/sony/share/data/images/BMP_Text/Setting_French_S.png
+f	usr/sony/share/data/images/BMP_Text/Setting_German.png
+f	usr/sony/share/data/images/BMP_Text/Setting_German_S.png
+f	usr/sony/share/data/images/BMP_Text/Setting_Italian.png
+f	usr/sony/share/data/images/BMP_Text/Setting_Italian_S.png
+f	usr/sony/share/data/images/BMP_Text/Setting_J.png
+f	usr/sony/share/data/images/BMP_Text/Setting_J_S.png
+f	usr/sony/share/data/images/BMP_Text/Setting_Portuguese.png
+f	usr/sony/share/data/images/BMP_Text/Setting_Portuguese_BR.png
+f	usr/sony/share/data/images/BMP_Text/Setting_Portuguese_BR_S.png
+f	usr/sony/share/data/images/BMP_Text/Setting_Portuguese_S.png
+f	usr/sony/share/data/images/BMP_Text/Setting_Russian.png
+f	usr/sony/share/data/images/BMP_Text/Setting_Russian_S.png
+f	usr/sony/share/data/images/BMP_Text/Setting_Spanish.png
+f	usr/sony/share/data/images/BMP_Text/Setting_Spanish_LA.png
+f	usr/sony/share/data/images/BMP_Text/Setting_Spanish_LA_S.png
+f	usr/sony/share/data/images/BMP_Text/Setting_Spanish_S.png
+f	usr/sony/share/data/images/BMP_Text/Yes_Btn.png
+f	usr/sony/share/data/images/BMP_Text/Yes_Btn_Dutch.png
+f	usr/sony/share/data/images/BMP_Text/Yes_Btn_E.png
+f	usr/sony/share/data/images/BMP_Text/Yes_Btn_E_UK.png
+f	usr/sony/share/data/images/BMP_Text/Yes_Btn_French.png
+f	usr/sony/share/data/images/BMP_Text/Yes_Btn_French_CA.png
+f	usr/sony/share/data/images/BMP_Text/Yes_Btn_German.png
+f	usr/sony/share/data/images/BMP_Text/Yes_Btn_Italian.png
+f	usr/sony/share/data/images/BMP_Text/Yes_Btn_Portuguese.png
+f	usr/sony/share/data/images/BMP_Text/Yes_Btn_Portuguese_BR.png
+f	usr/sony/share/data/images/BMP_Text/Yes_Btn_Russian.png
+f	usr/sony/share/data/images/BMP_Text/Yes_Btn_Spanish.png
+f	usr/sony/share/data/images/BMP_Text/Yes_Btn_Spanish_LA.png
+d	usr/sony/share/data/images/BTN
+f	usr/sony/share/data/images/BTN/Guide_Dutch.png
+f	usr/sony/share/data/images/BTN/Guide_E.png
+f	usr/sony/share/data/images/BTN/Guide_E_UK.png
+f	usr/sony/share/data/images/BTN/Guide_French.png
+f	usr/sony/share/data/images/BTN/Guide_French_CA.png
+f	usr/sony/share/data/images/BTN/Guide_German.png
+f	usr/sony/share/data/images/BTN/Guide_Italian.png
+f	usr/sony/share/data/images/BTN/Guide_J.png
+f	usr/sony/share/data/images/BTN/Guide_Portuguese.png
+f	usr/sony/share/data/images/BTN/Guide_Portuguese_BR.png
+f	usr/sony/share/data/images/BTN/Guide_Russian.png
+f	usr/sony/share/data/images/BTN/Guide_Spanish.png
+f	usr/sony/share/data/images/BTN/Guide_Spanish_LA.png
+d	usr/sony/share/data/images/CB
+f	usr/sony/share/data/images/CB/Contents_Focus.png
+f	usr/sony/share/data/images/CB/Empty_L.png
+f	usr/sony/share/data/images/CB/Empty_Screen.png
+f	usr/sony/share/data/images/CB/Function_BG.png
+f	usr/sony/share/data/images/CB/Manual_ICN _L.png
+f	usr/sony/share/data/images/CB/Manual_ICN.png
+f	usr/sony/share/data/images/CB/MemoryCard_ICN.png
+f	usr/sony/share/data/images/CB/MemoryCard_ICN_L.png
+f	usr/sony/share/data/images/CB/PlayerOne.png
+f	usr/sony/share/data/images/CB/Resume.png
+f	usr/sony/share/data/images/CB/Resume_L.png
+f	usr/sony/share/data/images/CB/Setting_ICN.png
+f	usr/sony/share/data/images/CB/Setting_ICN_L.png
+d	usr/sony/share/data/images/Disk
+f	usr/sony/share/data/images/Disk/Ball_Btn_SD.png
+f	usr/sony/share/data/images/Disk/Corrent_Disk.png
+f	usr/sony/share/data/images/Disk/Nomal_Disk.png
+f	usr/sony/share/data/images/Disk/OK_SD_Btn_Dutch.png
+f	usr/sony/share/data/images/Disk/OK_SD_Btn_E.png
+f	usr/sony/share/data/images/Disk/OK_SD_Btn_E_UK.png
+f	usr/sony/share/data/images/Disk/OK_SD_Btn_French.png
+f	usr/sony/share/data/images/Disk/OK_SD_Btn_French_CA.png
+f	usr/sony/share/data/images/Disk/OK_SD_Btn_German.png
+f	usr/sony/share/data/images/Disk/OK_SD_Btn_Italian.png
+f	usr/sony/share/data/images/Disk/OK_SD_Btn_J.png
+f	usr/sony/share/data/images/Disk/OK_SD_Btn_Portuguese.png
+f	usr/sony/share/data/images/Disk/OK_SD_Btn_Portuguese_BR.png
+f	usr/sony/share/data/images/Disk/OK_SD_Btn_Russian.png
+f	usr/sony/share/data/images/Disk/OK_SD_Btn_Spanish.png
+f	usr/sony/share/data/images/Disk/OK_SD_Btn_Spanish_LA.png
+f	usr/sony/share/data/images/Disk/Select_Disk.png
+f	usr/sony/share/data/images/Disk/Text_four.png
+f	usr/sony/share/data/images/Disk/Text_one.png
+f	usr/sony/share/data/images/Disk/Text_three.png
+f	usr/sony/share/data/images/Disk/Text_two.png
+d	usr/sony/share/data/images/GR
+f	usr/sony/share/data/images/GR/Acid_B_BTN.png
+f	usr/sony/share/data/images/GR/Acid_C_Btn.png
+f	usr/sony/share/data/images/GR/Arrow_Right.png
+f	usr/sony/share/data/images/GR/Boarder_line.png
+f	usr/sony/share/data/images/GR/Circle_Btn_ICN.png
+f	usr/sony/share/data/images/GR/Footer.png
+f	usr/sony/share/data/images/GR/JP_US_BG Musk.png
+f	usr/sony/share/data/images/GR/JP_US_BG Musk_Helth.png
+f	usr/sony/share/data/images/GR/JP_US_BG Musk_Option.png
+f	usr/sony/share/data/images/GR/JP_US_BG Musk_Regal.png
+f	usr/sony/share/data/images/GR/JP_US_BG.png
+f	usr/sony/share/data/images/GR/Squere_Btn_ICN.png
+f	usr/sony/share/data/images/GR/Tri_Btn_ICN.png
+f	usr/sony/share/data/images/GR/X_Btn_ICN.png
+f	usr/sony/share/data/images/GR/arrow.png
+f	usr/sony/share/data/images/GR/arrow_Up.png
+f	usr/sony/share/data/images/Game_Guide_QR.png
+d	usr/sony/share/data/images/MC
+f	usr/sony/share/data/images/MC/Ball_Btn.png
+f	usr/sony/share/data/images/MC/Dot_Matrix.png
+f	usr/sony/share/data/images/MC/MC_Infobox.png
+f	usr/sony/share/data/images/MC/Pencil_Carsor.png
+f	usr/sony/share/data/images/Rectangle.png
+d	usr/sony/share/data/images/SET
+f	usr/sony/share/data/images/SET/Border_Line.png
+f	usr/sony/share/data/images/SET/Check.png
+f	usr/sony/share/data/images/SET/Lang_Btn_De.png
+f	usr/sony/share/data/images/SET/Lang_Btn_E_uk.png
+f	usr/sony/share/data/images/SET/Lang_Btn_E_us.png
+f	usr/sony/share/data/images/SET/Lang_Btn_Espa_Latin_America.png
+f	usr/sony/share/data/images/SET/Lang_Btn_Espa_spain.png
+f	usr/sony/share/data/images/SET/Lang_Btn_Fr_Canada.png
+f	usr/sony/share/data/images/SET/Lang_Btn_Fr_France.png
+f	usr/sony/share/data/images/SET/Lang_Btn_Ita.png
+f	usr/sony/share/data/images/SET/Lang_Btn_J.png
+f	usr/sony/share/data/images/SET/Lang_Btn_Ned.png
+f	usr/sony/share/data/images/SET/Lang_Btn_Nomal.png
+f	usr/sony/share/data/images/SET/Lang_Btn_Po_Brasil.png
+f	usr/sony/share/data/images/SET/Lang_Btn_Po_Portugal.png
+f	usr/sony/share/data/images/SET/Lang_Btn_Ros.png
+f	usr/sony/share/data/images/SET/Lang_List_De.png
+f	usr/sony/share/data/images/SET/Lang_List_E_UK.png
+f	usr/sony/share/data/images/SET/Lang_List_E_US.png
+f	usr/sony/share/data/images/SET/Lang_List_Espa_Latin_America.png
+f	usr/sony/share/data/images/SET/Lang_List_Espa_Spain.png
+f	usr/sony/share/data/images/SET/Lang_List_Fr_Canada.png
+f	usr/sony/share/data/images/SET/Lang_List_Fr_France.png
+f	usr/sony/share/data/images/SET/Lang_List_Ita.png
+f	usr/sony/share/data/images/SET/Lang_List_J.png
+f	usr/sony/share/data/images/SET/Lang_List_Ned.png
+f	usr/sony/share/data/images/SET/Lang_List_Po_Brasil.png
+f	usr/sony/share/data/images/SET/Lang_List_Po_Portugal.png
+f	usr/sony/share/data/images/SET/Lang_List_Ros.png
+f	usr/sony/share/data/images/SET/Setting_Btn_Focus.png
+f	usr/sony/share/data/images/SET/Setting_List_Focus.png
+f	usr/sony/share/data/images/SET/Setting_List_Nomal.png
+f	usr/sony/share/data/images/SET/Setting_List_Selected.png
+f	usr/sony/share/data/images/SET/Setting_Option_BG.png
+f	usr/sony/share/data/images/SET/Setting_Option_List_Focus.png
+f	usr/sony/share/data/images/SET/Setting_Tittle_BG.png
+f	usr/sony/share/data/images/msg_trademark_Dutch.png
+f	usr/sony/share/data/images/msg_trademark_E.png
+f	usr/sony/share/data/images/msg_trademark_E_UK.png
+f	usr/sony/share/data/images/msg_trademark_French.png
+f	usr/sony/share/data/images/msg_trademark_French_CA.png
+f	usr/sony/share/data/images/msg_trademark_German.png
+f	usr/sony/share/data/images/msg_trademark_Italian.png
+f	usr/sony/share/data/images/msg_trademark_J.png
+f	usr/sony/share/data/images/msg_trademark_Portuguese.png
+f	usr/sony/share/data/images/msg_trademark_Portuguese_BR.png
+f	usr/sony/share/data/images/msg_trademark_Russian.png
+f	usr/sony/share/data/images/msg_trademark_Spanish.png
+f	usr/sony/share/data/images/msg_trademark_Spanish_LA.png
+d	usr/sony/share/data/memcard
+f	usr/sony/share/data/memcard/card.mcd
+d	usr/sony/share/data/preferences
+f	usr/sony/share/data/preferences/regional_EK.pre
+f	usr/sony/share/data/preferences/regional_ET.pre
+f	usr/sony/share/data/preferences/regional_J.pre
+f	usr/sony/share/data/preferences/regional_UC.pre
+f	usr/sony/share/data/preferences/system.pre
+d	usr/sony/share/data/sounds
+f	usr/sony/share/data/sounds/cancel.wav
+f	usr/sony/share/data/sounds/cursor.wav
+f	usr/sony/share/data/sounds/decide.wav
+f	usr/sony/share/data/sounds/end.wav
+f	usr/sony/share/data/sounds/error.wav
+f	usr/sony/share/data/sounds/home_down.wav
+f	usr/sony/share/data/sounds/home_up.wav
+f	usr/sony/share/data/sounds/resume_new.wav
+f	usr/sony/share/data/sounds/resume_old.wav
+d	usr/sony/share/recovery
+d	usr/sony/share/recovery/AppData
+d	usr/sony/share/recovery/AppData/sony
+d	usr/sony/share/recovery/AppData/sony/pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/1
+d	usr/sony/share/recovery/AppData/sony/pcsx/1/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/10
+d	usr/sony/share/recovery/AppData/sony/pcsx/10/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/11
+d	usr/sony/share/recovery/AppData/sony/pcsx/11/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/12
+d	usr/sony/share/recovery/AppData/sony/pcsx/12/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/13
+d	usr/sony/share/recovery/AppData/sony/pcsx/13/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/14
+d	usr/sony/share/recovery/AppData/sony/pcsx/14/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/15
+d	usr/sony/share/recovery/AppData/sony/pcsx/15/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/16
+d	usr/sony/share/recovery/AppData/sony/pcsx/16/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/17
+d	usr/sony/share/recovery/AppData/sony/pcsx/17/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/18
+d	usr/sony/share/recovery/AppData/sony/pcsx/18/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/19
+d	usr/sony/share/recovery/AppData/sony/pcsx/19/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/2
+d	usr/sony/share/recovery/AppData/sony/pcsx/2/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/20
+d	usr/sony/share/recovery/AppData/sony/pcsx/20/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/3
+d	usr/sony/share/recovery/AppData/sony/pcsx/3/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/4
+d	usr/sony/share/recovery/AppData/sony/pcsx/4/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/5
+d	usr/sony/share/recovery/AppData/sony/pcsx/5/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/6
+d	usr/sony/share/recovery/AppData/sony/pcsx/6/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/7
+d	usr/sony/share/recovery/AppData/sony/pcsx/7/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/8
+d	usr/sony/share/recovery/AppData/sony/pcsx/8/.pcsx
+d	usr/sony/share/recovery/AppData/sony/pcsx/9
+d	usr/sony/share/recovery/AppData/sony/pcsx/9/.pcsx
+d	usr/sony/share/recovery/AppData/sony/ui
+d	usr/sony/share/sonyappinfo
+f	usr/sony/share/sonyappinfo/sonyapp-file.tar.gz
+d	usr/src
+d	var
+d	var/backups
+d	var/cache
+d	var/cache/fontconfig
+f	var/cache/fontconfig/3830d5c3ddfd5cd38a049b759396e72e-le32d8.cache-7
+f	var/cache/fontconfig/94322f4d3cdf1bd54794b691285ca062-le32d8.cache-7
+f	var/cache/fontconfig/CACHEDIR.TAG
+d	var/cache/ldconfig
+f	var/cache/ldconfig/aux-cache
+d	var/lib
+d	var/lib/alsa
+d	var/lib/dbus
+d	var/lib/misc
+d	var/lib/systemd
+d	var/local
+l	var/lock	../run/lock
+l	var/log	volatile/log
+l	var/run	../run
+d	var/spool
+l	var/tmp	volatile/tmp
+d	var/volatile

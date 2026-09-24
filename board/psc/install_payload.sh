@@ -9,7 +9,9 @@ cp -r /etc/autobleem/ssid.cfg /tmp/ssid.cfg
 rm -rf /data/autobleem
 mkdir -p /data/autobleem/rootfs
 mkdir -p /data/autobleem/workdir
-tar -xvzf /media/Apps/abflashkit/kernel/abrootfs.tgz -C /data/autobleem/rootfs
+# gunzip | tar, not tar -z: on a console flashed with the first Buildroot payload /bin/tar is a busybox
+# without gzip, and this is what replaces that payload
+gunzip -c /media/Apps/abflashkit/kernel/abrootfs.tgz | tar -xvf - -C /data/autobleem/rootfs
 
 
 cp -r /tmp/wpa_supplicant.conf /etc/wpa_supplicant.conf
