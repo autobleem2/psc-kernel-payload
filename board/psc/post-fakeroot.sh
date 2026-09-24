@@ -28,4 +28,12 @@ rm -f  etc/dbus-1/system.conf etc/dbus-1/session.conf usr/share/dbus-1/system.co
 rm -f  sbin/udevd bin/udevadm sbin/udevadm usr/bin/udevadm lib/libudev.so* usr/lib/libudev.so* etc/udev/udev.conf
 find lib/udev/rules.d usr/lib/udev/rules.d -type f ! -name '97-hid2hci.rules' -delete 2>/dev/null || true
 rm -rf etc/udev/hwdb.d lib/udev/hwdb.d usr/lib/udev/hwdb.d
+
+# Then everything else at a path the stock console has (reference/console-rootfs.txt): busybox's applet links
+# over the console's bash, coreutils, util-linux, kmod and systemctl, udev helpers, /etc files - the lists
+# above only ever named what somebody had thought of, and the first payload that booted put busybox over
+# /bin/sh, tar and reboot (2026-09-24: AutoBleem no longer started). Libraries stay (newer builds of the
+# same sonames), as do the few files the 2020 overlay replaced on purpose; the 2020 tool paths come back as
+# links and /autobleem is created. scripts/overlay.py has the rule, and scripts/verify.sh checks it.
+python3 "$(dirname "$(readlink -f "$0")")/../../scripts/overlay.py" shape --dir "${TARGET_DIR}"
 exit 0

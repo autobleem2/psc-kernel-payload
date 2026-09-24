@@ -1,0 +1,18 @@
+# Busybox applets the 2020 overlay had and the AutoBleem scripts use, on top of Buildroot's default
+# busybox.config (BR2_PACKAGE_BUSYBOX_CONFIG_FRAGMENT_FILES). The overlay never puts an applet over a tool
+# the console already has (scripts/overlay.py drops those) - these are tools the console lacks:
+#   tcpsvd   etc/autobleem/rndis's FTP server over the USB network
+#   ftpd     what tcpsvd runs (-w: uploads)
+#   telnetd  etc/inetd.conf's port 23
+#   tftpd    the 2020 overlay's /bin/tftpd
+CONFIG_TCPSVD=y
+CONFIG_FTPD=y
+CONFIG_FEATURE_FTPD_WRITE=y
+CONFIG_FEATURE_FTPD_ACCEPT_BROKEN_LIST=y
+CONFIG_FEATURE_FTPD_AUTHENTICATION=n
+CONFIG_TFTPD=y
+CONFIG_TELNETD=y
+CONFIG_FEATURE_TELNETD_STANDALONE=y
+CONFIG_FEATURE_TELNETD_INETD_WAIT=n
+# busybox tar/cpio reading .gz themselves, as the console's own busybox does (tar -z)
+CONFIG_FEATURE_SEAMLESS_GZ=y

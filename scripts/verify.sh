@@ -84,6 +84,9 @@ if [ -f "${OUT}/abrootfs.tgz" ]; then
 		unsafe=1
 	fi
 	[ "${unsafe}" = 0 ] && echo "  [ok ] no top-level symlinks, no init, nothing of the console's system shadowed or switched on"
+	# and against the console's real file list: nothing of it replaced beyond libraries and the 2020 set, every
+	# 2020 tool path there, every program's libraries found (the checks above only know the names someone listed)
+	python3 "${HERE}/scripts/overlay.py" check "${OUT}/abrootfs.tgz" || unsafe=1
 	rm -f "${SAFE_LIST}"
 fi
 exit "${unsafe}"

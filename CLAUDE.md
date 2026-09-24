@@ -143,6 +143,23 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
    everything of the console's own system - the rule the 2020 overlay followed (glibc, BlueZ, tools,
    AutoBleem's units; the console's dbus/udev/libudev serve them). `scripts/verify.sh` fails the build on
    any symlinked top dir, init, shadowed system file or unit beyond the 2020 set - keep it that way.
+   **That was not enough - flashed 2026-09-24, AutoBleem no longer started.** The kernel booted fine; the
+   overlay still put 216 files over the console's own, 179 of them busybox applet links: `/bin/sh` (the
+   console's is bash; busybox's `source boot.sh` searches only $PATH, so AutoBleem's `start.sh` died on its
+   first line), `tar` (no gzip), `reboot`/`halt`/`poweroff` (the console's are systemctl; busybox's only
+   signal init, and systemd ignores it), `mount`, `modprobe`, `insmod`, `login`, `env`, udev helpers, /etc
+   files. It also lacked the `/autobleem` marker and the 2020 tool paths (`/bin/wpa_supplicant`,
+   `/sbin/inetd`, ...), and its glibc is 2.34, not the 2.28 this file said. The rule is now checked against
+   the console itself: `reference/console-rootfs.txt` is every path of the stock ROOTFS1
+   (`scripts/console-rootfs-list.py`, from a vanilla rootfs.ext4); `scripts/overlay.py shape` (the last
+   step of `post-fakeroot.sh`) drops everything at one of those paths except shared libraries and the few
+   files the 2020 overlay replaced on purpose (`ALLOWED_SHADOWS`), puts the 2020 tool paths back as links
+   (`ALIASES` for renamed tools, busybox for dropped applet links) and creates `/autobleem`;
+   `overlay.py check` in `verify.sh` fails the build on any other shadow, a missing 2020 path (bar
+   `NOT_NEEDED_2020`, each with its reason) or a program whose libraries the merged root lacks.
+   `board/psc/busybox.fragment` brings back the 2020 applets the console lacks (tcpsvd, ftpd, telnetd,
+   tftpd; tar -z), `BLUEZ5_UTILS_MONITOR` brings btmon, and `install_payload.sh` unpacks with `gunzip | tar`
+   (a console carrying the bad overlay has a busybox tar without -z).
 1. ~~Push the 3 kernel fixes to autobleem2/psc-kernel~~ - DONE 2026-09-23 (submodule pinned to them).
 2. **`next` variant**: run `build.sh -V next all`; validate `psc_next_defconfig` symbols against
    Buildroot 2024.02 (exfatprogs/pcre2 already set) and the sixaxis-on-newer-bluez behaviour.
