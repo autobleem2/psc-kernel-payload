@@ -79,15 +79,22 @@ in-tree USB-WiFi drivers the base config left off: **ath9k_htc** (AR9271/AR7010 
 Linux USB WiFi, TL-WN722N v1), **carl9170** (AR9170), **rtl8192cu** (rtlwifi). `psc_next_defconfig`
 adds the matching `linux-firmware` blobs.
 
-The GPU pins the kernel to 4.4 (PowerVR GX6250 blob is 4.4-ABI; no mainline Rogue driver), so we
-do NOT bump the kernel major version — see the plan below.
+**The kernel stays at 4.4. This is the owner's decision (2026-09-25).**
+- The GPU is a PowerVR **GE8300** (`rgx.fw.22.40.54.30`), not a GX6250 as this file said before.
+- Its blob is DDK 1.9. The DDK's kernel driver is in the tree, but the mainline open driver does not
+  support this GPU.
+- More USB devices come from **backports** (WiFi: `CFG80211`/`MAC80211` are `=m`) and out-of-tree
+  modules.
+- A newer userland comes from the overlay: scan the stock root, build newer, shadow libraries only, and
+  **never the graphics stack**.
+- Plan and inventory: `docs/userland-refresh.md`.
 
 ### Improvement plan (WiFi dongles / Bluetooth / userland)
 
 1. **Newer BlueZ + userland** — free with Buildroot 2024.02.x in `next`. Validate the DualShock 3
    pairing on hardware; forward-port the sixaxis patch into `board/psc/patches-next/` if it regresses.
 2. **In-tree dongle drivers** — done via `linux-extra-wifi.fragment` (ath9k_htc, carl9170, rtl8192cu).
-3. **Out-of-tree modern USB WiFi** (the big win: RTL8811/8812/8821/88x2, MT76x0/x2) — NOT in the 4.4
+3. **Backports first** (2026-09-25, `docs/userland-refresh.md`), then **out-of-tree modern USB WiFi** for the rest (the big win: RTL8811/8812/8821/88x2, MT76x0/x2) — NOT in the 4.4
    tree. Add as vendored driver trees + kernel patches under `sources/psc-kernel`, exactly like the
    existing `rtl8188eu-master`/`drivers/staging/rtl8188eu`. Candidates: aircrack-ng/rtl8812au,
    morrownr/8821cu, morrownr/88x2bu, mt76 backport. Each is its own commit in the kernel repo,
