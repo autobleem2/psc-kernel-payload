@@ -106,6 +106,12 @@ if [ -f "${OUT}/abrootfs.tgz" ]; then
 			if grep -qx "${kdirs}/${f}" "${SAFE_LIST}"; then echo "  [ok ] ${kdirs}/${f}"
 			else echo "  [BAD ] ${kdirs}/${f} missing - depmod did not run"; unsafe=1; fi
 		done
+		# pairings persist through the bind-mount of etc/bluetooth/bluetoothd over /var/lib/bluetooth
+		if sed 's#/$##' "${SAFE_LIST}" | grep -qx 'etc/bluetooth/bluetoothd'; then
+			echo "  [ok ] etc/bluetooth/bluetoothd (Bluetooth pairings outlive a reboot)"
+		else
+			echo "  [BAD ] etc/bluetooth/bluetoothd missing - every pairing would be lost at the next boot"; unsafe=1
+		fi
 		# WiFi joins a network only through dhcpcd's wpa_supplicant hook (post-build.sh enables it)
 		if grep -qx 'lib/dhcpcd/dhcpcd-hooks/10-wpa_supplicant' "${SAFE_LIST}"; then
 			echo "  [ok ] lib/dhcpcd/dhcpcd-hooks/10-wpa_supplicant (dhcpcd starts wpa_supplicant)"

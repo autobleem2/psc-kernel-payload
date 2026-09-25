@@ -25,6 +25,10 @@ fi
 # stray per-console Bluetooth pairing state that must never ship in a release —
 # the reference overlay carried the dev console's paired-device folders.
 rm -rf "${TARGET_DIR}/etc/bluetooth/bluetoothd" 2>/dev/null || true
+# ... but keep the directory itself, empty: etc/autobleem/autobleem and etc/autobleem/bluetooth bind-mount it
+# over /var/lib/bluetooth, which is how pairings outlive a reboot. Without it the mount failed and BlueZ kept
+# its keys on tmpfs - every pad forgotten at the next boot (2026-09-25).
+mkdir -p "${TARGET_DIR}/etc/bluetooth/bluetoothd"
 
 # Make sure the AutoBleem helper scripts are executable (overlay copies can lose
 # the bit on a Windows checkout).
