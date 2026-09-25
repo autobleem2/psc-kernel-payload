@@ -111,6 +111,7 @@ if [ -f "${OUT}/abrootfs.tgz" ]; then
 			echo "  [ok ] etc/bluetooth/bluetoothd (Bluetooth pairings outlive a reboot)"
 		else
 			echo "  [BAD ] etc/bluetooth/bluetoothd missing - every pairing would be lost at the next boot"; unsafe=1
+			echo "         the tarball's etc/bluetooth entries: $(grep '^etc/bluetooth' "${SAFE_LIST}" | tr '\n' ' ')"
 		fi
 		# WiFi joins a network only through dhcpcd's wpa_supplicant hook (post-build.sh enables it)
 		if grep -qx 'lib/dhcpcd/dhcpcd-hooks/10-wpa_supplicant' "${SAFE_LIST}"; then
