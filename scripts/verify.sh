@@ -87,6 +87,25 @@ if [ -f "${OUT}/abrootfs.tgz" ]; then
 	# and against the console's real file list: nothing of it replaced beyond libraries and the 2020 set, every
 	# 2020 tool path there, every program's libraries found (the checks above only know the names someone listed)
 	python3 "${HERE}/scripts/overlay.py" check "${OUT}/abrootfs.tgz" || unsafe=1
+
+	# The modules have to be loadable: modules.dep/modules.alias written by depmod (without them udev loads
+	# nothing - cfg80211 and every WiFi driver stayed out on 2026-09-25: the build image had no depmod, and
+	# the kernel's modules_install skips it with only a warning), under the release the kernel reports -
+	# 4.4.22 as in 2020, not 4.4.22+ (the libs pack's xpad.ko, built for 2020's kernel, is refused).
+	echo ""
+	echo "== kernel modules =="
+	kdirs="$(sed 's#/$##' "${SAFE_LIST}" | grep -E '^lib/modules/[^/]+$' | sort -u || true)"
+	if [ "$(echo "${kdirs}" | grep -c .)" != 1 ]; then
+		echo "  [BAD ] expected one lib/modules/<release>, found: $(echo ${kdirs})"
+		unsafe=1
+	else
+		krel="${kdirs#lib/modules/}"
+		case "${krel}" in *+) echo "  [BAD ] release ${krel}: the '+' of an untagged tree (LOCALVERSION= missing)"; unsafe=1 ;; esac
+		for f in modules.dep modules.dep.bin modules.alias modules.alias.bin; do
+			if grep -qx "${kdirs}/${f}" "${SAFE_LIST}"; then echo "  [ok ] ${kdirs}/${f}"
+			else echo "  [BAD ] ${kdirs}/${f} missing - depmod did not run"; unsafe=1; fi
+		done
+	fi
 	rm -f "${SAFE_LIST}"
 fi
 exit "${unsafe}"

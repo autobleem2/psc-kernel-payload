@@ -36,6 +36,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
         libncurses-dev \
         python3 \
         ccache \
+        kmod \
     && rm -rf /var/lib/apt/lists/*
 
 # Buildroot must not run as root; docker/run.sh runs as the host uid:gid.

@@ -51,7 +51,16 @@ if command -v ccache >/dev/null 2>&1 && [ -z "${AB_KERNEL_NO_CCACHE:-}" ]; then
 	KCC=(CC="ccache ${CROSS}gcc")
 	echo "[kernel] ccache: ${CCACHE_DIR} ($(ccache -s 2>/dev/null | grep -iE '^(cache size|hits)' | head -1 | tr -s ' '))"
 fi
-M(){ make -C "${KSRC}" O="${KBUILD}" ARCH=arm CROSS_COMPILE="${CROSS}" "${KCC[@]}" "$@"; }
+# LOCALVERSION= (set, empty): the release is 4.4.22, as the 2020 kernel's was - left unset, setlocalversion
+# appends a '+' for a source tree that is not at an annotated tag, and every module built for 2020's kernel
+# (the libs pack's xpad.ko) is then refused for its version magic.
+M(){ make -C "${KSRC}" O="${KBUILD}" ARCH=arm CROSS_COMPILE="${CROSS}" LOCALVERSION= "${KCC[@]}" "$@"; }
+
+# modules_install runs depmod only when it exists, and says no more than a warning when it does not - which is
+# how payloads without modules.dep/modules.alias shipped (no module ever loaded on the console)
+DEPMOD="$(command -v depmod || true)"
+[ -n "${DEPMOD}" ] || for d in /sbin/depmod /usr/sbin/depmod; do [ -x "$d" ] && DEPMOD="$d"; done
+[ -n "${DEPMOD}" ] || { echo "[kernel] ERROR: no depmod (install kmod in the build image)"; exit 1; }
 
 # CONFIG_INITRAMFS_SOURCE is a relative path ("initramfs"); in an out-of-tree
 # build (O=) the kernel resolves it against the build dir, not the source, so
@@ -64,7 +73,12 @@ M olddefconfig
 M -j"${JOBS}" Image modules
 # install stripped modules into the stage rootfs (depmod runs here)
 rm -rf "${MODROOT}/lib/modules"
-M INSTALL_MOD_PATH="${MODROOT}" INSTALL_MOD_STRIP=1 modules_install
+M INSTALL_MOD_PATH="${MODROOT}" INSTALL_MOD_STRIP=1 DEPMOD="${DEPMOD}" modules_install
+KREL="$(cat "${KBUILD}/include/config/kernel.release")"
+for f in modules.dep modules.alias; do
+	[ -s "${MODROOT}/lib/modules/${KREL}/${f}" ] || { echo "[kernel] ERROR: depmod wrote no ${f} for ${KREL}"; exit 1; }
+done
+echo "[kernel] release ${KREL}, $(wc -l < "${MODROOT}/lib/modules/${KREL}/modules.dep") modules indexed"
 
 cp -f "${KBUILD}/arch/arm/boot/Image" "${STAGE}/Image"
 echo "[kernel] done: Image $(stat -c%s "${STAGE}/Image") bytes, modules -> ${MODROOT}/lib/modules/$(ls "${MODROOT}/lib/modules" 2>/dev/null | head -1)"
