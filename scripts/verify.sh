@@ -77,7 +77,8 @@ if [ -f "${OUT}/abrootfs.tgz" ]; then
 	fi
 	# what the overlay switches on or off in the console's systemd: exactly the 2020 overlay's set (its units
 	# enabled, the syslog whiteouts) - anything else in etc/systemd/system would change the console's services
-	allowed='etc/systemd/system/(bluetooth\.target\.wants/bluetooth|dbus-org\.bluez|syslog|multi-user\.target\.wants/(autobleem|dhclient|inetd|busybox-syslog|busybox-klogd))\.service'
+	# (plus abbtagent, the Bluetooth agent package/abbtagent adds - started with bluetooth.target as bluetoothd is)
+	allowed='etc/systemd/system/(bluetooth\.target\.wants/(bluetooth|abbtagent)|dbus-org\.bluez|syslog|multi-user\.target\.wants/(autobleem|dhclient|inetd|busybox-syslog|busybox-klogd))\.service'
 	enabled="$(grep -E '^etc/systemd/system/.+\.(service|socket|target|timer|path|mount)$' "${SAFE_LIST}" | grep -vxE "${allowed}" || true)"
 	if [ -n "${enabled}" ]; then
 		echo "  [UNSAFE] units it would switch on in the console's systemd: $(echo ${enabled})"

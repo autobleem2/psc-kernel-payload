@@ -1,0 +1,13 @@
+[Unit]
+Description=AutoBleem Bluetooth agent (cable pairing of Sony pads)
+Documentation=file:///usr/share/doc/abbtagent
+After=bluetooth.service dbus.service
+PartOf=bluetooth.service
+
+[Service]
+ExecStart=/usr/sbin/abbtagent
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=bluetooth.target

@@ -63,6 +63,7 @@ BR2_PACKAGE_BLUEZ5_UTILS_DEPRECATED=y
 BR2_PACKAGE_BLUEZ5_UTILS_EXPERIMENTAL=y
 BR2_PACKAGE_BLUEZ5_UTILS_MONITOR=y                # btmon (the 2020 overlay had it)
 BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_SIXAXIS=y
+BR2_PACKAGE_ABBTAGENT=y                           # the agent the sixaxis cable pairing asks (package/abbtagent)
 
 # ---- WiFi / networking ----
 BR2_PACKAGE_WPA_SUPPLICANT=y

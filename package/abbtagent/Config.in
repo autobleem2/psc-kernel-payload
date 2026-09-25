@@ -1,0 +1,11 @@
+config BR2_PACKAGE_ABBTAGENT
+	bool "abbtagent"
+	depends on BR2_USE_WCHAR # libglib2
+	depends on BR2_TOOLCHAIN_HAS_THREADS # libglib2
+	depends on BR2_USE_MMU # libglib2
+	select BR2_PACKAGE_LIBGLIB2
+	help
+	  The PlayStation Classic's Bluetooth agent: registers as BlueZ's
+	  default agent and authorizes the cable pairing of Sony pads
+	  (DualShock 3 and its clones, Navigation, DualShock 4) that the
+	  sixaxis plugin asks an agent about. Everything else is refused.

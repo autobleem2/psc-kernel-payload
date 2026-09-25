@@ -65,7 +65,8 @@ BR2_PACKAGE_BLUEZ5_UTILS_TOOLS_HID2HCI=y          # hid2hci: switch HID-mode BT 
 BR2_PACKAGE_BLUEZ5_UTILS_DEPRECATED=y             # the deprecated tools (needs CLIENT or TOOLS)
 BR2_PACKAGE_BLUEZ5_UTILS_EXPERIMENTAL=y
 BR2_PACKAGE_BLUEZ5_UTILS_MONITOR=y                # btmon (the 2020 overlay had it)
-BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_SIXAXIS=y        # DualShock 3 pairing (patched)
+BR2_PACKAGE_BLUEZ5_UTILS_PLUGINS_SIXAXIS=y        # DualShock 3/4 cable pairing (asks an agent: abbtagent)
+BR2_PACKAGE_ABBTAGENT=y                           # the agent that answers it (package/abbtagent)
 
 # ---- WiFi / networking ----
 BR2_PACKAGE_WPA_SUPPLICANT=y

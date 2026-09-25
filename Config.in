@@ -1,1 +1,2 @@
-# BR2_EXTERNAL PSC — no custom packages yet.
+# BR2_EXTERNAL PSC - the payload's own packages.
+source "$BR2_EXTERNAL_PSC_PATH/package/abbtagent/Config.in"
