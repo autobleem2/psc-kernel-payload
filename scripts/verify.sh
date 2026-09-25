@@ -106,6 +106,12 @@ if [ -f "${OUT}/abrootfs.tgz" ]; then
 			if grep -qx "${kdirs}/${f}" "${SAFE_LIST}"; then echo "  [ok ] ${kdirs}/${f}"
 			else echo "  [BAD ] ${kdirs}/${f} missing - depmod did not run"; unsafe=1; fi
 		done
+		# the console's udev has no rule that loads a module for a new device (Sony left 80-drivers.rules out)
+		if grep -qx 'etc/udev/rules.d/80-autobleem-modules.rules' "${SAFE_LIST}"; then
+			echo "  [ok ] etc/udev/rules.d/80-autobleem-modules.rules (modules load when their device appears)"
+		else
+			echo "  [BAD ] etc/udev/rules.d/80-autobleem-modules.rules missing - no module would ever load"; unsafe=1
+		fi
 	fi
 	rm -f "${SAFE_LIST}"
 fi

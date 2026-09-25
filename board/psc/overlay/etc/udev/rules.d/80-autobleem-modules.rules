@@ -1,0 +1,7 @@
+# Load a device's kernel module when the device appears - what every distribution's 80-drivers.rules does,
+# and what Sony's firmware leaves out (it has no module to load). Without it no module of this payload
+# ever loaded on its own: hid-sony and the other pad drivers are modules since linux-common.fragment, so
+# a DualShock over USB or Bluetooth had no driver at all (2026-09-25), and a WiFi stick's driver neither.
+# modprobe (the console's kmod) rather than udev's kmod builtin, which this udev may not be built with;
+# -b honours blacklists, -q stays quiet for devices no module claims.
+ACTION=="add", ENV{MODALIAS}=="?*", RUN+="/sbin/modprobe -bq $env{MODALIAS}"
