@@ -60,14 +60,25 @@ answers it instead, keeping BlueZ's authorization step:
 - registers as the default agent (NoInputNoOutput), again whenever bluetoothd appears on the bus; logs every
   decision to the journal. Started with `bluetooth.target` (`verify.sh` allows that one unit link).
 
-## USB power - where the stick and the dongles go
+## The rear USB port - what was measured (2026-09-25)
 
-A USB WiFi stick draws a lot when its radio starts (the RT5370 declares 450 mA). On 2026-09-25 the AutoBleem
-stick (200 mA), an RT5370 and a Bluetooth dongle (94 mA) shared one **bus-powered** hub on the rear port - ~750 mA
-through a hub that has 500 mA to give - and the console "did not boot": the kernel and WiFi came up, but the
-AutoBleem stick dropped off the bus, so usb_watch never found it and AutoBleem never started. With the stick on
-a front port the same set booted every time. So: the AutoBleem stick on a front port; WiFi sticks on a front
-port or a *powered* hub; a bus-powered hub only for low-draw devices (a Bluetooth dongle, a pad).
+Measured over SSH on the owner's console (kernel logs, not inference):
+
+- A self-powered Genesys hub (`05e3:0608`, on a 2.5 A brick) on the rear OTG port logged USB protocol errors
+  (`-71`, EPROTO) under high-speed traffic: the RT5370 now and then (`TX status read failed -71`), which WiFi
+  recovers from; a flash drive added to it continuously - it never became usable (endless resets).
+- With the AutoBleem stick on that hub the console booted but AutoBleem never started (usb_watch never got the
+  stick). With the stick on a front port the same set booted.
+- Hot-plugging anything into the rear OTG port while the console ran (a gamepad, a flash drive) dropped the whole
+  USB stack, the front ports included; a power cycle recovered it.
+- The RT5370 alone on the OTG adapter, the stick and the pad on the front: 96 s of sustained download (~315 MB,
+  2.3-5 MB/s), no USB error.
+- Another powered hub on the rear with everything on it (stick, RT5370, Bluetooth) worked.
+
+Not proven: where the `-71` errors come from (that hub, the OTG adapter, or the rear controller with a hub behind
+it). Not the cause: power (the hub is self-powered) and a missing WiFi network (tested). Advice until then: plug
+and unplug on the rear only with the console off; if AutoBleem does not start with the stick on a rear hub, move
+the stick to a front port.
 
 ## To test on a console
 
