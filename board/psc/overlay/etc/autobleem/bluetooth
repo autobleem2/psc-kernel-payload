@@ -4,5 +4,8 @@
 
 mkdir -p /var/lib/bluetooth
 mount --bind /etc/bluetooth/bluetoothd /var/lib/bluetooth
+# Xbox One / Series pads over Bluetooth drop their connection when L2CAP offers ERTM - off, as every distro
+# that supports them does (a runtime parameter of the built-in bluetooth module)
+[ -w /sys/module/bluetooth/parameters/disable_ertm ] && echo 1 > /sys/module/bluetooth/parameters/disable_ertm
 /usr/libexec/bluetooth/bluetoothd -d 
 

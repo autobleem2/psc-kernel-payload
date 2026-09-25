@@ -119,6 +119,9 @@ BR2_PACKAGE_LINUX_FIRMWARE_RTL_88XX=y
 BR2_PACKAGE_LINUX_FIRMWARE_RALINK_RT73=y
 BR2_PACKAGE_LINUX_FIRMWARE_RALINK_RT2XX=y
 BR2_PACKAGE_LINUX_FIRMWARE_MEDIATEK_MT7601U=y
+# ath9k_htc and carl9170, which board/psc/linux-common.fragment turns on for both variants
+BR2_PACKAGE_LINUX_FIRMWARE_ATHEROS_9271=y
+BR2_PACKAGE_LINUX_FIRMWARE_ATHEROS_9170=y
 
 # ---- Rootfs image: we tar the target ourselves in post-image (abrootfs.tgz) ----
 BR2_TARGET_ROOTFS_TAR=y

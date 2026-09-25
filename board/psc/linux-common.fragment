@@ -1,0 +1,61 @@
+# linux-common.fragment - kernel options for BOTH variants (psc and next), appended to
+# board/psc/linux_autobleem_config (the owner's hand-tuned config, never edited) by build-kernel.sh.
+# A later assignment wins, so this is also where a built-in driver becomes a module.
+#
+# Why modules: a module can be replaced by a newer build without a new boot.img, udev loads it only when its
+# device appears, and a driver built into the kernel can never be replaced at all - the libs pack's newer
+# xpad.ko was refused for that ("xpad: module is already loaded") on 2026-09-25. Everything here only needs
+# the payload's modules.alias (depmod - see build-kernel.sh) to load on its own.
+# docs/pad-drivers.md has the plan; the backported drivers themselves live in the psc-kernel tree.
+
+# ---- Gamepads ------------------------------------------------------------------------------------------------
+# Sony: DS3 (and its SHANWAN/GASIA clones), DS4 v1/v2, the Sony wireless adapter - backported hid-sony
+CONFIG_HID_SONY=m
+CONFIG_SONY_FF=y
+# Sony DualSense (PS5) - backported hid-playstation
+CONFIG_HID_PLAYSTATION=m
+CONFIG_PLAYSTATION_FF=y
+# Nintendo Switch Pro, Joy-Cons, and pads that present themselves as one (8BitDo in Switch mode) - backported
+CONFIG_HID_NINTENDO=m
+CONFIG_NINTENDO_FF=y
+# Xbox: wired 360/One/Series and the 360 wireless receiver (backported xpad); Xbox One/Series over Bluetooth go
+# through hid-microsoft (backported)
+CONFIG_JOYSTICK_XPAD=m
+CONFIG_JOYSTICK_XPAD_FF=y
+CONFIG_JOYSTICK_XPAD_LEDS=y
+CONFIG_HID_MICROSOFT=m
+# Wii Remote, Classic Controller, Wii U Pro Controller (in-tree 4.4, left out of the base config)
+CONFIG_HID_WIIMOTE=m
+# Other in-tree 4.4 pad drivers the base config left out: rumble for BETOP, ACRUX, EMS/Trio, Logitech
+# (F310/F510/F710 rumble), Thrustmaster, Zeroplus pads; Xin-Mo dual arcade encoders; Saitek pads
+CONFIG_HID_BETOP_FF=m
+CONFIG_HID_ACRUX=m
+CONFIG_HID_ACRUX_FF=y
+CONFIG_HID_EMS_FF=m
+CONFIG_LOGITECH_FF=y
+CONFIG_LOGIRUMBLEPAD2_FF=y
+CONFIG_THRUSTMASTER_FF=y
+CONFIG_ZEROPLUS_FF=y
+CONFIG_HID_XINMO=m
+CONFIG_HID_SAITEK=m
+# a Bluetooth pad's battery level in /sys/class/power_supply (what PSC-Bios shows)
+CONFIG_HID_BATTERY_STRENGTH=y
+
+# ---- USB WiFi (in-tree 4.4 drivers the base config left out; firmware in both defconfigs) --------------------
+# Atheros AR9271 / AR7010 (TP-Link TL-WN722N v1, Alfa AWUS036NHA)
+CONFIG_ATH_COMMON=m
+CONFIG_ATH9K_HW=m
+CONFIG_ATH9K_COMMON=m
+CONFIG_ATH9K=m
+CONFIG_ATH9K_HTC=m
+# Atheros AR9170 (older Netgear WNDA3100 and others)
+CONFIG_CARL9170=m
+# Atheros AR5523 (old 802.11g sticks)
+CONFIG_AR5523=m
+# Realtek RTL8192CU / RTL8188CU through rtlwifi (rtl8xxxu, already on, covers most of them too)
+CONFIG_RTLWIFI=m
+CONFIG_RTLWIFI_USB=m
+CONFIG_RTL8192C_COMMON=m
+CONFIG_RTL8192CU=m
+# VIA VT6656 (staging)
+CONFIG_VT6656=m

@@ -31,8 +31,12 @@ echo "[kernel] src=${KSRC}  stage=${STAGE}"
 
 mkdir -p "${KBUILD}" "${MODROOT}"
 
-# Seed the config once; keep the build dir for incremental kbuild afterwards.
-if [ ! -f "${KBUILD}/.config" ] || [ "${CONFIG}" -nt "${KBUILD}/.config" ]; then
+# Seed the config once; keep the build dir for incremental kbuild afterwards - seeded again when the base config
+# or a fragment changed (a fragment edit alone used to leave the old .config in place)
+reseed=0
+[ -f "${KBUILD}/.config" ] || reseed=1
+for f in "${CONFIG}" "${FRAGMENTS[@]}"; do [ -f "$f" ] && [ "$f" -nt "${KBUILD}/.config" ] && reseed=1; done
+if [ "${reseed}" = 1 ]; then
 	cp "${CONFIG}" "${KBUILD}/.config"
 	for f in "${FRAGMENTS[@]}"; do
 		[ -f "$f" ] && { echo "[kernel] + fragment $(basename "$f")"; cat "$f" >> "${KBUILD}/.config"; }
@@ -79,6 +83,18 @@ for f in modules.dep modules.alias; do
 	[ -s "${MODROOT}/lib/modules/${KREL}/${f}" ] || { echo "[kernel] ERROR: depmod wrote no ${f} for ${KREL}"; exit 1; }
 done
 echo "[kernel] release ${KREL}, $(wc -l < "${MODROOT}/lib/modules/${KREL}/modules.dep") modules indexed"
+
+# Relocations 4.4's ARM module loader cannot apply (GOT-relative: what a PIE-by-default gcc makes without
+# -fno-PIE, which psc-kernel's Makefile passes since 2026-09-25). A module carrying one never loads ("unknown
+# relocation"), and until then 100 of 107 did - refuse the build instead.
+READELF="${CROSS}readelf"
+command -v "${READELF}" >/dev/null 2>&1 || READELF=readelf
+bad=""
+while IFS= read -r ko; do
+	"${READELF}" -r "${ko}" 2>/dev/null | grep -qE 'R_ARM_(GOT_BREL|GOTPC|GOT32|GOT_PREL|GOTOFF)' && bad="${bad} $(basename "${ko}")"
+done < <(find "${MODROOT}/lib/modules/${KREL}" -name '*.ko')
+[ -z "${bad}" ] || { echo "[kernel] ERROR: modules with GOT relocations 4.4 cannot load:${bad}"; exit 1; }
+echo "[kernel] no module carries a GOT relocation"
 
 cp -f "${KBUILD}/arch/arm/boot/Image" "${STAGE}/Image"
 echo "[kernel] done: Image $(stat -c%s "${STAGE}/Image") bytes, modules -> ${MODROOT}/lib/modules/$(ls "${MODROOT}/lib/modules" 2>/dev/null | head -1)"

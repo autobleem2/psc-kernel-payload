@@ -54,7 +54,9 @@ DEFCONFIG="${HERE}/configs/${DEFCONFIG_NAME}"
 KSRC="${HERE}/sources/psc-kernel"
 KCONFIG="${HERE}/board/psc/linux_autobleem_config"
 KSTAGE="${O}/kernel-stage"
-KFRAG=""; [ "${VARIANT}" = "next" ] && KFRAG="${HERE}/board/psc/linux-extra-wifi.fragment"
+# linux-common.fragment for both variants (pad drivers as modules, the in-tree USB WiFi drivers), next adds its own
+KFRAG="${HERE}/board/psc/linux-common.fragment"
+[ "${VARIANT}" = "next" ] && KFRAG="${KFRAG} ${HERE}/board/psc/linux-extra-wifi.fragment"
 
 log(){ printf '\033[1;36m[build:%s]\033[0m %s\n' "${VARIANT}" "$*"; }
 die(){ printf '\033[1;31m[build:%s] ERROR:\033[0m %s\n' "${VARIANT}" "$*" >&2; exit 1; }
