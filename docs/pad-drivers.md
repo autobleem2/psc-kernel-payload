@@ -60,6 +60,15 @@ answers it instead, keeping BlueZ's authorization step:
 - registers as the default agent (NoInputNoOutput), again whenever bluetoothd appears on the bus; logs every
   decision to the journal. Started with `bluetooth.target` (`verify.sh` allows that one unit link).
 
+## USB power - where the stick and the dongles go
+
+A USB WiFi stick draws a lot when its radio starts (the RT5370 declares 450 mA). On 2026-09-25 the AutoBleem
+stick (200 mA), an RT5370 and a Bluetooth dongle (94 mA) shared one **bus-powered** hub on the rear port - ~750 mA
+through a hub that has 500 mA to give - and the console "did not boot": the kernel and WiFi came up, but the
+AutoBleem stick dropped off the bus, so usb_watch never found it and AutoBleem never started. With the stick on
+a front port the same set booted every time. So: the AutoBleem stick on a front port; WiFi sticks on a front
+port or a *powered* hub; a bus-powered hub only for low-draw devices (a Bluetooth dongle, a pad).
+
 ## To test on a console
 
 1. `lsmod` shows modules loading: a WiFi stick of a listed chip gets its driver, `iw dev` lists it.
