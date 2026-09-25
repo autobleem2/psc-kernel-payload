@@ -91,7 +91,9 @@ READELF="${CROSS}readelf"
 command -v "${READELF}" >/dev/null 2>&1 || READELF=readelf
 bad=""
 while IFS= read -r ko; do
-	"${READELF}" -r "${ko}" 2>/dev/null | grep -qE 'R_ARM_(GOT_BREL|GOTPC|GOT32|GOT_PREL|GOTOFF)' && bad="${bad} $(basename "${ko}")"
+	# grep -c, not -q: -q quits at the first match, readelf dies of SIGPIPE and pipefail hides the match
+	n="$("${READELF}" -r "${ko}" 2>/dev/null | grep -cE 'R_ARM_(GOT_BREL|GOTPC|GOT32|GOT_PREL|GOTOFF)' || true)"
+	[ "${n:-0}" = 0 ] || bad="${bad} $(basename "${ko}")"
 done < <(find "${MODROOT}/lib/modules/${KREL}" -name '*.ko')
 [ -z "${bad}" ] || { echo "[kernel] ERROR: modules with GOT relocations 4.4 cannot load:${bad}"; exit 1; }
 echo "[kernel] no module carries a GOT relocation"
