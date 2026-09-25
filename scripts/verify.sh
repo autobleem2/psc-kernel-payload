@@ -106,6 +106,12 @@ if [ -f "${OUT}/abrootfs.tgz" ]; then
 			if grep -qx "${kdirs}/${f}" "${SAFE_LIST}"; then echo "  [ok ] ${kdirs}/${f}"
 			else echo "  [BAD ] ${kdirs}/${f} missing - depmod did not run"; unsafe=1; fi
 		done
+		# WiFi joins a network only through dhcpcd's wpa_supplicant hook (post-build.sh enables it)
+		if grep -qx 'lib/dhcpcd/dhcpcd-hooks/10-wpa_supplicant' "${SAFE_LIST}"; then
+			echo "  [ok ] lib/dhcpcd/dhcpcd-hooks/10-wpa_supplicant (dhcpcd starts wpa_supplicant)"
+		else
+			echo "  [BAD ] lib/dhcpcd/dhcpcd-hooks/10-wpa_supplicant missing - WiFi would never join a network"; unsafe=1
+		fi
 		# the console's udev has no rule that loads a module for a new device (Sony left 80-drivers.rules out)
 		if grep -qx 'etc/udev/rules.d/80-autobleem-modules.rules' "${SAFE_LIST}"; then
 			echo "  [ok ] etc/udev/rules.d/80-autobleem-modules.rules (modules load when their device appears)"

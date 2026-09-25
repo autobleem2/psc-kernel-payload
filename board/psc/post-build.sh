@@ -33,6 +33,16 @@ for f in bin/updaterootfs.sh bin/settime bin/ntpget bin/abnet bin/start_pman usr
 	[ -f "${TARGET_DIR}/${f}" ] && chmod +x "${TARGET_DIR}/${f}" || true
 done
 
+# dhcpcd starts wpa_supplicant for a WiFi interface through its 10-wpa_supplicant hook - the only thing that
+# ever starts it here (etc/dhcpcd.conf: env ifwireless=1, wpa_supplicant_driver). Buildroot installs that hook
+# only as an optional example under usr/share/dhcpcd/hooks; dhcpcd runs lib/dhcpcd/dhcpcd-hooks. Without it a
+# WiFi stick never joined a network: its LED stayed dark and dhcpcd got no address (2026-09-25).
+if [ -f "${TARGET_DIR}/usr/share/dhcpcd/hooks/10-wpa_supplicant" ]; then
+	mkdir -p "${TARGET_DIR}/lib/dhcpcd/dhcpcd-hooks"
+	cp -f "${TARGET_DIR}/usr/share/dhcpcd/hooks/10-wpa_supplicant" "${TARGET_DIR}/lib/dhcpcd/dhcpcd-hooks/10-wpa_supplicant"
+	echo "[post-build] dhcpcd's wpa_supplicant hook enabled"
+fi
+
 # What of Buildroot's must NOT reach the console (its skeleton /etc, D-Bus and udev) is removed in
 # post-fakeroot.sh, not here: Buildroot's user and device tables - packages add entries of their own, D-Bus
 # its launch helper's permissions - are applied after this script and fail on a file that is gone.
