@@ -10,7 +10,7 @@
 # earned it, so at 81 this file could lose that race depending on exactly where the console's own rules number
 # (we cannot read them off the console - Sony's systemd, not this payload's). 99 runs after any of them by
 # construction. Two more belts for the same suspenders, neither depending on that ordering at all:
-# ENV{LIBINPUT_IGNORE}="1" is libinput's own "ignore this device" property (the same one Valve's Steam
+# ENV{LIBINPUT_IGNORE_DEVICE}="1" is libinput's own "ignore this device" property (the same one Valve's Steam
 # Controller udev rules use, for the same reason) - checked directly by libinput regardless of any tag or of
 # what ID_INPUT_* say; TAG-="seat" strips the seat tag here in case something upstream of us already added it.
 # ACTION!="remove" (not the narrower "add|change" this file used to say) is the same match systemd's own
@@ -25,6 +25,9 @@ ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0a
 # A pad's touchpad and its motion-sensors node (hid-sony / hid-playstation give a DualShock 4 / DualSense three
 # evdev nodes - gamepad, touchpad, motion sensors) are both pointers to Weston otherwise (udev tags the
 # touchpad a touchscreen; the motion sensors node is cleared too since a reconnect creates it fresh alongside
-# the touchpad and there is no cost to being defensive about it). Without ID_INPUT/LIBINPUT_IGNORE and the
+# the touchpad and there is no cost to being defensive about it). Without ID_INPUT/LIBINPUT_IGNORE_DEVICE and the
 # seat tag, libinput - and so Weston - ignores the device; SDL does not read it either way.
-ACTION!="remove", SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="*Wireless Controller Touchpad|*DualSense*Touchpad|*DualShock*Touchpad|*Wireless Controller Motion Sensors|*DualSense*Motion Sensors|*DualShock*Motion Sensors", ENV{ID_INPUT}="", ENV{ID_INPUT_TOUCHPAD}="", ENV{ID_INPUT_MOUSE}="", ENV{ID_INPUT_TOUCHSCREEN}="", ENV{ID_INPUT_POINTINGSTICK}="", ENV{LIBINPUT_IGNORE}="1", TAG-="seat"
+ACTION!="remove", SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="*Wireless Controller Touchpad|*DualSense*Touchpad|*DualShock*Touchpad|*Wireless Controller Motion Sensors|*DualSense*Motion Sensors|*DualShock*Motion Sensors", ENV{ID_INPUT}="", ENV{ID_INPUT_TOUCHPAD}="", ENV{ID_INPUT_MOUSE}="", ENV{ID_INPUT_TOUCHSCREEN}="", ENV{ID_INPUT_POINTINGSTICK}="", ENV{LIBINPUT_IGNORE_DEVICE}="1"
+# The seat tag on a line of its own: "-=" on TAG is newer udev syntax than the rest of this file, and udev skips a
+# whole line it cannot parse - a failure here must not take the property clearing above with it.
+ACTION!="remove", SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="*Wireless Controller Touchpad|*DualSense*Touchpad|*DualShock*Touchpad|*Wireless Controller Motion Sensors|*DualSense*Motion Sensors|*DualShock*Motion Sensors", TAG-="seat"

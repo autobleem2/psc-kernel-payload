@@ -230,7 +230,7 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
   number (81) the fix could lose that race depending on exactly where the console's own rules number, which
   this payload cannot see (Sony's systemd, not ours) and which a reconnect re-runs from scratch just as a
   first pairing does. Renumbered to 99 (runs after any of them by construction) and given two more checks that
-  do not depend on that ordering at all: `ENV{LIBINPUT_IGNORE}="1"` (libinput's own "ignore this device"
+  do not depend on that ordering at all: `ENV{LIBINPUT_IGNORE_DEVICE}="1"` (libinput's own "ignore this device"
   property, same one Valve's Steam Controller udev rules use) and `TAG-="seat"` (strips the tag here in case
   it was already added); `ACTION!="remove"` replaces the narrower `ACTION=="add|change"`, matching what
   `60-persistent-input.rules` itself uses. Only a console run confirms which mechanism was actually at fault.
