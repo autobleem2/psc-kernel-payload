@@ -9,7 +9,7 @@ artefacts (there was **no** overlay-assembly script anywhere — abrootfs.tgz wa
 
 Created 2026-09-22. **Consumed by CI**: `autobleem2/autobleem-console-tools`'s `build.yml` `kernel-payload`
 job fetches the rolling `nightly` pre-release for every non-tag build, or a same-tag release for a v* tag,
-and unpacks it into `payload/Apps/abflashkit/kernel/` at package time. See that repo's `apps/abflashkit`
+and unpacks it as the staged package's `Apps/abflashkit/kernel/` (replacing the 2020 files checked in there). See that repo's `apps/abflashkit`
 tool (its `apps/abflashkit/CLAUDE.md`).
 
 ## Where the sources came from
