@@ -1,0 +1,19 @@
+# Sourced by dhcpcd-run-hooks. The console has no battery clock: every boot starts at 2018-09-01, and nothing
+# else sets it - systemd 229's timesyncd waits for systemd-networkd to call the network online, and the console
+# does not run networkd, so it never syncs (seen 2026-09-26: "NTP synchronized: no" with a working network).
+# So: the first time an interface gets an address, settime update (ntpget + date + hwclock) in the background -
+# ntpget can take a while and a hook must not hold dhcpcd - and /run/autobleem/clock-set once it worked, which is
+# what the launcher can tell a set clock by (autobleem-main todo C7). Retried at the next lease if it failed.
+
+case "${reason}" in
+BOUND|REBOOT|RENEW|REBIND|STATIC)
+	if [ ! -e /run/autobleem/clock-set ] && mkdir -p /run/autobleem && mkdir /run/autobleem/clock-setting 2>/dev/null; then
+		(
+			if /bin/settime update >/dev/null 2>&1 && [ "$(date +%Y)" -ge 2026 ]; then
+				touch /run/autobleem/clock-set
+			fi
+			rmdir /run/autobleem/clock-setting
+		) </dev/null >/dev/null 2>&1 &
+	fi
+	;;
+esac

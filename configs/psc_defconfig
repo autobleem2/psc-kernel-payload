@@ -76,6 +76,11 @@ BR2_PACKAGE_WPA_SUPPLICANT_PASSPHRASE=y
 BR2_PACKAGE_IW=y
 BR2_PACKAGE_LIBNL=y
 BR2_PACKAGE_DHCPCD=y
+# the timezone database (usr/share/zoneinfo + zone.tab/zone1970.tab): PSC-Bios lists and sets the zones from it,
+# settime links /etc/localtime into it; the 2020 overlay shipped it (1891 files), the Buildroot payload lost it
+# until 2026-09-26 (no zone to choose). post-build.sh drops the etc/localtime + etc/timezone it writes.
+BR2_TARGET_TZ_INFO=y
+BR2_TARGET_TZ_ZONELIST="default"
 BR2_PACKAGE_WIRELESS_TOOLS=y                       # iwconfig, iwlist
 BR2_PACKAGE_WIRELESS_TOOLS_LIB=y
 # curl over OpenSSL with the Mozilla CA bundle: the launcher's online update fetches the channel's

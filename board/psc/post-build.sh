@@ -47,6 +47,19 @@ if [ -f "${TARGET_DIR}/usr/share/dhcpcd/hooks/10-wpa_supplicant" ]; then
 	echo "[post-build] dhcpcd's wpa_supplicant hook enabled"
 fi
 
+# tzdata (BR2_TARGET_TZ_INFO) also links etc/localtime and writes etc/timezone for BR2_TARGET_LOCALTIME: the
+# console keeps its own zone (settime tzone changes it in the overlay), only the database is wanted.
+rm -f "${TARGET_DIR}/etc/localtime" "${TARGET_DIR}/etc/timezone"
+
+# Buildroot's example wpa_supplicant.conf has no update_config=1 - so wpa_supplicant refused SAVE_CONFIG and
+# PSC-Bios's "save" failed (2026-09-26) - and a network={key_mgmt=NONE} that joins any open network. The first
+# install gets a plain one; install_payload.sh keeps a console's existing file over it.
+cat > "${TARGET_DIR}/etc/wpa_supplicant.conf" <<'EOF'
+ctrl_interface=/var/run/wpa_supplicant
+update_config=1
+EOF
+chmod 600 "${TARGET_DIR}/etc/wpa_supplicant.conf"
+
 # What of Buildroot's must NOT reach the console (its skeleton /etc, D-Bus and udev) is removed in
 # post-fakeroot.sh, not here: Buildroot's user and device tables - packages add entries of their own, D-Bus
 # its launch helper's permissions - are applied after this script and fail on a file that is gone.

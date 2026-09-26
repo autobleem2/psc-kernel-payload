@@ -126,6 +126,21 @@ if [ -f "${OUT}/abrootfs.tgz" ]; then
 		else
 			echo "  [BAD ] etc/udev/rules.d/80-autobleem-modules.rules missing - no module would ever load"; unsafe=1
 		fi
+		# the timezone database PSC-Bios lists the zones from (BR2_TARGET_TZ_INFO), and not a zone of its own
+		if grep -qx 'usr/share/zoneinfo/zone1970.tab' "${SAFE_LIST}" && grep -qx 'usr/share/zoneinfo/Europe/Warsaw' "${SAFE_LIST}"; then
+			echo "  [ok ] usr/share/zoneinfo (the time zones to choose from)"
+		else
+			echo "  [BAD ] usr/share/zoneinfo missing - no time zone could be chosen"; unsafe=1
+		fi
+		if grep -qxE 'etc/(localtime|timezone)' "${SAFE_LIST}"; then
+			echo "  [BAD ] etc/localtime or etc/timezone in the overlay - it would replace the console's zone"; unsafe=1
+		fi
+		# the clock: set from the network by dhcpcd's hook (timesyncd never syncs without networkd)
+		if grep -qx 'lib/dhcpcd/dhcpcd-hooks/70-autobleem-time' "${SAFE_LIST}"; then
+			echo "  [ok ] lib/dhcpcd/dhcpcd-hooks/70-autobleem-time (the clock is set once a network is up)"
+		else
+			echo "  [BAD ] lib/dhcpcd/dhcpcd-hooks/70-autobleem-time missing - the clock would stay at 2018"; unsafe=1
+		fi
 	fi
 	rm -f "${SAFE_LIST}"
 fi
