@@ -199,15 +199,18 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
   `etc/udev/rules.d/80-autobleem-modules.rules` loads a module for a new device (the console has no such rule).
 - **WiFi** joins only through dhcpcd's `10-wpa_supplicant` hook in `lib/dhcpcd/dhcpcd-hooks/` (post-build.sh).
   Buildroot's example `wpa_supplicant.conf` had no `update_config=1` (PSC-Bios's save failed) and an any-open-
-  network entry: post-build.sh writes a plain one.
+  network entry: post-build.sh writes a plain one. `etc/dhcpcd.conf` sets `env wpa_supplicant_driver=nl80211,wext`
+  globally (X6, 2026-09-26: PSC-Bios no longer copies driver-mode variants; legacy `etc/autobleem/dhcpcd.conf.{wext,nl80211}`
+  files are kept this release for backwards compatibility and will be removed next).
 - **Pairings** persist through `etc/bluetooth/bluetoothd` (an empty dir, bind-mounted over /var/lib/bluetooth).
 - **`install_payload.sh`** keeps the WiFi (`wpa_supplicant.conf`, `ssid.cfg`) and the pairings over a flash by
   writing them into the *new* `/data/autobleem/rootfs/etc` - never through `/etc`, which during the flash is the
   live overlay whose upper dir was just deleted (every flash lost the WiFi until 43aca25).
-- **The clock**: no battery clock, every boot is 2018-09-01, and systemd 229's timesyncd never syncs (it waits
-  for networkd, which the console does not run). `lib/dhcpcd/dhcpcd-hooks/70-autobleem-time` runs
-  `settime update` (ntpget) at the first lease and touches `/run/autobleem/clock-set`. The time spent in a
-  standby is not added to the clock either.
+- **The clock**: no battery clock on the console or the AutoBleem kernel (every boot is 2018-09-01). systemd 229's
+  timesyncd never syncs (it waits for networkd, which the console does not run). `lib/dhcpcd/dhcpcd-hooks/70-autobleem-time`
+  runs `settime update` (ntpget) at the first lease and touches `/run/autobleem/clock-set` (C7, 2026-09-26: the
+  launcher checks this with `Env::clockIsSet()` before recording last-played times, to avoid overwriting valid
+  times with 2018). The time spent in a standby is not added to the clock either.
 - **`/tmp` and the clock jump**: systemd's `tmp.conf` ages /tmp at 10 days, so once the clock jumps to today the
   daily `systemd-tmpfiles-clean` deleted everything boot put there (the launcher's `/tmp/lib`: ABFlashKit died on
   `Mix_LoadWAV`). `etc/tmpfiles.d/tmp.conf` overrides it without an age (the launcher's boot.sh adds an
