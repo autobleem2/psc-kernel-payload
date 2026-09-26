@@ -1,0 +1,33 @@
+# No mouse pointer on the console from devices nobody uses as a mouse (2026-09-26: Weston drew its pointer over
+# the screen whenever no launcher window covered it). A real USB mouse is left alone - an App (Amiberry) may want it.
+#
+# Numbered 99, not this file's original 81 (K10, 2026-09-26: the pointer was back after a paired DualSense/DS4
+# was power-cycled and reconnected with PS - the pad worked, only the pointer was wrong, so classification ran
+# again on reconnect and something before this file's old, lower number won). The console's own systemd ships
+# 60-persistent-input.rules (calls the input_id builtin, sets ID_INPUT_TOUCHPAD etc.) and a seat/uaccess rule
+# in the low 70s that reads those properties and does TAG+="seat" - the tag that actually lets logind/libinput
+# hand the device to Weston. A tag already added is not undone by a later rule clearing the property that
+# earned it, so at 81 this file could lose that race depending on exactly where the console's own rules number
+# (we cannot read them off the console - Sony's systemd, not this payload's). 99 runs after any of them by
+# construction. Two more belts for the same suspenders, neither depending on that ordering at all:
+# ENV{LIBINPUT_IGNORE_DEVICE}="1" is libinput's own "ignore this device" property (the same one Valve's Steam
+# Controller udev rules use, for the same reason) - checked directly by libinput regardless of any tag or of
+# what ID_INPUT_* say; TAG-="seat" strips the seat tag here in case something upstream of us already added it.
+# ACTION!="remove" (not the narrower "add|change" this file used to say) is the same match systemd's own
+# 60-persistent-input.rules uses, so nothing this rule doesn't already know about can slip past it either.
+
+# Broadcom BCM2046-based Bluetooth dongles (Belkin 050d:016a and others) keep their "HID proxy" keyboard and
+# mouse (0a5c:4502, 0a5c:4503 behind their own hub 0a5c:4500) next to the Bluetooth radio - a PC BIOS's
+# Bluetooth input before an OS loads. Never used here, and the mouse is a pointer to Weston: not authorized, so
+# no driver binds. The radio itself is its own device and untouched.
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0a5c", ATTR{idProduct}=="4502|4503", ATTR{authorized}="0"
+
+# A pad's touchpad and its motion-sensors node (hid-sony / hid-playstation give a DualShock 4 / DualSense three
+# evdev nodes - gamepad, touchpad, motion sensors) are both pointers to Weston otherwise (udev tags the
+# touchpad a touchscreen; the motion sensors node is cleared too since a reconnect creates it fresh alongside
+# the touchpad and there is no cost to being defensive about it). Without ID_INPUT/LIBINPUT_IGNORE_DEVICE and the
+# seat tag, libinput - and so Weston - ignores the device; SDL does not read it either way.
+ACTION!="remove", SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="*Wireless Controller Touchpad|*DualSense*Touchpad|*DualShock*Touchpad|*Wireless Controller Motion Sensors|*DualSense*Motion Sensors|*DualShock*Motion Sensors", ENV{ID_INPUT}="", ENV{ID_INPUT_TOUCHPAD}="", ENV{ID_INPUT_MOUSE}="", ENV{ID_INPUT_TOUCHSCREEN}="", ENV{ID_INPUT_POINTINGSTICK}="", ENV{LIBINPUT_IGNORE_DEVICE}="1"
+# The seat tag on a line of its own: "-=" on TAG is newer udev syntax than the rest of this file, and udev skips a
+# whole line it cannot parse - a failure here must not take the property clearing above with it.
+ACTION!="remove", SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="*Wireless Controller Touchpad|*DualSense*Touchpad|*DualShock*Touchpad|*Wireless Controller Motion Sensors|*DualSense*Motion Sensors|*DualShock*Motion Sensors", TAG-="seat"
