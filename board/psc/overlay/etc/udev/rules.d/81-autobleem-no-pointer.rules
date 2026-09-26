@@ -1,0 +1,12 @@
+# No mouse pointer on the console from devices nobody uses as a mouse (2026-09-26: Weston drew its pointer over
+# the screen whenever no launcher window covered it). A real USB mouse is left alone - an App (Amiberry) may want it.
+
+# Broadcom BCM2046-based Bluetooth dongles (Belkin 050d:016a and others) keep their "HID proxy" keyboard and
+# mouse (0a5c:4502, 0a5c:4503 behind their own hub 0a5c:4500) next to the Bluetooth radio - a PC BIOS's
+# Bluetooth input before an OS loads. Never used here, and the mouse is a pointer to Weston: not authorized, so
+# no driver binds. The radio itself is its own device and untouched.
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="0a5c", ATTR{idProduct}=="4502|4503", ATTR{authorized}="0"
+
+# A pad's touchpad (DualShock 4, DualSense - hid-sony / hid-playstation make it an input device of its own) is a
+# pointer (udev tags it a touchscreen) to libinput too. Without ID_INPUT libinput, and so Weston, ignores the device; SDL does not read it.
+ACTION=="add|change", SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="*Wireless Controller Touchpad|*DualSense*Touchpad|*DualShock*Touchpad", ENV{ID_INPUT}="", ENV{ID_INPUT_TOUCHPAD}="", ENV{ID_INPUT_MOUSE}="", ENV{ID_INPUT_TOUCHSCREEN}="", ENV{ID_INPUT_POINTINGSTICK}=""
