@@ -156,6 +156,40 @@ if [ -f "${OUT}/abrootfs.tgz" ]; then
 		else
 			echo "  [BAD ] etc/tmpfiles.d/tmp.conf missing - setting the clock would let the daily clean-up empty /tmp/lib"; unsafe=1
 		fi
+		# WiFi: wpa_supplicant_driver must be a global fallback list (nl80211,wext), not scoped to one
+		# "interface" block - dhcpcd's hook passes it straight through as one -D argument to wpa_supplicant,
+		# which then tries each driver in turn, so a dongle whose driver is not nl80211 still associates
+		# (2026-09-26, autobleem-main docs/todo.md X6; an old PSC-Bios's "Driver mode" setting used to copy
+		# a single-driver variant over etc/dhcpcd.conf - that setting is gone, so both variant files must
+		# still carry the same fallback list in case an old PSC-Bios still copies one of them).
+		DHCPCD_CONF="$(mktemp)"
+		if tar xzOf "${OUT}/abrootfs.tgz" ./etc/dhcpcd.conf > "${DHCPCD_CONF}" 2>/dev/null \
+		    || tar xzOf "${OUT}/abrootfs.tgz" etc/dhcpcd.conf > "${DHCPCD_CONF}" 2>/dev/null; then
+			# the driver line must appear before the first "interface" line (global scope), not after
+			global_part="$(awk '/^interface /{exit} {print}' "${DHCPCD_CONF}")"
+			if [ "$(printf '%s\n' "${global_part}" | grep -c 'wpa_supplicant_driver=nl80211,wext')" != 0 ]; then
+				echo "  [ok ] etc/dhcpcd.conf: wpa_supplicant_driver=nl80211,wext set globally"
+			else
+				echo "  [BAD ] etc/dhcpcd.conf: no global wpa_supplicant_driver=nl80211,wext - a non-nl80211 dongle would never associate"; unsafe=1
+			fi
+			for variant in wext nl80211; do
+				VARIANT_FILE="$(mktemp)"
+				if tar xzOf "${OUT}/abrootfs.tgz" ./etc/autobleem/dhcpcd.conf.${variant} > "${VARIANT_FILE}" 2>/dev/null \
+				    || tar xzOf "${OUT}/abrootfs.tgz" etc/autobleem/dhcpcd.conf.${variant} > "${VARIANT_FILE}" 2>/dev/null; then
+					if diff -q "${DHCPCD_CONF}" "${VARIANT_FILE}" > /dev/null; then
+						echo "  [ok ] etc/autobleem/dhcpcd.conf.${variant} matches etc/dhcpcd.conf"
+					else
+						echo "  [BAD ] etc/autobleem/dhcpcd.conf.${variant} differs from etc/dhcpcd.conf - an old PSC-Bios copying it would set the wrong driver"; unsafe=1
+					fi
+				else
+					echo "  [BAD ] etc/autobleem/dhcpcd.conf.${variant} missing from the tarball"; unsafe=1
+				fi
+				rm -f "${VARIANT_FILE}"
+			done
+		else
+			echo "  [BAD ] etc/dhcpcd.conf missing from the tarball"; unsafe=1
+		fi
+		rm -f "${DHCPCD_CONF}"
 	fi
 	rm -f "${SAFE_LIST}"
 fi
