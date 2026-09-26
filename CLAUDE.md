@@ -217,9 +217,23 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
   `x /tmp/*` rule in /run too, for older payloads).
 - **Time zones**: `BR2_TARGET_TZ_INFO` (the zones are under `usr/share/zoneinfo/posix/`, regions linked to it);
   post-build.sh drops the `etc/localtime`/`etc/timezone` tzdata writes.
-- **No pointer**: `etc/udev/rules.d/81-autobleem-no-pointer.rules` - a BCM2046 Bluetooth dongle's HID-proxy
-  keyboard/mouse (0a5c:4502/4503) deauthorized, a DS4/DualSense touchpad's `ID_INPUT*` cleared; Weston drew
-  its cursor otherwise. A real USB mouse is left alone.
+- **No pointer**: `etc/udev/rules.d/99-autobleem-no-pointer.rules` (K10, 2026-09-26: renumbered from 81, and
+  hardened - see below) - a BCM2046 Bluetooth dongle's HID-proxy keyboard/mouse (0a5c:4502/4503)
+  deauthorized, a DS4/DualSense touchpad's and motion-sensors node's `ID_INPUT*` cleared; Weston drew its
+  cursor otherwise. A real USB mouse is left alone.
+- **The pointer came back after a reconnect** (K10, 2026-09-26: the owner's console - DualSense/DS4 re-paired,
+  power-cycled, PS pressed - pads worked, pointer didn't stay gone). Best-confidence explanation, not
+  confirmed on a console: the console's own systemd ships `60-persistent-input.rules` (classifies the device,
+  sets `ID_INPUT_TOUCHPAD` etc.) and a seat/uaccess rule numbered in the low 70s that reads those properties
+  and tags the device `TAG+="seat"` - the tag that actually lets logind/libinput hand it to Weston. A tag
+  already added is not undone by a later rule clearing the property that earned it, so at this file's old
+  number (81) the fix could lose that race depending on exactly where the console's own rules number, which
+  this payload cannot see (Sony's systemd, not ours) and which a reconnect re-runs from scratch just as a
+  first pairing does. Renumbered to 99 (runs after any of them by construction) and given two more checks that
+  do not depend on that ordering at all: `ENV{LIBINPUT_IGNORE}="1"` (libinput's own "ignore this device"
+  property, same one Valve's Steam Controller udev rules use) and `TAG-="seat"` (strips the tag here in case
+  it was already added); `ACTION!="remove"` replaces the narrower `ACTION=="add|change"`, matching what
+  `60-persistent-input.rules` itself uses. Only a console run confirms which mechanism was actually at fault.
 - **The rear (OTG) port after a standby** does not come back on its own (MediaTek's musb does not restart its
   host session); the launcher's `rc/selection.sh` restarts it through `/sys/devices/platform/mt_usb/swmode`
   (AutoBleem2 f18583b). Unbind/bind of `musb-hdrc` leaves the port dead - its probe cannot run twice.

@@ -126,11 +126,12 @@ if [ -f "${OUT}/abrootfs.tgz" ]; then
 		else
 			echo "  [BAD ] etc/udev/rules.d/80-autobleem-modules.rules missing - no module would ever load"; unsafe=1
 		fi
-		# no mouse pointer from a Bluetooth dongle's HID proxy or a pad's touchpad
-		if grep -qx 'etc/udev/rules.d/81-autobleem-no-pointer.rules' "${SAFE_LIST}"; then
-			echo "  [ok ] etc/udev/rules.d/81-autobleem-no-pointer.rules (no pointer from dongles or pad touchpads)"
+		# no mouse pointer from a Bluetooth dongle's HID proxy or a pad's touchpad/motion-sensors node - 99, not
+		# 81 (K10, 2026-09-26), so it runs after the console's own seat/uaccess tagging, whatever it numbers at
+		if grep -qx 'etc/udev/rules.d/99-autobleem-no-pointer.rules' "${SAFE_LIST}"; then
+			echo "  [ok ] etc/udev/rules.d/99-autobleem-no-pointer.rules (no pointer from dongles or pad touchpads)"
 		else
-			echo "  [BAD ] etc/udev/rules.d/81-autobleem-no-pointer.rules missing - Weston would draw a mouse pointer"; unsafe=1
+			echo "  [BAD ] etc/udev/rules.d/99-autobleem-no-pointer.rules missing - Weston would draw a mouse pointer"; unsafe=1
 		fi
 		# the timezone database PSC-Bios lists the zones from (BR2_TARGET_TZ_INFO), and not a zone of its own
 		# (Buildroot's tzdata installs the zones under posix/ and links each region to it: Europe -> posix/Europe)
