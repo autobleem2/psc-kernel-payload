@@ -170,3 +170,23 @@ jobs:
           gh release create "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" \
             --title "PSC kernel payload ${GITHUB_REF_NAME}" --generate-notes $prerelease out/*.tar.gz || \
           gh release upload "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" out/*.tar.gz --clobber
+
+  # the rolling development build (R1/R18): every successful build of develop replaces the assets of this
+  # repository's `nightly` pre-release (autobleem-build's nightly-release action) and moves the `nightly` tag
+  # to the pushed commit. autobleem-console-tools' kernel-payload job (build.yml) takes this release for
+  # every non-tag build - a v* tag still takes the payload released under that same tag, unmoved. Keeping this
+  # current is what lets the payload's old alpha2/alpha3 releases be deleted later without a develop build of
+  # console-tools silently falling back to the 2020 kernel/abrootfs checked into that repo. Never for a pull
+  # request or a tag.
+  nightly:
+    if: github.ref == 'refs/heads/develop' && github.event_name != 'pull_request'
+    needs: [plan, build]
+    runs-on: ubuntu-24.04
+    permissions: { contents: write }
+    steps:
+      - uses: actions/download-artifact@v8
+        with: { pattern: kernel-payload-*, path: out, merge-multiple: true }
+      - uses: autobleem2/autobleem-build/.github/actions/nightly-release@develop
+        with:
+          files: out/*.tar.gz
+          version: ${{ needs.plan.outputs.version }}
