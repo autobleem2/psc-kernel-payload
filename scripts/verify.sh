@@ -127,10 +127,13 @@ if [ -f "${OUT}/abrootfs.tgz" ]; then
 			echo "  [BAD ] etc/udev/rules.d/80-autobleem-modules.rules missing - no module would ever load"; unsafe=1
 		fi
 		# the timezone database PSC-Bios lists the zones from (BR2_TARGET_TZ_INFO), and not a zone of its own
-		if grep -qx 'usr/share/zoneinfo/zone1970.tab' "${SAFE_LIST}" && grep -qx 'usr/share/zoneinfo/Europe/Warsaw' "${SAFE_LIST}"; then
-			echo "  [ok ] usr/share/zoneinfo (the time zones to choose from)"
+		# (Buildroot's tzdata installs the zones under posix/ and links each region to it: Europe -> posix/Europe)
+		if ! grep -qx 'usr/share/zoneinfo/zone1970.tab' "${SAFE_LIST}"; then
+			echo "  [BAD ] usr/share/zoneinfo/zone1970.tab missing - no time zone could be chosen"; unsafe=1
+		elif ! grep -qxE 'usr/share/zoneinfo/(posix/)?Europe/Warsaw' "${SAFE_LIST}"; then
+			echo "  [BAD ] usr/share/zoneinfo has no zone files (Europe/Warsaw) - no time zone could be set"; unsafe=1
 		else
-			echo "  [BAD ] usr/share/zoneinfo missing - no time zone could be chosen"; unsafe=1
+			echo "  [ok ] usr/share/zoneinfo (the time zones to choose from)"
 		fi
 		if grep -qxE 'etc/(localtime|timezone)' "${SAFE_LIST}"; then
 			echo "  [BAD ] etc/localtime or etc/timezone in the overlay - it would replace the console's zone"; unsafe=1
