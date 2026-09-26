@@ -144,6 +144,12 @@ if [ -f "${OUT}/abrootfs.tgz" ]; then
 		else
 			echo "  [BAD ] lib/dhcpcd/dhcpcd-hooks/70-autobleem-time missing - the clock would stay at 2018"; unsafe=1
 		fi
+		# ... and once it is set, /tmp's boot-time files must not look 8 years old to systemd-tmpfiles-clean
+		if grep -qx 'etc/tmpfiles.d/tmp.conf' "${SAFE_LIST}"; then
+			echo "  [ok ] etc/tmpfiles.d/tmp.conf (/tmp is not aged out when the clock jumps from 2018)"
+		else
+			echo "  [BAD ] etc/tmpfiles.d/tmp.conf missing - setting the clock would let the daily clean-up empty /tmp/lib"; unsafe=1
+		fi
 	fi
 	rm -f "${SAFE_LIST}"
 fi
