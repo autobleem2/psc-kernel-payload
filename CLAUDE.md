@@ -179,10 +179,41 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
    owner's choice, 2026-09-23; SHA-512 crypt - the old hash was MD5-crypt) for ssh/ftp over the USB network,
    mode 0600 through `device_table.txt` (the 2020 file was world-readable).
    `ntpget` is the one prebuilt binary (its source was never found).
-5. **Hardware test** — NOTHING here has booted on a console yet. The kernel is the same source +
-   config, so it should, but it is unverified. Flash via abflashkit with an LBOOT.EPB backup ready.
+5. ~~**Hardware test**~~ — DONE 2026-09-25/26 on the owner's console (`feature/pad-drivers`): boots, the
+   launcher runs, modules load, DS3 (USB + cable pairing through abbtagent) and DS4 over Bluetooth work,
+   WiFi (RT5370) joins, pairings survive a reboot. See "On the console" below.
 6. Out-of-tree modern USB-WiFi drivers (8812au/8821cu/88x2bu/mt76) as vendored kernel trees (the big
    dongle win) — see `docs/kernel-and-drivers.md`.
+
+## On the console (2026-09-25/26) - what the hardware taught, each now checked by `verify.sh`
+
+- **Modules**: depmod must run (the image has kmod), the release is `4.4.22` (`LOCALVERSION=`), gcc-6's default
+  PIE is off (`-fno-PIE`: GOT relocations 4.4 cannot load; `build-kernel.sh` rejects them), and
+  `etc/udev/rules.d/80-autobleem-modules.rules` loads a module for a new device (the console has no such rule).
+- **WiFi** joins only through dhcpcd's `10-wpa_supplicant` hook in `lib/dhcpcd/dhcpcd-hooks/` (post-build.sh).
+  Buildroot's example `wpa_supplicant.conf` had no `update_config=1` (PSC-Bios's save failed) and an any-open-
+  network entry: post-build.sh writes a plain one.
+- **Pairings** persist through `etc/bluetooth/bluetoothd` (an empty dir, bind-mounted over /var/lib/bluetooth).
+- **`install_payload.sh`** keeps the WiFi (`wpa_supplicant.conf`, `ssid.cfg`) and the pairings over a flash by
+  writing them into the *new* `/data/autobleem/rootfs/etc` - never through `/etc`, which during the flash is the
+  live overlay whose upper dir was just deleted (every flash lost the WiFi until 43aca25).
+- **The clock**: no battery clock, every boot is 2018-09-01, and systemd 229's timesyncd never syncs (it waits
+  for networkd, which the console does not run). `lib/dhcpcd/dhcpcd-hooks/70-autobleem-time` runs
+  `settime update` (ntpget) at the first lease and touches `/run/autobleem/clock-set`. The time spent in a
+  standby is not added to the clock either.
+- **`/tmp` and the clock jump**: systemd's `tmp.conf` ages /tmp at 10 days, so once the clock jumps to today the
+  daily `systemd-tmpfiles-clean` deleted everything boot put there (the launcher's `/tmp/lib`: ABFlashKit died on
+  `Mix_LoadWAV`). `etc/tmpfiles.d/tmp.conf` overrides it without an age (the launcher's boot.sh adds an
+  `x /tmp/*` rule in /run too, for older payloads).
+- **Time zones**: `BR2_TARGET_TZ_INFO` (the zones are under `usr/share/zoneinfo/posix/`, regions linked to it);
+  post-build.sh drops the `etc/localtime`/`etc/timezone` tzdata writes.
+- **No pointer**: `etc/udev/rules.d/81-autobleem-no-pointer.rules` - a BCM2046 Bluetooth dongle's HID-proxy
+  keyboard/mouse (0a5c:4502/4503) deauthorized, a DS4/DualSense touchpad's `ID_INPUT*` cleared; Weston drew
+  its cursor otherwise. A real USB mouse is left alone.
+- **The rear (OTG) port after a standby** does not come back on its own (MediaTek's musb does not restart its
+  host session); the launcher's `rc/selection.sh` restarts it through `/sys/devices/platform/mt_usb/swmode`
+  (AutoBleem2 f18583b). Unbind/bind of `musb-hdrc` leaves the port dead - its probe cannot run twice.
+- The overlay's `rndis restart` (after every wake, and at boot) runs `dropbear -R`: a new SSH host key each time.
 
 ## Gotchas
 
