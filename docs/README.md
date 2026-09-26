@@ -10,8 +10,11 @@ is in the top-level `README.md`; developer context in `CLAUDE.md`.
   incremental/selective loop, and troubleshooting (Buildroot version choices,
   the kernel/GPU constraint, host-package pitfalls).
 - **[kernel-and-drivers.md](kernel-and-drivers.md)** — the 4.4 kernel, the
-  PowerVR GPU constraint that pins it, the WiFi/Bluetooth driver set, and the
+  PowerVR GE8300 constraint that keeps it, the WiFi/Bluetooth driver set, and the
   roadmap for "more dongles / newer Bluetooth."
+- **[userland-refresh.md](userland-refresh.md)**: the 2026-09-25 decision to stay on 4.4.
+  More USB devices come from backports, a newer userland from the overlay. Covers the
+  plan, what the kernel config allows, and the first inventory of the stock root.
 - **[bt-pairing.md](bt-pairing.md)** — how the overlay's BlueZ stack is used by
   the PSC-Bios controller-pairing screen (the "feature in progress" UI), i.e.
   the consumer side of this Bluetooth stack.
