@@ -78,6 +78,17 @@ Both build the **same GPU-safe 4.4 kernel** and the **same hand-tuned kernel con
 only *adds* — newer userland (Buildroot 2024.02), and more in-tree USB-WiFi drivers
 (ath9k_htc/carl9170/rtl8192cu) via a config fragment layered on top of your config, plus the full
 firmware set. The kernel major version is pinned at 4.4 by the PowerVR GPU blob (no mainline
+
+## CI: the rolling `nightly` release
+
+Every successful build of `develop` replaces the assets of the rolling `nightly` pre-release and moves the
+`nightly` tag to that commit. `autobleem2/autobleem-console-tools`' `build.yml` `kernel-payload` job takes
+this release for every non-tag build (develop, master, a pull request, a manual run); a v* tag build takes
+the payload released under that same tag. A missing release or asset fails the job loudly — there is no
+fallback path to the old checked-in 2020 kernel/abrootfs files.
+
+Keeping the nightly release current is what lets old alpha releases be deleted later without a console-tools
+develop build silently reverting to old payload files that were once left in the repo.
 driver), so "newer" means a modernised 4.4 + newer userland, not a newer kernel. See `CLAUDE.md`.
 
 ## Installing a freshly built payload

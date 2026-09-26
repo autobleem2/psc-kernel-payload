@@ -7,8 +7,10 @@ self-contained glibc-2.28 userland + kernel modules/firmware) that `abflashkit` 
 console. It replaces the lost old-GitLab pipeline, which shipped these as hand-assembled static
 artefacts (there was **no** overlay-assembly script anywhere — abrootfs.tgz was built by hand).
 
-Created 2026-09-22. Consumer: `autobleem2/autobleem-console-tools → payload/Apps/abflashkit/kernel/`
-(and its `apps/abflashkit` tool — see that repo's `apps/abflashkit/CLAUDE.md`).
+Created 2026-09-22. **Consumed by CI**: `autobleem2/autobleem-console-tools`'s `build.yml` `kernel-payload`
+job fetches the rolling `nightly` pre-release for every non-tag build, or a same-tag release for a v* tag,
+and unpacks it into `payload/Apps/abflashkit/kernel/` at package time. See that repo's `apps/abflashkit`
+tool (its `apps/abflashkit/CLAUDE.md`).
 
 ## Where the sources came from
 
