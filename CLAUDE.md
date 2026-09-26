@@ -136,7 +136,7 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
   builds the userland (gcc-10) and folds the staged modules in. The kernel fork got 3 commits to
   build under a modern host toolchain (still gcc-6 here, harmless): `-fcommon` for dtc,
   drop fork-added `-Werror` from ~27 subdir Makefiles, `log2.h` attribute fix. They are on
-  autobleem2/psc-kernel `master` (pushed 2026-09-23), which `sources/psc-kernel` is a submodule of, so a
+  autobleem2/psc-kernel `develop` (pushed 2026-09-23 to `master`; develop = master since 2026-09-26, K6 - the 2020 branches are `backup/*-2020` tags), which `sources/psc-kernel` is a submodule of, so a
   fresh `--recurse-submodules` clone reproduces the build.
 - FIT packaging needs the **system** `mkimage` (FIT-capable) + `dtc` (in the image); the `.its`
   signature node was dropped (unsigned; the console doesn't verify it).
