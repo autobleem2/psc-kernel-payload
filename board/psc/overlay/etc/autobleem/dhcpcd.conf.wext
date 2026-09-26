@@ -42,10 +42,21 @@ slaac private
 
 #
 denyinterfaces ifb0 ifb1
+
+# Which driver dhcpcd's 10-wpa_supplicant hook should pass wpa_supplicant (-D) for a wireless
+# interface. This is global (set before any "interface" line, so it is not scoped to one) - a
+# dongle whose interface is not wlan0 needs it too, and dhcpcd itself sets ifwireless=1 for any
+# interface it detects as wireless (src/script.c), so no per-interface "interface wlan0" block is
+# needed just for that. A comma list is wpa_supplicant's own driver-fallback syntax; the hook
+# passes it through as one -D argument unchanged (hooks/10-wpa_supplicant: "-D$wpa_supplicant_driver"),
+# so wpa_supplicant tries nl80211 first and falls back to wext - every in-tree driver here is
+# nl80211, but a dongle's driver is not guaranteed to be (2026-09-26, autobleem-main docs/todo.md X6).
+env wpa_supplicant_driver=nl80211,wext
 #
-interface wlan0
-env ifwireless=1
-env wpa_supplicant_driver=wext
+# etc/autobleem/dhcpcd.conf.wext and .nl80211 are kept byte-identical to this file for one release
+# (an old PSC-Bios's "Driver mode" setting used to copy one of them over this file to pick a single
+# driver - that setting is gone, this file's fallback list covers both on its own, 2026-09-26,
+# autobleem-main docs/todo.md X6). Remove both variant files after the next release.
 #
 interface rndis0
 static ip_address=169.254.215.100/24
