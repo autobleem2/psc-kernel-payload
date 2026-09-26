@@ -1,0 +1,15 @@
+# Sourced by dhcpcd-run-hooks, before 10-wpa_supplicant (numeric prefix, lexical glob order -
+# dhcpcd-run-hooks.in sources every file under @HOOKDIR@/* into itself with ". $hook" in one
+# shell, earliest name first, and a variable a hook sets is still there for the next one).
+#
+# etc/dhcpcd.conf sets "env wpa_supplicant_driver=nl80211,wext" at global scope (X6, 2026-09-26),
+# which dhcpcd.conf.5.in documents as reaching the hooks' environment - but on the console
+# (dhcpcd 9.4.1, PRIVSEP on, -B --noarp) the running wpa_supplicant never carries the -D that
+# 10-wpa_supplicant's "driver=${wpa_supplicant_driver:+-D}$wpa_supplicant_driver" would add, with
+# or without that env line (seen 2026-09-26, todo K9 - the "env" config option's value is not
+# landing in $wpa_supplicant_driver by the time 10-wpa_supplicant runs; root cause not pinned
+# down, could be a PRIVSEP build detail of this dhcpcd or a quirk of Buildroot's own build of it).
+#
+# Whatever the cause, set the fallback here instead, where sourcing order guarantees it is seen:
+# a plain shell default-assign, so a value dhcpcd DID manage to pass through still wins over it.
+: "${wpa_supplicant_driver:=nl80211,wext}"

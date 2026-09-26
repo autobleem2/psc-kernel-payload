@@ -120,6 +120,15 @@ if [ -f "${OUT}/abrootfs.tgz" ]; then
 		else
 			echo "  [BAD ] lib/dhcpcd/dhcpcd-hooks/10-wpa_supplicant missing - WiFi would never join a network"; unsafe=1
 		fi
+			# etc/dhcpcd.conf's global "env wpa_supplicant_driver=..." does not reach 10-wpa_supplicant on the
+			# console (todo K9, 2026-09-26: the running wpa_supplicant never carries -D either way) - this hook
+			# sources before it (numeric prefix, dhcpcd-run-hooks.in's glob is lexical) and default-assigns the
+			# same fallback list where sourcing order guarantees 10-wpa_supplicant sees it.
+			if grep -qx 'lib/dhcpcd/dhcpcd-hooks/09-autobleem-wpa-driver' "${SAFE_LIST}"; then
+				echo "  [ok ] lib/dhcpcd/dhcpcd-hooks/09-autobleem-wpa-driver (wpa_supplicant_driver reaches 10-wpa_supplicant)"
+			else
+				echo "  [BAD ] lib/dhcpcd/dhcpcd-hooks/09-autobleem-wpa-driver missing - a non-nl80211 dongle would never associate"; unsafe=1
+			fi
 		# the console's udev has no rule that loads a module for a new device (Sony left 80-drivers.rules out)
 		if grep -qx 'etc/udev/rules.d/80-autobleem-modules.rules' "${SAFE_LIST}"; then
 			echo "  [ok ] etc/udev/rules.d/80-autobleem-modules.rules (modules load when their device appears)"
