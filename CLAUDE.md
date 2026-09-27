@@ -3,7 +3,9 @@
 A **Buildroot external tree** that rebuilds the AutoBleem PlayStation Classic kernel-flasher
 payload from source: the `boot.img` (Linux 4.4.22 FIT for the MediaTek MT8167) and
 `abrootfs.tgz` (the rootfs overlay — BlueZ+sixaxis, WiFi, dropbear, ntfs-3g, busybox, a
-self-contained glibc-2.28 userland + kernel modules/firmware) that `abflashkit` writes to the
+self-contained glibc-2.34 userland — Buildroot 2022.02.x's default toolchain glibc, confirmed on
+hardware 2026-09-24 and against upstream Buildroot's `package/glibc/glibc.mk` (`GLIBC_VERSION =
+2.34-...`); see "To do" item 0 — + kernel modules/firmware) that `abflashkit` writes to the
 console. It replaces the lost old-GitLab pipeline, which shipped these as hand-assembled static
 artefacts (there was **no** overlay-assembly script anywhere — abrootfs.tgz was built by hand).
 
@@ -161,7 +163,12 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
    first line), `tar` (no gzip), `reboot`/`halt`/`poweroff` (the console's are systemctl; busybox's only
    signal init, and systemd ignores it), `mount`, `modprobe`, `insmod`, `login`, `env`, udev helpers, /etc
    files. It also lacked the `/autobleem` marker and the 2020 tool paths (`/bin/wpa_supplicant`,
-   `/sbin/inetd`, ...), and its glibc is 2.34, not the 2.28 this file said. The rule is now checked against
+   `/sbin/inetd`, ...), and its glibc is 2.34, not the 2.28 this file said (settled DOCS-8: Buildroot
+   2022.02.x's own `package/glibc/glibc.mk` pins `GLIBC_VERSION = 2.34-...`, matching the hardware
+   finding - the intro now says 2.34 for this repo's own build. The Gotchas section's "shipped overlay is
+   glibc 2.28" and "Reference version fingerprint" entries are a separate, still-correct fact: the
+   pre-existing hand-built overlay this project replaces, not what Buildroot produces here - see that
+   section's own note). The rule is now checked against
    the console itself: `reference/console-rootfs.txt` is every path of the stock ROOTFS1
    (`scripts/console-rootfs-list.py`, from a vanilla rootfs.ext4); `scripts/overlay.py shape` (the last
    step of `post-fakeroot.sh`) drops everything at one of those paths except shared libraries and the few
@@ -247,9 +254,13 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
 ## Gotchas
 
 - **Everything builds on Linux.** Buildroot cannot run on Windows and refuses to run as root.
-- The shipped overlay is **glibc 2.28** (`ld-2.28.so`), NOT the console's glibc 2.24 — the overlay
-  is self-contained. Micro-version differences (glibc 2.31, glib 2.62, etc.) are harmless: binaries
-  reference `/lib/ld-linux-armhf.so.3` (soname), and the flasher never checks `abrootfs.md5`.
+- The pre-existing hand-built overlay this project replaces (the old-GitLab-era `abrootfs.tgz` still on a
+  console today, and `reference/`'s ground truth) is **glibc 2.28** (`ld-2.28.so`), NOT the console's
+  glibc 2.24 — that overlay is self-contained too. **This repo's own from-source build is glibc 2.34**
+  (Buildroot 2022.02.x's default; see the intro and "To do" item 0) — a different overlay, not a
+  contradiction. Micro-version differences between overlay builds (glibc 2.31, glib 2.62, etc.) are
+  harmless either way: binaries reference `/lib/ld-linux-armhf.so.3` (soname), and the flasher never
+  checks `abrootfs.md5`.
 - `boot.md5` in the reference is the SHIPPING boot.img's; a from-source kernel produces a different
   md5. That is fine — abflashkit writes and verifies its own boot.img/boot.md5 as a pair.
 - Keep shell/cfg files **LF**. Reference version fingerprint: glibc 2.28, glib 2.56.4, BlueZ 5.50
