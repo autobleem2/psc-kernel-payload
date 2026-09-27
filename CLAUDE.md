@@ -37,11 +37,13 @@ Full archaeology: AutoBleem2's memory note `psc-kernel-build-chain` and its `app
 
 Buildroot (`BR2_EXTERNAL` = this repo) does everything from source in one tree:
 
-- **Foundation = Buildroot 2020.02.12** (`BR_VERSION` in `scripts/build.sh`). Chosen because its
-  `bluez5_utils` is **5.54** — matching `psc-bluez`, so the sixaxis patch applies cleanly — and its
-  glibc 2.31 is era-close to the shipped **glibc 2.28**. The overlay ships its OWN glibc (it does
-  NOT use the console's Stretch/glibc-2.24 system libs), which is why Buildroot (self-contained
-  toolchain + rootfs) is the right tool rather than cross-building against the console sysroot.
+- **Foundation = Buildroot 2022.02.x** (`BR_VERSION` in `scripts/build.sh`; `next` builds 2024.02.x). Its
+  `bluez5_utils` (~5.63) is newer than `psc-bluez`'s 5.54, so the archived "DanTheMans" `sixaxis.c` patch
+  is not applied here — the newer upstream sixaxis plugin is used instead (see "Bluetooth roadmap" in
+  `docs/kernel-and-drivers.md`; forward-port the patch into `board/psc/patches-next/bluez5_utils/` if
+  DualShock 3 pairing regresses on hardware). The overlay ships its OWN glibc (it does NOT use the
+  console's Stretch/glibc-2.24 system libs), which is why Buildroot (self-contained toolchain + rootfs) is
+  the right tool rather than cross-building against the console sysroot.
 - **Toolchain**: Buildroot-built glibc toolchain, `cortex_a7` + NEON-VFPv4 hardfloat (safe on the
   MT8167's Cortex-A35 running aarch32). Kernel headers = the in-tree 4.4.22 kernel's.
 - **Kernel**: Buildroot `linux` package, `CUSTOM_GIT` = autobleem2/psc-kernel, custom config
@@ -65,8 +67,9 @@ Layout (BR2_EXTERNAL): `external.desc/mk`, `Config.in`, `configs/psc_defconfig`,
 `build.sh -V <variant>` (or `VARIANT=`) selects one; they use separate Buildroot
 checkouts and outputs so both coexist.
 
-- **`psc`** (default) — the faithful 4.4 baseline: Buildroot 2020.02.12, BlueZ 5.54 + the
-  archived DanTheMans sixaxis patch. `configs/psc_defconfig`, `buildroot/`, `output/`.
+- **`psc`** (default) — the faithful 4.4 baseline: Buildroot 2022.02.x, newer BlueZ (~5.63) with its
+  upstream sixaxis plugin (the archived DanTheMans 5.54 patch is not applied - see the Architecture
+  section above). `configs/psc_defconfig`, `buildroot/`, `output/`.
 - **`next`** — the *improved* image (owner's ask, "safe wins on the 4.4 BSP"): Buildroot
   2024.02.x → newer BlueZ + userland; broader WiFi dongle support; full firmware set.
   `configs/psc_next_defconfig`, `buildroot-next/`, `output-next/`.
