@@ -16,8 +16,10 @@ source, incrementally and selectively, in the AutoBleem Docker build image.
 ## What builds what
 
 - **Kernel** → our own fork `autobleem2/psc-kernel` (Linux 4.4.22, `board/psc/linux_autobleem_config`),
-  built by Buildroot's `linux` package; `post-image.sh` wraps `Image` into the FIT `boot.img`
-  exactly as the old `uboot-support/packit.sh` did (`lz4` + size trailer + `mkimage -f kernel.its`).
+  built **separately from Buildroot** by `board/psc/build-kernel.sh` with the console's own gcc-6 cross
+  toolchain (Buildroot's newer gcc breaks the 4.4 fork's `__asmeq` asserts); `post-image.sh` wraps `Image`
+  into the FIT `boot.img` exactly as the old `uboot-support/packit.sh` did (`lz4` + size trailer +
+  `mkimage -f kernel.its`).
 - **Userland** → ~20 **stock Buildroot** packages (`configs/psc_defconfig`), built from source
   against a Buildroot-built glibc toolchain — no external cross toolchain needed.
 - **Bluetooth DualShock fix** → `board/psc/patches/bluez5_utils/` (the archived "DanTheMans"
@@ -63,8 +65,8 @@ docker/run.sh scripts/build.sh payload         # copy the payload out to ./paylo
 ```
 
 Kernel hacking is the tightest loop: edit `sources/psc-kernel/`, then
-`scripts/build.sh kernel` recompiles from that working tree (via `LINUX_OVERRIDE_SRCDIR`)
-and repacks `boot.img` in seconds.
+`scripts/build.sh kernel` recompiles it from that working tree (via `board/psc/build-kernel.sh`,
+decoupled from Buildroot) and repacks `boot.img` in seconds.
 
 ## Two variants: faithful vs improved
 
@@ -100,8 +102,10 @@ keep the `LBOOT.EPB` recovery backup the flasher makes.
 
 ## Status
 
-See `CLAUDE.md` for the developer context, the reference-vs-build differences, and the
-remaining wiring (the AutoBleem overlay files, `abnet` source, firmware sets).
+The `psc` baseline is **flashed and running on a real console** (2026-09-25/26: boots, the launcher
+runs, modules load, DS3 by cable + DS4 over Bluetooth pair, WiFi joins, pairings survive a reboot - see
+the hub's `docs/todo.md` `KERNEL-1`). See `CLAUDE.md` for the developer context, the reference-vs-build
+differences, and the remaining wiring (the AutoBleem overlay files, `abnet` source, firmware sets).
 
 ## Licence
 

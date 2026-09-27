@@ -68,13 +68,18 @@ The base config is already broad, so the additive value is specific:
 
 ## Building the kernel (inside this project)
 
-Buildroot builds it as the `linux` package from `sources/psc-kernel` (via
-`LINUX_OVERRIDE_SRCDIR`, so it compiles from the local checkout). The uncompressed
-`arch/arm/boot/Image` is wrapped into the FIT `boot.img` by `board/psc/post-image.sh`
-(identical flow to the old `uboot-support/packit.sh`). Fast loop:
+The kernel build is **decoupled from Buildroot** (DOCS-8: settling this repo's internal contradiction —
+Buildroot's `linux` package was the original plan, dropped the same day the first build went green):
+`board/psc/build-kernel.sh` compiles `sources/psc-kernel` (the `autobleem2/psc-kernel` submodule) directly
+with the **console's own gcc-6** cross toolchain. Buildroot only builds the userland (its own newer gcc)
+and folds the staged kernel modules in. The uncompressed `arch/arm/boot/Image` is wrapped into the FIT
+`boot.img` by `board/psc/post-image.sh` (identical flow to the old `uboot-support/packit.sh`). Fast loop:
 `scripts/build.sh kernel`.
 
-**Compiler note:** an old 4.4 kernel is happier with an older GCC. The baseline
-uses Buildroot 2022.02 (gcc-11); if the kernel needs fixes under a newer gcc,
-add kernel patches (in `sources/psc-kernel`, or a `board/psc/patches/linux/`
-global patch dir) rather than bumping the kernel.
+**Compiler note:** an old 4.4 kernel is happier with an older GCC — that is *why* it is decoupled. The 4.4
+fork's `__asmeq` register-pair inline-asm asserts break under gcc >= 9/10, which is what Buildroot's own
+toolchain (**gcc-10** for the `psc` baseline's 2022.02.x, per CLAUDE.md's "How it actually builds") would
+build with; gcc-6 (the era the fork was validated against) builds it clean. If the kernel needs further
+fixes under a newer gcc, add kernel patches
+(in `sources/psc-kernel`, or a `board/psc/patches/linux/` global patch dir) rather than bumping the kernel
+or the kernel's compiler.
