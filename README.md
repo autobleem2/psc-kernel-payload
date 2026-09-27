@@ -102,8 +102,10 @@ keep the `LBOOT.EPB` recovery backup the flasher makes.
 
 ## Status
 
-See `CLAUDE.md` for the developer context, the reference-vs-build differences, and the
-remaining wiring (the AutoBleem overlay files, `abnet` source, firmware sets).
+The `psc` baseline is **flashed and running on a real console** (2026-09-25/26: boots, the launcher
+runs, modules load, DS3 by cable + DS4 over Bluetooth pair, WiFi joins, pairings survive a reboot - see
+the hub's `docs/todo.md` `KERNEL-1`). See `CLAUDE.md` for the developer context, the reference-vs-build
+differences, and the remaining wiring (the AutoBleem overlay files, `abnet` source, firmware sets).
 
 ## Licence
 

@@ -128,7 +128,12 @@ menuconfig** so the diff stays reviewable), `linux-menuconfig`, `verify`, `paylo
 
 Runs on Linux only (Buildroot). Author config/scripts anywhere; **build on `psc-build`**.
 
-## Status (2026-09-22) — the `psc` baseline BUILDS end-to-end from source
+## Status (2026-09-22, confirmed booting on hardware 2026-09-25/26) — the `psc` baseline builds AND runs
+
+**The `psc` baseline is flashed and running on the owner's console** (DOCS-8: settling the internal
+"has this booted" question - the hub's `docs/todo.md` `KERNEL-1`, 2026-09-26: the pad-driver payload is
+flashed and runs; modules load, DS3 by cable through abbtagent, DS4 v2 over Bluetooth, WiFi joins,
+pairings survive a reboot). "To do" item 5 and "On the console" below are that hardware pass in detail.
 
 **First full from-source build is green.** `docker/run.sh scripts/build.sh all` on `psc-build`
 produces a complete, valid payload in `output/images/psc-payload/kernel/`:
