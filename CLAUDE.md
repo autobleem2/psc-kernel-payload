@@ -48,10 +48,13 @@ Buildroot (`BR2_EXTERNAL` = this repo) does everything from source in one tree:
   the right tool rather than cross-building against the console sysroot.
 - **Toolchain**: Buildroot-built glibc toolchain, `cortex_a7` + NEON-VFPv4 hardfloat (safe on the
   MT8167's Cortex-A35 running aarch32). Kernel headers = the in-tree 4.4.22 kernel's.
-- **Kernel**: Buildroot `linux` package, `CUSTOM_GIT` = autobleem2/psc-kernel, custom config
-  `board/psc/linux_autobleem_config`, image target `Image` (uncompressed). `build.sh` writes a
-  `local.mk` with `LINUX_OVERRIDE_SRCDIR = sources/psc-kernel` so the kernel builds from the local
-  submodule checkout (no private-repo fetch; instant `linux-rebuild`).
+- **Kernel**: built separately from Buildroot's own toolchain (DOCS-8: this superseded an early plan to
+  build it as Buildroot's `linux` package with `LINUX_OVERRIDE_SRCDIR` — dropped the same day, see "How it
+  actually builds" below). `board/psc/build-kernel.sh` compiles `sources/psc-kernel` (the
+  `autobleem2/psc-kernel` submodule checkout) against `board/psc/linux_autobleem_config` with the
+  **console's own gcc-6** cross toolchain (Buildroot's gcc-10/gcc-11 breaks the 4.4 fork's `__asmeq`
+  register asserts), producing the uncompressed `Image` plus the staged modules that Buildroot's userland
+  build folds in. `scripts/build.sh kernel` reruns only this step and repacks the payload.
 - **boot.img**: `board/psc/post-image.sh` — `lz4 -lf9 Image` + 8-byte LE size trailer +
   `mkimage -f kernel.its boot.img` (host uboot-tools + lz4). Identical flow to `uboot-support/packit.sh`.
   The FIT `signature` node needs **no key**: boot.img is dd'd straight to BOOTIMG1 (the exploit
