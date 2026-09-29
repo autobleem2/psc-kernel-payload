@@ -43,7 +43,8 @@ it to hid-generic first (how the DS4 v2 ended up there).
 
 **SDL mappings change**: the 6.1 drivers follow the Linux gamepad layout and hid-sony/hid-nintendo set bit
 0x8000 in the version, so the SDL GUIDs of these pads differ from before - the launcher's
-`gamecontrollerdb.txt` needs lines for them (SDL 2.0.14 knows many of these layouts only through HIDAPI).
+`gamecontrollerdb.txt` needs lines for them (the launcher's SDL2, `autobleem_sdl` 2.0.18 - was upstream 2.0.14 -
+knows many of these layouts only through HIDAPI).
 DS4/DualSense touchpads and motion sensors appear as extra input devices ("... Touchpad", "... Motion Sensors").
 
 ## Cable pairing - `package/abbtagent`

@@ -85,7 +85,7 @@ would lay a newer version over.
 | D-Bus | libdbus 3.14.7 (~1.10) | The console's daemon serves BlueZ. Keep it. |
 | OpenSSL | 1.0.x (`libssl.so.1.0.0`) | A newer OpenSSL has another soname, so it installs alongside and shadows nothing. |
 | ALSA | libasound 2.0.0 | |
-| SDL2 | 2.0.4 (+ image/mixer/ttf) | Unused. The launcher brings 2.0.14 in `libs.tar.gz`. |
+| SDL2 | 2.0.4 (+ image/mixer/ttf) | Unused. The launcher brings its own `autobleem_sdl` 2.0.18 in `libs.tar.gz` (2026-09-29, was upstream 2.0.14). |
 | Graphics | libdrm 2.4.x, libgbm/libEGL/libGLES (PVR Mesa), libwayland 1.12, Weston 1.11, pixman 0.34, cairo 1.14.6 | **Never shadow** (step 5). |
 | Input | libinput 10.9.2 (~1.5), libevdev 1.x, mtdev, xkbcommon | Weston's. Keep them. |
 | Filesystems | e2fsprogs libs, util-linux libblkid/libmount/libuuid, fuse 2.9.4 | |
