@@ -31,3 +31,10 @@ ACTION!="remove", SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="*Wireless 
 # The seat tag on a line of its own: "-=" on TAG is newer udev syntax than the rest of this file, and udev skips a
 # whole line it cannot parse - a failure here must not take the property clearing above with it.
 ACTION!="remove", SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="*Wireless Controller Touchpad|*DualSense*Touchpad|*DualShock*Touchpad|*Wireless Controller Motion Sensors|*DualSense*Motion Sensors|*DualShock*Motion Sensors", TAG-="seat"
+# What actually keeps them from Weston on the console (2026-10-05, found read-only on the owner's console: Weston still
+# held the DualSense touchpad with everything above applied, and drew a cursor). Its libinput is 1.4.1: it knows no
+# LIBINPUT_IGNORE_DEVICE and does not look at the cleared ID_INPUT_* - but its udev seat code skips a device whose
+# ID_SEAT is not the seat Weston runs (seat0). So these nodes get a seat nobody runs. SDL does not read ID_SEAT. The
+# launcher installs the same line into /run/udev/rules.d at boot (rc/99-autobleem-pad-seat.rules) for a payload
+# without it.
+ACTION!="remove", SUBSYSTEM=="input", KERNEL=="event*", ATTRS{name}=="*Wireless Controller Touchpad|*DualSense*Touchpad|*DualShock*Touchpad|*Wireless Controller Motion Sensors|*DualSense*Motion Sensors|*DualShock*Motion Sensors", ENV{ID_SEAT}="seat-autobleem-none"
