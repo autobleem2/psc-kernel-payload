@@ -254,6 +254,14 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
   property, same one Valve's Steam Controller udev rules use) and `TAG-="seat"` (strips the tag here in case
   it was already added); `ACTION!="remove"` replaces the narrower `ACTION=="add|change"`, matching what
   `60-persistent-input.rules` itself uses. Only a console run confirms which mechanism was actually at fault.
+  **The real cause (K10 follow-up, 2026-10-05, found on the owner's console and confirmed by the round-4 walk):**
+  the console's libinput is 1.4.1 - it has no `LIBINPUT_IGNORE_DEVICE` and does not skip a device whose `ID_INPUT*`
+  are cleared, so the rules above never kept a touchpad from Weston (it held the DualSense touchpad and drew the
+  cursor, even though the rule applied and the pad came after Weston started). What 1.4.1 does honour is `ID_SEAT`:
+  its udev seat code skips a device whose seat is not the one Weston asked for (seat0). The rule's last line therefore
+  sets `ENV{ID_SEAT}="seat-autobleem-none"` on the pad touchpad and motion-sensor nodes. The launcher installs the same
+  line at boot (`rc/99-autobleem-pad-seat.rules`, `rc/pad_seat.sh`) for a payload without it. Ships with the next
+  kernel payload; no build or flash was done for this note.
 - **The rear (OTG) port after a standby** does not come back on its own (MediaTek's musb does not restart its
   host session); the launcher's `rc/selection.sh` restarts it through `/sys/devices/platform/mt_usb/swmode`
   (AutoBleem2 f18583b). Unbind/bind of `musb-hdrc` leaves the port dead - its probe cannot run twice.
