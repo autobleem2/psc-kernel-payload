@@ -59,3 +59,14 @@ CONFIG_RTL8192C_COMMON=m
 CONFIG_RTL8192CU=m
 # VIA VT6656 (staging)
 CONFIG_VT6656=m
+# Realtek RTL8723BU Wi-Fi (Edimax EW-7611ULB and others) - the vendored lwfinger driver in the psc-kernel tree,
+# module 8723bu; its Bluetooth half is btusb's (below). RTL8822BU (88x2bu) is built out of tree:
+# sources/rtl88x2bu, see build-kernel.sh
+CONFIG_RTL8723BU=m
+
+# ---- USB Bluetooth -----------------------------------------------------------------------------------------------
+# btusb and its Realtek helper as modules, so a newer btusb (a new dongle id, a newer btrtl for the 8761B/8821C/
+# 8822B chips 4.4 does not know) is a .ko on the payload, not a new boot.img. BT_BCM stays built in: the UART
+# Broadcom driver selects it.
+CONFIG_BT_HCIBTUSB=m
+CONFIG_BT_RTL=m
