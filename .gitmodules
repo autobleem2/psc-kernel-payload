@@ -2,3 +2,7 @@
 	path = sources/psc-kernel
 	url = https://github.com/autobleem2/psc-kernel.git
 	branch = develop
+[submodule "sources/rtl88x2bu"]
+	path = sources/rtl88x2bu
+	url = https://github.com/RinCat/RTL88x2BU-Linux-Driver.git
+	branch = master

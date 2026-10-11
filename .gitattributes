@@ -19,3 +19,5 @@ board/psc/install_payload.sh     text eol=lf
 board/psc/overlay/**        text eol=lf
 board/psc/overlay/bin/ntpget binary
 board/psc/device_table.txt   text eol=lf
+# the 1.0 dongle firmware: blobs
+board/psc/firmware-1.0/overlay/** binary

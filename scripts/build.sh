@@ -57,6 +57,9 @@ KSTAGE="${O}/kernel-stage"
 # linux-common.fragment for both variants (pad drivers as modules, the in-tree USB WiFi drivers), next adds its own
 KFRAG="${HERE}/board/psc/linux-common.fragment"
 [ "${VARIANT}" = "next" ] && KFRAG="${KFRAG} ${HERE}/board/psc/linux-extra-wifi.fragment"
+# out-of-tree drivers build-kernel.sh builds against the kernel into lib/modules/<ver>/extra (both variants):
+# RTL8822BU Wi-Fi (88x2bu), whose firmware 1.0 shipped (board/psc/firmware-1.0)
+export AB_KERNEL_EXT_MODULES="${HERE}/sources/rtl88x2bu"
 
 log(){ printf '\033[1;36m[build:%s]\033[0m %s\n' "${VARIANT}" "$*"; }
 die(){ printf '\033[1;31m[build:%s] ERROR:\033[0m %s\n' "${VARIANT}" "$*" >&2; exit 1; }

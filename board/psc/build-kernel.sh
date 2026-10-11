@@ -79,6 +79,25 @@ M -j"${JOBS}" Image modules
 rm -rf "${MODROOT}/lib/modules"
 M INSTALL_MOD_PATH="${MODROOT}" INSTALL_MOD_STRIP=1 DEPMOD="${DEPMOD}" modules_install
 KREL="$(cat "${KBUILD}/include/config/kernel.release")"
+
+# Out-of-tree drivers (vendor Wi-Fi drivers too big to vendor into psc-kernel): each dir in AB_KERNEL_EXT_MODULES
+# (scripts/build.sh sets it) is copied into the stage, so its submodule stays clean, built against this kernel with
+# its own Makefile and installed stripped into extra/; depmod again so modules.alias carries them too
+EXTRA_DIR="${MODROOT}/lib/modules/${KREL}/extra"
+for src in ${AB_KERNEL_EXT_MODULES:-}; do
+	name="$(basename "${src}")"
+	[ -f "${src}/Makefile" ] || { echo "[kernel] ERROR: no Makefile in ${src} (git submodule update --init)"; exit 1; }
+	rm -rf "${STAGE}/ext/${name}"; mkdir -p "${STAGE}/ext" "${EXTRA_DIR}"
+	cp -a "${src}" "${STAGE}/ext/${name}"
+	make -C "${STAGE}/ext/${name}" -j"${JOBS}" ARCH=arm CROSS_COMPILE="${CROSS}" KSRC="${KBUILD}" KVER="${KREL}" \
+		"${KCC[@]}" modules
+	for ko in "${STAGE}/ext/${name}"/*.ko; do
+		"${CROSS}strip" --strip-debug -o "${EXTRA_DIR}/$(basename "${ko}")" "${ko}"
+		echo "[kernel] + out of tree: $(basename "${ko}") (${name})"
+	done
+done
+[ -z "${AB_KERNEL_EXT_MODULES:-}" ] || "${DEPMOD}" -b "${MODROOT}" "${KREL}"
+
 for f in modules.dep modules.alias; do
 	[ -s "${MODROOT}/lib/modules/${KREL}/${f}" ] || { echo "[kernel] ERROR: depmod wrote no ${f} for ${KREL}"; exit 1; }
 done

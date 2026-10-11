@@ -209,8 +209,13 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
 5. ~~**Hardware test**~~ — DONE 2026-09-25/26 on the owner's console (`feature/pad-drivers`): boots, the
    launcher runs, modules load, DS3 (USB + cable pairing through abbtagent) and DS4 over Bluetooth work,
    WiFi (RT5370) joins, pairings survive a reboot. See "On the console" below.
-6. Out-of-tree modern USB-WiFi drivers (8812au/8821cu/88x2bu/mt76) as vendored kernel trees (the big
-   dongle win) — see `docs/kernel-and-drivers.md`.
+6. Out-of-tree modern USB-WiFi drivers (8812au/8821cu/88x2bu/mt76) (the big dongle win) — see
+   `docs/kernel-and-drivers.md`. Started with AUTOBLEEM-15 (2026-10-10, the 1.0 firmware set back): rtl8723bu is
+   vendored in the psc-kernel tree (`CONFIG_RTL8723BU=m`, `linux-common.fragment`); 88x2bu, 109 MB of vendor
+   source, is the submodule `sources/rtl88x2bu` instead, which `build-kernel.sh` builds against the kernel into
+   `lib/modules/4.4.22/extra` (`AB_KERNEL_EXT_MODULES`, set by `scripts/build.sh`). The 1.0 firmware that
+   linux-firmware lacks is the second overlay `board/psc/firmware-1.0/` (its README has the list). mt76x0u/mt76x2u
+   (MT7610U/MT7612U, whose firmware is there) still have no driver.
 
 ## On the console (2026-09-25/26) - what the hardware taught, each now checked by `verify.sh`
 
