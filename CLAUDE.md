@@ -270,6 +270,12 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
 - **The rear (OTG) port after a standby** does not come back on its own (MediaTek's musb does not restart its
   host session); the launcher's `rc/selection.sh` restarts it through `/sys/devices/platform/mt_usb/swmode`
   (AutoBleem2 f18583b). Unbind/bind of `musb-hdrc` leaves the port dead - its probe cannot run twice.
+- **The rear (OTG) port and bulk reads** (2026-10-12, kernel 008806e4): a USB CD drive there hung and was reset every
+  ~12 s, at high and full speed alike, while the front ports (musbfsh) read it fine. MediaTek's musb copy lacked
+  upstream fixes - above all clearing RXCSR's error bit after a three-strikes error (upstream b5801212229f), so one
+  error stuck to the endpoint; four more upstream host fixes came with it. Host transfers on this port go by PIO
+  (`musb_hdrc.host_dma`, default 0, writable at run time): with DMA, plain 2048-byte reads work but the launcher's
+  raw READ CD (2352-byte sectors, a short last packet) still hangs. PIO costs ~2% CPU during a disc copy.
 - The overlay's `rndis restart` (after every wake, and at boot) runs `dropbear -R`: a new SSH host key each time.
 
 ## Gotchas
