@@ -70,3 +70,12 @@ CONFIG_RTL8723BU=m
 # Broadcom driver selects it.
 CONFIG_BT_HCIBTUSB=m
 CONFIG_BT_RTL=m
+
+# ---- USB CD/DVD drives ---------------------------------------------------------------------------------------------
+# A PS1 disc played from a USB drive (AutoBleem's disc drive feature, 2026-10-12): the drive's block device (sr_mod,
+# with the cdrom layer) and its SCSI generic node (sg - pcsx-abnxt reads the disc raw through /dev/sgN with SCSI READ
+# CD). Modules, not built in: the stock console kernel never had them, and AutoBleem loads them from the stick at
+# its session start (insmod), so the console's eMMC stays untouched. ISO9660 is built in already.
+CONFIG_CDROM=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_CHR_DEV_SG=m
