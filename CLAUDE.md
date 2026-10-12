@@ -276,6 +276,12 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
   error stuck to the endpoint; four more upstream host fixes came with it. Host transfers on this port go by PIO
   (`musb_hdrc.host_dma`, default 0, writable at run time): with DMA, plain 2048-byte reads work but the launcher's
   raw READ CD (2352-byte sectors, a short last packet) still hangs. PIO costs ~2% CPU during a disc copy.
+- **The front ports** (kernel 80fe386c) got the same: musbfsh lacked the same five upstream fixes (its "RX proto
+  error" showed up with the drive there) and its PIO could not take an urb whose data has no kernel mapping
+  (highmem pages usb-storage hands over with `transfer_buffer` NULL) - it copies through `sg_pcopy` now. Host
+  transfers go by PIO here too (`musbfsh_host.host_dma`, default 0): on the console both modes read the drive,
+  copied a disc and moved 66 MB over the Edimax at the same speed; PIO stays the default for safety. The front
+  ports' over-current protection is hardware - a CD drive or a disk needs its own supply or a powered hub.
 - The overlay's `rndis restart` (after every wake, and at boot) runs `dropbear -R`: a new SSH host key each time.
 
 ## Gotchas
