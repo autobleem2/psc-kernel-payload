@@ -5,3 +5,8 @@
 # modprobe (the console's kmod) rather than udev's kmod builtin, which this udev may not be built with;
 # -b honours blacklists, -q stays quiet for devices no module claims.
 ACTION=="add", ENV{MODALIAS}=="?*", RUN+="/sbin/modprobe -bq $env{MODALIAS}"
+
+# sg (SCSI generic, /dev/sgN) has no modalias - only a char-major one - so nothing loads it by itself. Load it when
+# a CD/DVD drive (SCSI type 5, or 4 = WORM) appears rather than at boot: it costs nothing on a console without a
+# drive, and sg binds to the devices already there when it loads. sr_mod comes from the MODALIAS rule above.
+ACTION=="add", SUBSYSTEM=="scsi", ENV{DEVTYPE}=="scsi_device", ATTR{type}=="[45]", RUN+="/sbin/modprobe -bq sg"

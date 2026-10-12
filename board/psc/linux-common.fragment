@@ -70,3 +70,13 @@ CONFIG_RTL8723BU=m
 # Broadcom driver selects it.
 CONFIG_BT_HCIBTUSB=m
 CONFIG_BT_RTL=m
+
+# ---- CD/DVD drives (USB, for the disc player; docs/disc-drive-plan.md in autobleem-main) ---------------------------
+# The emulator and the launcher talk to the drive through /dev/sgN (SG_IO, READ CD); /dev/srN is only for
+# TEST UNIT READY-style checks and nothing mounts the disc (ISO9660_FS is on already, not needed). SCSI, BLK_DEV_SD
+# and USB_STORAGE are built in already (the usb-storage bridge makes the drive a SCSI device); both options below
+# depend on SCSI only. There is no CONFIG_CDROM in 4.4: cdrom.o is built with BLK_DEV_SR (drivers/cdrom/Makefile)
+# and comes as cdrom.ko, which depmod pulls in with sr_mod.
+# sr_mod loads by modalias (scsi:t-0x05 / t-0x04); sg has no modalias - 80-autobleem-modules.rules loads it.
+CONFIG_BLK_DEV_SR=m
+CONFIG_CHR_DEV_SG=m

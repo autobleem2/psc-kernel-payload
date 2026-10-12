@@ -222,6 +222,11 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
 - **Modules**: depmod must run (the image has kmod), the release is `4.4.22` (`LOCALVERSION=`), gcc-6's default
   PIE is off (`-fno-PIE`: GOT relocations 4.4 cannot load; `build-kernel.sh` rejects them), and
   `etc/udev/rules.d/80-autobleem-modules.rules` loads a module for a new device (the console has no such rule).
+- **USB CD/DVD drives** (DISC-6, not yet built or tested on the console): `sr_mod` (+`cdrom`) and `sg` are modules
+  (`linux-common.fragment`). `sr_mod` loads by modalias `scsi:t-0x05`; `sg` has no modalias, so the same rules file
+  loads it when a SCSI device of type 4/5 appears. The emulator/launcher use `/dev/sgN` (SG_IO), `/dev/srN` only for
+  ready checks; nothing mounts a disc. Keeping a hub the drive sits behind awake (`power/control=on`) is left to the
+  launcher: udev sees the hub before the drive, so no simple rule can tell which hubs matter.
 - **WiFi** joins only through dhcpcd's `10-wpa_supplicant` hook in `lib/dhcpcd/dhcpcd-hooks/` (post-build.sh).
   Buildroot's example `wpa_supplicant.conf` had no `update_config=1` (PSC-Bios's save failed) and an any-open-
   network entry: post-build.sh writes a plain one. `etc/dhcpcd.conf` sets `env wpa_supplicant_driver=nl80211,wext`
