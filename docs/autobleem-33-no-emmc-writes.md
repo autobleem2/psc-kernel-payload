@@ -194,7 +194,7 @@ Not measured: this laptop has no `mksquashfs`/`unsquashfs` (`command -v` finds `
 payload `abrootfs.tgz` (it is a build artefact, not in the repo). Estimates:
 * The 2020 overlay `reference/abrootfs.manifest.txt` sums to **49.3 MB in 1 817 files** (computed from the listing: lib/modules
   8.2 MB, lib/firmware 6.8 MB, `bin/wpa_supplicant` 8.3 MB (static), `usr/share` 4.7 MB, `usr/lib` 3.2 MB, `usr/bin` 2.5 MB).
-* Today's `abrootfs.tgz` is 19.5 MB (`CLAUDE.md` "Status"; the task says ~22 MB). The 107 modules + extra firmware grew it.
+* Today's `abrootfs.tgz` is 19.5 MB. The 107 modules + extra firmware grew it.
   Unpacked it is likely **55-70 MB** (estimate).
 * squashfs sizes: `xz` is about the size of the `.tgz` or 15-25 % smaller, **~16-19 MB**; `lz4` (kernel has `SQUASHFS_LZ4`)
   ~ 1.5-1.8x larger, **~28-34 MB**; `zlib` ~ the tgz. Use `mksquashfs ... -comp xz -Xbcj arm -b 256K` (the kernel has
@@ -221,7 +221,7 @@ Risks of A:
    cable recovers it). Mitigation: stock-boot fallback on **every** error path (never `exit`/panic - fall through to the stock
    mount), a watchdog/timeout around each step, test on a spare console first.
 2. **Boot-time stick dependency**: the stick must be in at power-on and recognised within the timeout, else stock boot (no
-   AutoBleem). Rear-port stick on a hub did not enumerate in the owner's test (`docs/pad-drivers.md:68-82`); front ports
+   AutoBleem). Rear-port stick on a hub did not enumerate in an earlier test (`docs/pad-drivers.md:68-82`); front ports
    are the dependable ones. Pull the stick during boot (before step 7 ends) -> stock boot.
 3. **Rear port conflict**: host mode on the rear port is exclusive with the gadget (RNDIS/ssh) mode used by
    `etc/autobleem/rndis`. With a stick on the rear port there is no USB-network at that port. Front-port sticks leave the rear
@@ -264,7 +264,7 @@ Risks of A:
 6. Only then change `abflashkit`/`install_payload.sh` (the flash stops unpacking `abrootfs.tgz` to /data) and CI
    (`autobleem-console-tools` `build.yml` kernel-payload job) to ship `rootfs.squashfs` in the package.
 
-### Open questions for the owner
+### Open questions
 * What filesystem do AutoBleem sticks have in the field (FAT32/exFAT/ext4)?
 * Is the console's RAM 1 GB? (not stated in this repo.)
 * May the stock path (no stick) keep working with `/data` writable, or is /data read-only always?
