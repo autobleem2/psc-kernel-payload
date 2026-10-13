@@ -33,7 +33,7 @@ mkdir -p "${TARGET_DIR}/etc/bluetooth/bluetoothd"
 # Make sure the AutoBleem helper scripts are executable (overlay copies can lose
 # the bit on a Windows checkout).
 for f in bin/updaterootfs.sh bin/settime bin/ntpget bin/abnet bin/start_pman usr/bin/start_pman \
-         sbin/dhclient-script etc/autobleem/bluetooth etc/autobleem/dhcp etc/autobleem/rndis; do
+         sbin/dhclient-script etc/autobleem/bluetooth etc/autobleem/dhcp etc/autobleem/rndis etc/autobleem/abstate; do
 	[ -f "${TARGET_DIR}/${f}" ] && chmod +x "${TARGET_DIR}/${f}" || true
 done
 
@@ -70,8 +70,10 @@ cd "${TARGET_DIR}"
 mkdir -p etc/systemd/system/multi-user.target.wants etc/systemd/system/bluetooth.target.wants
 ln -sfn /usr/lib/systemd/system/bluetooth.service etc/systemd/system/bluetooth.target.wants/bluetooth.service
 ln -sfn /usr/lib/systemd/system/bluetooth.service etc/systemd/system/dbus-org.bluez.service
-for u in autobleem dhclient inetd; do
+for u in autobleem dhclient inetd autobleem-wifi-load; do
 	ln -sfn "/lib/systemd/system/${u}.service" "etc/systemd/system/multi-user.target.wants/${u}.service"
 done
+# stick boot (AUTOBLEEM-33): /etc/wpa_supplicant.conf and ssid.cfg are copied to the stick when they change
+ln -sfn /lib/systemd/system/autobleem-wifi-save.path etc/systemd/system/multi-user.target.wants/autobleem-wifi-save.path
 
 exit 0

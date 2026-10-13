@@ -1,0 +1,11 @@
+[Unit]
+Description=AutoBleem WiFi settings: stick to /etc, before the DHCP client starts wpa_supplicant
+Before=dhclient.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh /etc/autobleem/abstate wifi-in
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

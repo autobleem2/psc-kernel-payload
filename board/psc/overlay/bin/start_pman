@@ -8,6 +8,12 @@ TARGET=$(cat /etc/versions/target)
 #  POWER_LOG=/dev/null
 #fi
 touch $POWER_LOG
+# Stick boot (new /init): /data is read-only, the thermal config goes to RAM (see usr/bin/start_pman)
+AB_NEW=
+if [ -r /etc/autobleem/abstate.sh ]; then
+  . /etc/autobleem/abstate.sh
+  [ "$(ab_mode)" = new ] && AB_NEW=1
+fi
 # enable OTG
 
 if [ "$CHG_INFO" -eq "3" ]; then
@@ -29,7 +35,16 @@ if [ -e /usr/bin/sic ]; then
   /usr/bin/sic 1>>$POWER_LOG 2>&1
 fi
 # thermal config
-if [ -e /etc/thermal/thermal.conf -a -e /data/thermal ]; then
+if [ -n "$AB_NEW" ]; then
+  if [ -e /etc/thermal/thermal.conf -a -d /data/thermal ] && ! grep -q ' /data/thermal ' /proc/mounts; then
+    mkdir -p /tmp/thermal
+    cp -a /data/thermal/. /tmp/thermal/
+    cp /etc/thermal/thermal.conf /tmp/thermal/
+    mount --bind /tmp/thermal /data/thermal
+    systemd stop thermal_manager.service
+    systemd start thermal_manager.service
+  fi
+elif [ -e /etc/thermal/thermal.conf -a -e /data/thermal ]; then
   cp /etc/thermal/thermal.conf /data/thermal/
   systemd stop thermal_manager.service
   systemd start thermal_manager.service
@@ -51,6 +66,7 @@ if [ -e /etc/autostart ]; then
   sleep 1
 fi
 sync
+[ -n "$AB_NEW" ] && ab_bt_umount
 echo mem > /sys/power/state
 # start weston if not
 if ! systemctl status weston.service | grep -qE 'active\s+\(running\)'; then

@@ -1,12 +1,27 @@
 PWD=/etc/autobleem
 
-# ITS SAFE WE ARE IN OVERLAY
-mount -o remount,rw /
-mount -o remount,rw /data
-mkdir -p /var/lib/bluetooth
-mount --bind /etc/bluetooth/bluetoothd /var/lib/bluetooth
+# Stick boot (new /init): the root is an overlay on tmpfs and /data is read-only - nothing is remounted, and
+# what must survive a reboot (pairings, WiFi, zone) is on the stick (abstate.sh). Legacy boot: as always.
+AB_NEW=
+if [ -r $PWD/abstate.sh ]; then
+  . $PWD/abstate.sh
+  [ "$(ab_mode)" = new ] && AB_NEW=1
+fi
+
+if [ -z "$AB_NEW" ]; then
+  # ITS SAFE WE ARE IN OVERLAY
+  mount -o remount,rw /
+  mount -o remount,rw /data
+  mkdir -p /var/lib/bluetooth
+  mount --bind /etc/bluetooth/bluetoothd /var/lib/bluetooth
+fi
 
 start() {
+  if [ -n "$AB_NEW" ]; then
+    ab_tz_in
+    ab_wifi_in
+    ab_bt_mount
+  fi
   $PWD/modules start 
   $PWD/rndis start     
   systemctl restart bluetooth
@@ -18,6 +33,10 @@ stop() {
   $PWD/modules stop
   $PWD/rndis stop
   systemctl stop bluetooth
+  if [ -n "$AB_NEW" ]; then
+    ab_wifi_out
+    ab_bt_umount
+  fi
   }
 
 

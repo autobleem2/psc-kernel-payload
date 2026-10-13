@@ -6,6 +6,13 @@ KERN_INFO="$(uname -n|grep "aiv8167-rockman-emmc" 2>&1|wc -l)"
 VARIANT="$(cat /etc/versions/variant)"
 TARGET="$(cat /etc/versions/target)"
 
+# Stick boot (new /init): the root is an overlay on tmpfs and /data is read-only. Then nothing here remounts
+# or writes /data; the thermal config and the log go to /tmp (AUTOBLEEM-33, docs/autobleem-33-no-emmc-writes.md).
+AB_NEW=
+if [ -r /etc/autobleem/abstate.sh ]; then
+  . /etc/autobleem/abstate.sh
+  [ "$(ab_mode)" = new ] && AB_NEW=1
+fi
 
 
 # copy app file
@@ -15,7 +22,17 @@ if [ -e /usr/sony/bin/sonyapp-copylink ]; then
 fi
 
 # thermal config
-if [ -e /etc/thermal/thermal.conf -a -e /data/thermal ]; then
+if [ -n "$AB_NEW" ]; then
+  # /data/thermal is read-only: the same folder in RAM, bind-mounted over it, so the manager reads our config
+  if [ -e /etc/thermal/thermal.conf -a -d /data/thermal ] && ! grep -q ' /data/thermal ' /proc/mounts; then
+    mkdir -p /tmp/thermal
+    cp -a /data/thermal/. /tmp/thermal/
+    cp /etc/thermal/thermal.conf /tmp/thermal/
+    mount --bind /tmp/thermal /data/thermal
+    systemd stop thermal_manager.service
+    systemd start thermal_manager.service
+  fi
+elif [ -e /etc/thermal/thermal.conf -a -e /data/thermal ]; then
   cp /etc/thermal/thermal.conf /data/thermal/
   systemd stop thermal_manager.service
   systemd start thermal_manager.service
@@ -39,6 +56,8 @@ if [ -e /etc/autostart ]; then
 fi
 
 sync
+# stick boot: the Bluetooth image must not be mounted while the stick may go away
+[ -n "$AB_NEW" ] && ab_bt_umount
 echo mem > /sys/power/state
 
 # usb otg
@@ -49,11 +68,13 @@ if [ "$CHG_INFO" -eq "3" ]; then
   sleep "0.3"
 fi
 
-mount -o remount,rw /data
-mount -o remount,rw /
+if [ -z "$AB_NEW" ]; then
+  mount -o remount,rw /data
+  mount -o remount,rw /
+fi
 mount --make-rshared /
 systemctl disable syslog
-rm -f "/data/syslog.log"
+[ -z "$AB_NEW" ] && rm -f "/data/syslog.log"
 rm -f "/etc/autostart"
 sync
 
