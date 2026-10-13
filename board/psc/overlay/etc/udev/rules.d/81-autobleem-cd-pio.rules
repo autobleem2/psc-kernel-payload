@@ -1,0 +1,7 @@
+# A USB CD/DVD drive's transfers go by PIO, everything else on the USB host ports by DMA: the musb DMA hangs on
+# a CD drive's bulk reads (usb-storage resets it every few seconds), while sticks, WiFi and Bluetooth need DMA.
+# A SCSI device of type 5 (CD/DVD, MMC) is matched when the SCSI scan finds it - before sr_mod binds and before
+# the first data read - so it works for every drive, whatever its USB descriptors say. ab_cd_pio puts the
+# drive's USB device number into the pio_devs parameter of the controller it hangs off (psc-kernel musb_host.c,
+# musbfsh_host.c).
+ACTION=="add", SUBSYSTEM=="scsi", ENV{DEVTYPE}=="scsi_device", ATTR{type}=="5", RUN+="/usr/bin/ab_cd_pio $devpath"

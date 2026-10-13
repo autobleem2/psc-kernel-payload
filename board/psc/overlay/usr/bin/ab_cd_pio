@@ -1,0 +1,19 @@
+#!/bin/sh
+# Called by 81-autobleem-cd-pio.rules with a CD/DVD drive's sysfs devpath: adds the drive's USB device number to
+# the pio_devs parameter of the controller it hangs off - musbfsh_host for the front ports, musb_hdrc for the
+# rear (OTG) port - so its transfers go by PIO while the rest of the bus keeps DMA.
+d=/sys$1
+while [ "$d" != /sys ] && [ ! -f "$d/devnum" ]; do d=${d%/*}; done
+[ -f "$d/devnum" ] || exit 0
+num=$(cat "$d/devnum")
+case $d in
+*musbfsh*) mod=musbfsh_host ;;
+*) mod=musb_hdrc ;;
+esac
+p=/sys/module/$mod/parameters/pio_devs
+[ -w "$p" ] || exit 0
+cur=$(cat "$p")
+case ",$cur," in *",$num,"*) exit 0 ;; esac
+# the array holds 8: keep the 7 newest numbers (an unplugged drive's number is only reused much later)
+keep=$(echo "$cur" | tr ',' '\n' | grep -v '^0*$' | tail -n 7 | tr '\n' ',')
+echo "$keep$num" > "$p"
