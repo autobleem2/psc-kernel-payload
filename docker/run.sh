@@ -41,6 +41,7 @@ exec docker run --rm "${TTY[@]}" \
 	-e BR2_CCACHE_DIR=/cache/ccache \
 	-e KCCACHE_DIR=/cache/ccache-kernel \
 	-e VARIANT="${VARIANT:-psc}" \
+	-e AB_INIT="${AB_INIT:-legacy}" \
 	"${ENV_BR[@]}" \
 	-v "${HERE}:/work" \
 	-v "${CACHE}:/cache" \

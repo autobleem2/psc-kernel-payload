@@ -10,6 +10,8 @@
 #   boot.md5          md5sum of boot.img (what abflashkit verifies)
 #   abrootfs.tgz      the rootfs overlay, unpacked to /data/autobleem/rootfs
 #   abrootfs.md5      md5 of abrootfs.tgz (informational; the tool never checks it)
+#   abrootfs.squashfs         the same tree as an xz squashfs (the new /init reads it from the stick)
+#   abrootfs.squashfs.sha256  sha256sum of it, bare file name
 #   recovery-on.img   16-byte MISC recovery flag = ON
 #   recovery-off.img  16-byte MISC recovery flag = OFF
 #   install_payload.sh
@@ -69,6 +71,15 @@ fi
 cp "${BINARIES_DIR}/rootfs.tar.gz" "${OUT}/abrootfs.tgz"
 ( cd "${OUT}" && md5sum abrootfs.tgz | cut -d' ' -f1 > abrootfs.md5 )
 echo "[post-image] abrootfs.tgz $(stat -c '%s' "${OUT}/abrootfs.tgz") bytes"
+
+# --- 2b. abrootfs.squashfs : the same tree as a squashfs (made in post-fakeroot.sh) for the new /init ------------
+# sha256sum format with the bare file name, as the init reads it from the stick's System/Kernel/
+if [ ! -f "${BINARIES_DIR}/abrootfs.squashfs" ]; then
+	echo "[post-image] ERROR: ${BINARIES_DIR}/abrootfs.squashfs not found (post-fakeroot.sh makes it; needs host-squashfs)"; exit 1
+fi
+cp "${BINARIES_DIR}/abrootfs.squashfs" "${OUT}/abrootfs.squashfs"
+( cd "${OUT}" && sha256sum abrootfs.squashfs > abrootfs.squashfs.sha256 )
+echo "[post-image] abrootfs.squashfs $(stat -c '%s' "${OUT}/abrootfs.squashfs") bytes"
 
 # --- 3. static payload bits -------------------------------------------------
 # recovery flags: 16 bytes. ON = MISC command 2 at offset 8; OFF = all zero.

@@ -60,6 +60,15 @@ Buildroot (`BR2_EXTERNAL` = this repo) does everything from source in one tree:
   The FIT `signature` node needs **no key**: boot.img is dd'd straight to BOOTIMG1 (the exploit
   path); the console U-Boot does not verify it.
 - **abrootfs.tgz**: Buildroot's `rootfs.tar.gz`, copied out by `post-image.sh`.
+- **abrootfs.squashfs** + `abrootfs.squashfs.sha256` (AUTOBLEEM-33): the same tree as an xz squashfs
+  (`-Xbcj arm -b 256K -all-root -noappend`), made by `board/psc/make-squashfs.sh` from the end of
+  `post-fakeroot.sh` (host mksquashfs: `BR2_PACKAGE_HOST_SQUASHFS=y`, both defconfigs), copied and checksummed
+  (`sha256sum` format, bare name) by `post-image.sh`, next to the unchanged tgz. The new `/init` reads it from the
+  stick at `System/Kernel/abrootfs.squashfs`. See `docs/build-guide.md` "The new /init".
+- **AB_INIT=legacy|new** (default `legacy`; env var or `scripts/build.sh -i`): which `/init` the kernel embeds.
+  `board/psc/stage-initramfs.sh` stages the initramfs from an explicit file list (`init` only), so
+  `initramfs/src/` never lands in it; `legacy` = the committed 2020 binary (same bytes as before), `new` = built
+  from `initramfs/src` with the gcc-6 console toolchain. `scripts/test_stage_initramfs.sh` tests the staging.
 - **AutoBleem overlay**: `board/psc/overlay/` (`BR2_ROOTFS_OVERLAY`) — the AutoBleem-specific configs,
   systemd units, helper scripts and `abnet`. `post-build.sh` strips per-console BT pairing state.
 

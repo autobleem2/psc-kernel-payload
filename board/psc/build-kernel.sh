@@ -68,9 +68,18 @@ DEPMOD="$(command -v depmod || true)"
 
 # CONFIG_INITRAMFS_SOURCE is a relative path ("initramfs"); in an out-of-tree
 # build (O=) the kernel resolves it against the build dir, not the source, so
-# mirror the in-tree initramfs/ there (it holds the built-in /init).
+# stage the initramfs there (it holds the built-in /init) from an explicit file list, so initramfs/src (the
+# source of the new init) never lands in it. AB_INIT=legacy (default) stages the 2020 binary, new builds src/.
 if [ -d "${KSRC}/initramfs" ]; then
-	rm -rf "${KBUILD}/initramfs"; cp -a "${KSRC}/initramfs" "${KBUILD}/initramfs"
+	# shellcheck source=board/psc/stage-initramfs.sh
+	. "$(dirname "${BASH_SOURCE[0]}")/stage-initramfs.sh"
+	stage_initramfs "${KSRC}" "${KBUILD}/initramfs" "${AB_INIT:-legacy}" "${CROSS}" "${STAGE}/abinit-build"
+	# the staged /init keeps its source file's mtime, so kbuild may not notice a switch of AB_INIT on an
+	# incremental build: drop the packed cpio when the choice changed since the last run
+	if [ "$(cat "${STAGE}/.ab_init" 2>/dev/null)" != "${AB_INIT:-legacy}" ]; then
+		rm -f "${KBUILD}"/usr/initramfs_data.cpio*
+		echo "${AB_INIT:-legacy}" > "${STAGE}/.ab_init"
+	fi
 fi
 
 M olddefconfig
