@@ -269,3 +269,37 @@ Risks of A:
 * Is the console's RAM 1 GB? (not stated in this repo.)
 * May the stock path (no stick) keep working with `/data` writable, or is /data read-only always?
 * Where should pairings live: an ext4 image file on the stick, or lost per boot?
+
+## 7. Runtime writes after step 3 (implemented in the overlay)
+
+Two modes, told apart by `ab_mode` in `board/psc/overlay/etc/autobleem/abstate.sh` (`abstate mode` on the console).
+The new `/init` (psc-kernel bf5ca02) leaves **no marker**, so the test is, in order: a file `/run/autobleem/mode`
+reading `stick` (reserved - nothing writes it today; proposal for the init: write it after the stick path has
+switched root); the root overlay's `upperdir=/abrw/...` in `/proc/mounts` (the init's tmpfs; the legacy upper is
+`/data/autobleem/rootfs`); `/data` mounted `ro` (the init mounts it `ro,noload`, the legacy boot read-write). Any
+one means **new**; otherwise **legacy** (also a stock boot, where none of our scripts run anyway).
+
+The stick is the filesystem mounted at `/media` (by the console). `System/Data/` on it is made when missing. The
+helpers wait up to 30 s for the mount (`AB_STICK_WAIT`) and never write below `/media` while nothing is mounted
+there - that would be tmpfs and silently lost. No stick: the state stays in RAM, as in section 4's "tmpfs" column.
+
+| Write | Legacy boot (upper on `/data`) | Stick boot (tmpfs upper, `/data` ro) | Code |
+|---|---|---|---|
+| Bluetooth pairings, `/var/lib/bluetooth` | bind mount of `/etc/bluetooth/bluetoothd` (eMMC) | `System/Data/bluetooth.img`, 4 MB ext4 (`mke2fs -t ext4 -F`, the stock `/sbin/mke2fs`; `mkfs.ext4` if absent), loop-mounted `noatime` before bluetoothd; made on first use as `bluetooth.img.new` then renamed; a failed mount gets one `e2fsck -p` and is never recreated; unmounted (`umount -d`) after `systemctl stop bluetooth` at shutdown and before `echo mem` in `start_pman` | `abstate.sh: ab_bt_mount, ab_bt_umount`; `etc/autobleem/bluetooth`, `etc/autobleem/autobleem`, `usr/bin/start_pman`, `bin/start_pman` |
+| `/etc/wpa_supplicant.conf`, `/etc/autobleem/ssid.cfg` | in place, eMMC | master copy in `System/Data/wifi/`; copied into `/etc` once per boot by `autobleem-wifi-load.service` (before `dhclient.service`; also from `autobleem start`); copied back (whole file, then rename) by `autobleem-wifi-save.path` -> `.service` when either file changes, and at `autobleem stop`. Nothing is copied back before the stick was seen at start (`/run/autobleem/wifi-synced`), so the shipped default cannot replace the master | `abstate.sh: ab_wifi_in, ab_wifi_out`; `lib/systemd/system/autobleem-wifi-*` |
+| Timezone: `settime tzone` (`/etc/localtime`, `/etc/timezone`) | eMMC | still written to `/etc` (RAM) and the name also to `System/Data/timezone`; replayed by `autobleem start` (`ab_tz_in`; names with `..`, a leading `/` or not in zoneinfo are refused) | `bin/settime`, `abstate.sh: ab_tz_save, ab_tz_in` |
+| `start_pman`: `remount,rw /data` and `/` | done | skipped | `usr/bin/start_pman` |
+| `start_pman`: `rm -f /data/syslog.log` | done | skipped (syslog is disabled; nothing of ours writes it) | `usr/bin/start_pman` |
+| `start_pman`: `cp thermal.conf /data/thermal/` | done | `/data/thermal` copied to `/tmp/thermal`, our `thermal.conf` put there and bind-mounted over `/data/thermal`; thermal_manager restarted | `usr/bin/start_pman`, `bin/start_pman` |
+| `etc/autobleem/autobleem`: `remount,rw /` and `/data` | done | skipped | `etc/autobleem/autobleem` |
+| dropbear host key `/etc/dropbear` (`dropbear -R`) | eMMC, kept | tmpfs: **a new key each boot** (ssh host-key warning); accepted | `etc/autobleem/rndis` (unchanged) |
+| `depmod -a` (`modules.dep`), `udevadm control -R` | eMMC | tmpfs, regenerated each boot; no write to `/data` | `etc/autobleem/modules` (unchanged) |
+| `/tmp/power.log`, `/run`, journal (`Storage=volatile`) | RAM | RAM | unchanged |
+| Everything else in the merged root (`/var/log`, `/var/lib/dhcpcd`, systemd state, `systemctl disable`) | eMMC | tmpfs, lost at reboot | not persisted by design |
+| `install_payload.sh`, `updaterootfs.sh` | eMMC (flash / dev tool) | not run in the stick boot | untouched |
+
+Sony's own writers (`savedata`, `/gaadata`, whatever stock services put on p10) are not in this repo; with `/data`
+read-only they fail or are redirected - to be measured on a console.
+
+Tests: `scripts/test_abstate.sh` (fake roots; mode detection, WiFi copy-in/copy-back incl. the "stick not seen"
+guard, zone replay, the image life cycle with stub `mount`/`mke2fs`; `sh -n` and `bash -n` on every changed script).

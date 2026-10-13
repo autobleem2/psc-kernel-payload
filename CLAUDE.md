@@ -237,6 +237,14 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
   globally (X6, 2026-09-26: PSC-Bios no longer copies driver-mode variants; legacy `etc/autobleem/dhcpcd.conf.{wext,nl80211}`
   files are kept this release for backwards compatibility and will be removed next).
 - **Pairings** persist through `etc/bluetooth/bluetoothd` (an empty dir, bind-mounted over /var/lib/bluetooth).
+- **Stick boot (AUTOBLEEM-33, new `/init`)**: root = overlay with a tmpfs upper, `/data` read-only. `etc/autobleem/abstate.sh`
+  (POSIX sh, sourced; `abstate` is its command line) detects it (`/run/autobleem/mode`=stick, `upperdir=/abrw/`, or
+  `/data` ro) and keeps the state on the stick in `System/Data/`: `bluetooth.img` (4 MB ext4, loop-mounted over
+  `/var/lib/bluetooth`; FAT cannot keep BlueZ's modes), `wifi/{wpa_supplicant.conf,ssid.cfg}` (in at start, back on
+  change via `autobleem-wifi-save.path`), `timezone` (replayed). The legacy boot (upper on `/data/autobleem`) is unchanged.
+  `start_pman` never remounts or writes `/data` in the new mode (thermal config is bind-mounted from `/tmp`). All
+  writes and where they go: `docs/autobleem-33-no-emmc-writes.md` section 7; test: `scripts/test_abstate.sh`.
+  Keep the helpers POSIX: `start_pman` and `abstate` run under busybox sh, the others under bash.
 - **`install_payload.sh`** keeps the WiFi (`wpa_supplicant.conf`, `ssid.cfg`) and the pairings over a flash by
   writing them into the *new* `/data/autobleem/rootfs/etc` - never through `/etc`, which during the flash is the
   live overlay whose upper dir was just deleted (every flash lost the WiFi until 43aca25).
