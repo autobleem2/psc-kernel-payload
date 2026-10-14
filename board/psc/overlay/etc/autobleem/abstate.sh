@@ -1,7 +1,8 @@
 # Sourced by the AutoBleem scripts (POSIX sh: it runs under bash and under the console's busybox ash).
 #
 # The new /init (stick path, AUTOBLEEM-33) runs the console with a tmpfs upper layer and /data (mmcblk0p10)
-# mounted read-only: whatever is written below / is gone at the next reboot. What must outlive a reboot lives
+# read-write for Sony (the stick's boot.sh makes it read-only only while the AutoBleem launcher runs): whatever
+# is written below / is gone at the next reboot. What must outlive a reboot lives
 # on the stick, in $AB_STICK/System/Data. In the legacy boot (overlay upper on /data/autobleem) none of this
 # applies and every function here either does nothing or does what the scripts did before.
 #
@@ -21,7 +22,8 @@ ab_log() { echo "abstate: $*" >&2; }
 # ab_mode: prints "new" or "legacy". New = the stick boot of the new /init. The init leaves no marker, so:
 #   1. $AB_RUN/mode reading "stick" (reserved: honoured if a later init writes it);
 #   2. the root overlay's upperdir is below /abrw (the init's tmpfs for upper and work);
-#   3. /data is mounted read-only (the legacy boot mounts it read-write; the init mounts it ro,noload).
+#   3. /data is mounted read-only (the legacy boot keeps it read-write: its upper layer is there; the stick
+#      boot's boot.sh makes it read-only while the launcher runs).
 ab_mode() {
 	if [ -r "${AB_RUN}/mode" ]; then
 		read -r ab_m < "${AB_RUN}/mode"
