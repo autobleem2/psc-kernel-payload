@@ -37,6 +37,15 @@ if [ x"$TARGET" = x"PVT" -o x"$TARGET" = x"MREL" ]; then
   fi
 fi
 
+# stick boot: /init blinks the LED orange through the boot; the blink stops here and the LED stays orange for the
+# sleep (with the timer trigger on, a brightness write would not stop the blink)
+if [ -n "$AB_NEW" ]; then
+  for led in red green; do
+    echo none > /sys/class/leds/$led/trigger
+    echo 1 > /sys/class/leds/$led/brightness
+  done
+fi
+
 echo "1st suspend" >>$POWER_LOG
 if [ -e /etc/autostart ]; then
   att="$(cat /etc/autostart|tr -cd '0-9')"
