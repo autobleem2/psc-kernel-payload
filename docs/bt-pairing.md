@@ -35,6 +35,18 @@ the box (DS4/DS5 HID over BT), which is the main reason to prefer it here.
   plugin authorizes it and writes the console's BT address to the pad, so it
   connects over BT afterwards. Needs the pad plugged in once + the plugin loaded.
 
+## The host HID hint (wifi coexistence, AUTOBLEEM-36)
+
+The console's RTL8723BU is wifi and Bluetooth in one chip. Its firmware only treats a Bluetooth link as a
+pad if the host says "a HID device is connected"; otherwise it takes the link for PAN and gives the radio to
+Bluetooth, so a connected pad makes the wifi crawl (a Store download) and the pad lag. The wifi driver has
+`/proc/net/rtl8723bu/<if>/bt_host_hid` for that (write `1`/`0`). `abbtagent` keeps it right: it counts the
+BlueZ devices that are `Connected` and HID (the HID UUID `00001124-...`, or major class 0x05 peripheral -
+any brand, never by name or vendor), counted at start (`GetManagedObjects`) and on every change, writes `1`
+when the count goes 0 -> more and `0` when it goes back to 0, and writes the current value again every 5 s
+(a wifi module reloaded after a standby starts with 0). One journal line per change of the count. Where the
+file does not exist (Pi/PC, the stock kernel) nothing happens.
+
 ## What PSC-Bios does (the AutoBleem2 side) — done, leftovers still open
 
 `apps/pscbios`'s native backend replaced the "in progress" screen with a pairing flow that:

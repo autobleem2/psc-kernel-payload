@@ -19,14 +19,19 @@
  * It registers with capability NoInputNoOutput, asks to be the default agent, and registers again whenever
  * bluetoothd (org.bluez) appears on the bus - after a restart of bluetooth.service, too. Every decision is
  * logged to stderr (the journal).
+ *
+ * Besides that it keeps the count of connected HID devices (a pad) and tells the 8723bu wifi driver whether
+ * there is one (/proc/net/rtl8723bu/<if>/bt_host_hid, 1 or 0) - see docs/bt-pairing.md.
  */
 #include <gio/gio.h>
+#include <glob.h>
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
 
 #define AGENT_PATH "/org/autobleem/agent"
 #define HID_UUID "00001124-0000-1000-8000-00805f9b34fb"
+#define HID_HINT_GLOB "/proc/net/rtl8723bu/*/bt_host_hid"
 
 static const char *const cable_pads[] = {
 	"usb:v054Cp0268", /* DualShock 3 (and the clones that report as one) */
@@ -177,6 +182,136 @@ static gboolean bluez_call(GDBusConnection *conn, const char *method, GVariant *
 	return TRUE;
 }
 
+/* Host HID hint: the 8723bu wifi coex must be told that a HID device (a pad) is connected, or its firmware takes
+ * the pad link for PAN and starves the wifi. The driver exposes /proc/net/rtl8723bu/<if>/bt_host_hid (0/1); there
+ * is no such file on a Pi/PC or the stock kernel, and then none of this does anything. */
+static int hid_count;
+
+/* write the hint to every bt_host_hid there is (the wifi module may have been reloaded: flag back to 0) */
+static void hid_hint_write(void)
+{
+	const char *val = hid_count > 0 ? "1" : "0";
+	glob_t g;
+
+	if (glob(HID_HINT_GLOB, 0, NULL, &g) != 0)
+		return;
+	for (size_t i = 0; i < g.gl_pathc; i++) {
+		FILE *f = fopen(g.gl_pathv[i], "w");
+
+		if (!f)
+			continue;
+		fputs(val, f);
+		fclose(f);
+	}
+	globfree(&g);
+}
+
+static void hid_count_set(int n)
+{
+	if (n == hid_count)
+		return;
+	log_msg("HID devices connected: %d -> host HID hint %d", n, n > 0);
+	hid_count = n;
+	hid_hint_write();
+}
+
+/* a Device1 property dictionary (a{sv}) describes a connected HID device: HID UUID, or major class peripheral */
+static gboolean is_connected_hid(GVariant *props)
+{
+	GVariant *v;
+	gboolean connected = FALSE, hid = FALSE;
+
+	v = g_variant_lookup_value(props, "Connected", G_VARIANT_TYPE_BOOLEAN);
+	if (v) {
+		connected = g_variant_get_boolean(v);
+		g_variant_unref(v);
+	}
+	if (!connected)
+		return FALSE;
+	v = g_variant_lookup_value(props, "Class", G_VARIANT_TYPE_UINT32);
+	if (v) {
+		hid = ((g_variant_get_uint32(v) >> 8) & 0x1f) == 0x05;
+		g_variant_unref(v);
+	}
+	v = g_variant_lookup_value(props, "UUIDs", G_VARIANT_TYPE_STRING_ARRAY);
+	if (v) {
+		const char **uuids = g_variant_get_strv(v, NULL);
+
+		for (int i = 0; uuids[i]; i++)
+			if (strcasecmp(uuids[i], HID_UUID) == 0)
+				hid = TRUE;
+		g_free(uuids);
+		g_variant_unref(v);
+	}
+	return hid;
+}
+
+/* count the connected HID devices bluetoothd knows (GetManagedObjects) and set the hint */
+static void hid_recount(GDBusConnection *conn)
+{
+	GError *err = NULL;
+	GVariant *reply, *objs, *ifaces;
+	GVariantIter oi, ii;
+	const char *path, *iface;
+	GVariant *props;
+	int n = 0;
+
+	reply = g_dbus_connection_call_sync(conn, "org.bluez", "/", "org.freedesktop.DBus.ObjectManager",
+					    "GetManagedObjects", NULL, G_VARIANT_TYPE("(a{oa{sa{sv}}})"),
+					    G_DBUS_CALL_FLAGS_NONE, 5000, NULL, &err);
+	if (!reply) {
+		log_msg("GetManagedObjects failed: %s", err->message);
+		g_error_free(err);
+		return;
+	}
+	objs = g_variant_get_child_value(reply, 0);
+	g_variant_iter_init(&oi, objs);
+	while (g_variant_iter_next(&oi, "{&o@a{sa{sv}}}", &path, &ifaces)) {
+		g_variant_iter_init(&ii, ifaces);
+		while (g_variant_iter_next(&ii, "{&s@a{sv}}", &iface, &props)) {
+			if (strcmp(iface, "org.bluez.Device1") == 0 && is_connected_hid(props))
+				n++;
+			g_variant_unref(props);
+		}
+		g_variant_unref(ifaces);
+	}
+	g_variant_unref(objs);
+	g_variant_unref(reply);
+	hid_count_set(n);
+}
+
+static void hid_changed(GDBusConnection *conn, const char *sender, const char *path, const char *iface,
+			const char *signal, GVariant *params, gpointer data)
+{
+	(void)sender;
+	(void)path;
+	(void)iface;
+	(void)data;
+
+	if (strcmp(signal, "PropertiesChanged") == 0) {
+		/* RSSI and friends change all the time during a scan: only these three matter */
+		GVariant *changed = g_variant_get_child_value(params, 1);
+		GVariantDict dict;
+		gboolean relevant;
+
+		g_variant_dict_init(&dict, changed);
+		relevant = g_variant_dict_contains(&dict, "Connected") || g_variant_dict_contains(&dict, "UUIDs") ||
+			   g_variant_dict_contains(&dict, "Class");
+		g_variant_dict_clear(&dict);
+		g_variant_unref(changed);
+		if (!relevant)
+			return;
+	}
+	hid_recount(conn);
+}
+
+static gboolean hid_tick(gpointer data)
+{
+	(void)data;
+	hid_hint_write();
+	return G_SOURCE_CONTINUE;
+}
+
 /* bluetoothd is (back) on the bus: register, and ask to be the default agent */
 static void bluez_appeared(GDBusConnection *conn, const char *name, const char *owner, gpointer data)
 {
@@ -187,6 +322,7 @@ static void bluez_appeared(GDBusConnection *conn, const char *name, const char *
 	if (bluez_call(conn, "RegisterAgent", g_variant_new("(os)", AGENT_PATH, "NoInputNoOutput")) &&
 	    bluez_call(conn, "RequestDefaultAgent", g_variant_new("(o)", AGENT_PATH)))
 		log_msg("registered as the default agent");
+	hid_recount(conn);
 }
 
 static void bluez_vanished(GDBusConnection *conn, const char *name, gpointer data)
@@ -195,6 +331,7 @@ static void bluez_vanished(GDBusConnection *conn, const char *name, gpointer dat
 	(void)name;
 	(void)data;
 	log_msg("bluetoothd went away - waiting for it");
+	hid_count_set(0);
 }
 
 int main(void)
@@ -219,6 +356,15 @@ int main(void)
 		log_msg("cannot export %s: %s", AGENT_PATH, err->message);
 		return 1;
 	}
+	/* a Device1 property changed (Connected, UUIDs, Class), or a device appeared/went: count the pads again */
+	g_dbus_connection_signal_subscribe(conn, "org.bluez", "org.freedesktop.DBus.Properties", "PropertiesChanged",
+					   NULL, "org.bluez.Device1", G_DBUS_SIGNAL_FLAGS_NONE, hid_changed, NULL, NULL);
+	g_dbus_connection_signal_subscribe(conn, "org.bluez", "org.freedesktop.DBus.ObjectManager", "InterfacesAdded",
+					   NULL, NULL, G_DBUS_SIGNAL_FLAGS_NONE, hid_changed, NULL, NULL);
+	g_dbus_connection_signal_subscribe(conn, "org.bluez", "org.freedesktop.DBus.ObjectManager",
+					   "InterfacesRemoved", NULL, NULL, G_DBUS_SIGNAL_FLAGS_NONE, hid_changed, NULL,
+					   NULL);
+	g_timeout_add_seconds(5, hid_tick, NULL);
 	g_bus_watch_name_on_connection(conn, "org.bluez", G_BUS_NAME_WATCHER_FLAGS_NONE, bluez_appeared,
 				       bluez_vanished, NULL, NULL);
 
