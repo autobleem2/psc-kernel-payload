@@ -238,10 +238,14 @@ Risks of A:
    not need them, but PSC-Bios and the Sony menu (if the user goes back) might. This must be measured (section 4).
 10. **Pairings and WiFi** must be moved to the stick (section 4) or the console forgets all pads every boot: this is a product
     change, not a plumbing one. FAT cannot keep BlueZ's modes: needs an ext4 image on the stick or a tarball.
-11. **install_payload.sh/abflashkit**: the flash then writes only `boot.img` (BOOTIMG1), not `/data/autobleem/*`. One-time flash
-    stays an eMMC write (outside runtime). `rm -rf /data/autobleem` in the old flow must not delete a console's old overlay by
-    mistake - decide whether the stock-path (no stick) should still use the old `/data/autobleem/rootfs` (compat: drop
-    it; "No stick = stock boot" says no).
+11. **install_payload.sh/abflashkit** (decided and implemented): the flash writes `boot.img` (BOOTIMG1) and copies
+    `abrootfs.squashfs` + `.sha256` from the kit to the stick's `System/Kernel/` (temp name, sha256 check, rename; fails
+    loudly). It no longer deletes or writes `/data/autobleem`: the legacy install stays as the fallback boot and as the
+    source of the one-time migration of pairings, WiFi and zone to `System/Data/` (`ab_migrate`, marker
+    `migrated-from-legacy`, read-only from `/data`). A kit without the squashfs (old kit) still takes the legacy path
+    (`rm -rf /data/autobleem` + unpack `abrootfs.tgz`). Tests: `scripts/test_install_payload.sh`, `scripts/test_abstate.sh`.
+    The kit must ship `boot.img`, `boot.md5`, `abrootfs.squashfs`, `abrootfs.squashfs.sha256`, `install_payload.sh`,
+    `recovery-on.img`, `recovery-off.img`.
 
 ### Prototype step list (smallest to largest)
 
