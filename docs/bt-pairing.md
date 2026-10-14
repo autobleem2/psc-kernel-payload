@@ -55,8 +55,11 @@ channels to leave out (HCI_Set_AFH_Host_Channel_Classification). `abbtagent` doe
 Bluetooth controller (also two separate dongles), in the same 5 s loop as the HID hint:
 
 - It reads the operating channel of every up wlan interface over nl80211 (frequency, width, centre frequency;
-  a hand-written generic netlink request, no libnl), and with wireless extensions (`SIOCGIWFREQ`, assumed 20
-  MHz) for an interface nl80211 says nothing about. Not associated, 5 GHz or no wifi: nothing is blocked.
+  a hand-written generic netlink request, no libnl), and with wireless extensions (`SIOCGIWFREQ`) for an
+  interface nl80211 says nothing about. Wireless extensions give the primary channel only; the width and the side
+  of a 40 MHz channel then come from the Realtek driver's `/proc/net/<driver>/<iface>/rf_info` (`oper_bw`,
+  `oper_ch_offet`; the RTL8723BU combo dongle has no nl80211 channel), else 20 MHz is assumed. Not associated,
+  5 GHz or no wifi: nothing is blocked.
 - It blocks the Bluetooth channels within the wifi band +/- 2 MHz, but always leaves at least 20 channels
   (the Bluetooth minimum; the ones farthest from the wifi band are given back first).
 - It sends the map to every powered controller (hci0..hci7) over a raw HCI socket: when the map changed,

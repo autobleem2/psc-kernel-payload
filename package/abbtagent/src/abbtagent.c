@@ -29,6 +29,7 @@
 #include <poll.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include <sys/ioctl.h>
@@ -588,6 +589,42 @@ static int wext_freq(int sock, const char *name)
 	return (int)(hz / 1e6);
 }
 
+/* Realtek's vendor drivers (8723bu, 88x2bu, 8188eu...) answer wext with the primary channel only; their
+ * /proc/net/<driver>/<iface>/rf_info tells the width and where the second channel of a 40 MHz one lies:
+ * "oper_ch=3, oper_bw=1, oper_ch_offet=1" (bw 0/1/2 = 20/40/80 MHz; offset 1 = the primary is the lower half,
+ * 2 = the upper half). Sets the width and the centre for freq; FALSE when there is no such file. */
+static gboolean rtw_width(const char *name, int freq, int *width, int *center1)
+{
+	char pattern[96], buf[512];
+	const char *p;
+	glob_t g;
+	int bw = -1, off = 0;
+	FILE *f;
+	size_t n = 0;
+
+	snprintf(pattern, sizeof(pattern), "/proc/net/*/%s/rf_info", name);
+	if (glob(pattern, GLOB_NOSORT, NULL, &g) != 0)
+		return FALSE;
+	f = g.gl_pathc > 0 ? fopen(g.gl_pathv[0], "re") : NULL;
+	globfree(&g);
+	if (!f)
+		return FALSE;
+	n = fread(buf, 1, sizeof(buf) - 1, f);
+	fclose(f);
+	buf[n] = 0;
+	if ((p = strstr(buf, "oper_bw=")) || (p = strstr(buf, "cur_bw=")))
+		bw = atoi(strchr(p, '=') + 1);
+	if ((p = strstr(buf, "oper_ch_offet=")) || (p = strstr(buf, "cur_ch_offet=")))
+		off = atoi(strchr(p, '=') + 1);
+	if (bw < 0 || bw > 2)
+		return FALSE;
+	*width = 20 << bw;
+	*center1 = bw == 1 && off == 1 ? freq + 10 : bw == 1 && off == 2 ? freq - 10 : 0;
+	if (bw == 1 && *center1 == 0) /* 40 MHz with no side given: block both sides */
+		*width = 60;
+	return TRUE;
+}
+
 /* the channels of all up wireless interfaces: nl80211 first, wext for what it could not tell. Returns the count
  * of interfaces with a frequency (any band) in l->w[] */
 static int wifi_channels(struct wif_list *l, const char **how)
@@ -628,10 +665,10 @@ static int wifi_channels(struct wif_list *l, const char **how)
 		}
 		if (w->freq == 0) {
 			w->freq = wext_freq(sock, w->name);
-			if (w->freq)
-				*how = "WEXT";
 			w->width = 20;
 			w->center1 = 0;
+			if (w->freq)
+				*how = rtw_width(w->name, w->freq, &w->width, &w->center1) ? "WEXT + rf_info" : "WEXT";
 		}
 		if (w->freq)
 			l->w[n++] = *w;
