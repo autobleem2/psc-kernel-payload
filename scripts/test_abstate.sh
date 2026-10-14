@@ -170,5 +170,17 @@ check "bt new: already mounted -> no second mount"   test ! -s "${LOG}"
 ab_bt_umount
 check "bt new: sync + umount -d"                     grep -q "^umount -d ${AB_BT_DIR}$" "${LOG}"
 
+# the bluetooth service only waits for the autobleem service's mount (no CAP_SYS_ADMIN there; two mounts raced)
+reset; mounts_legacy
+ab_bt_wait
+check "bt-wait legacy: the bind mount, as before"    grep -q "^mount --bind /etc/bluetooth/bluetoothd ${AB_BT_DIR}$" "${LOG}"
+reset; mounts_new; stick_up
+ab_bt_wait 0 2>/dev/null
+check "bt-wait new, not mounted: no mount of its own" test ! -s "${LOG}"
+printf '%s %s ext4 rw 0 0\n' "/dev/loop1" "${AB_BT_DIR}" >> "${AB_MOUNTS}"
+check "bt-wait new, mounted: returns at once"        ab_bt_wait 0
+check "bt-wait new, mounted: no mount of its own"    test ! -s "${LOG}"
+check "bluetooth script waits, does not mount"       grep -q '^  ab_bt_wait$' "${OV}/etc/autobleem/bluetooth"
+
 if [ "${fail}" -eq 0 ]; then echo "ALL OK"; else echo "FAILED"; fi
 exit "${fail}"

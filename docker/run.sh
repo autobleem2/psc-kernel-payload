@@ -34,7 +34,10 @@ TTY=(); [ -t 0 ] && [ -t 1 ] && TTY=(-it)
 # 2024.02.x) - a forced default here overrode both with 2020.02.12, which does not build on this image
 ENV_BR=(); [ -n "${BR_VERSION:-}" ] && ENV_BR=(-e "BR_VERSION=${BR_VERSION}")
 
+# a sane open-files limit: the daemon's default (about a billion) made Buildroot's faked close every possible
+# descriptor at its start - 15+ minutes at 100% CPU in the fakeroot step (2026-10-14)
 exec docker run --rm "${TTY[@]}" \
+	--ulimit nofile=1024:524288 \
 	-u "$(id -u):$(id -g)" \
 	-e HOME=/work \
 	-e BR2_DL_DIR=/cache/dl \

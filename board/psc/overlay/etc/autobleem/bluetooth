@@ -3,10 +3,11 @@
 #ln -s /etc/bluetooth/bluetoothd /var/lib/bluetooth
 
 # Stick boot (new /init): the pairings live in System/Data/bluetooth.img on the stick, loop-mounted over
-# /var/lib/bluetooth (abstate.sh). Legacy boot: the overlay folder, bind-mounted as always.
+# /var/lib/bluetooth by the autobleem service (abstate.sh) - this service only waits for it. Legacy boot: the
+# overlay folder, bind-mounted as always.
 if [ -r /etc/autobleem/abstate.sh ]; then
   . /etc/autobleem/abstate.sh
-  ab_bt_mount
+  ab_bt_wait
 else
   mkdir -p /var/lib/bluetooth
   mount --bind /etc/bluetooth/bluetoothd /var/lib/bluetooth

@@ -187,6 +187,24 @@ ab_bt_mount() {
 	return 0
 }
 
+# ab_bt_wait [WAIT]: new mode: wait up to WAIT seconds (default AB_STICK_WAIT + 15) for the image to be mounted
+# over $AB_BT_DIR by the autobleem service. bluetooth.service cannot mount it itself (its capability bounding set
+# has no CAP_SYS_ADMIN), and two mounts at once raced ("already mounted", 2026-10-14). Legacy: the bind mount,
+# as before.
+ab_bt_wait() {
+	if [ "$(ab_mode)" != new ]; then
+		ab_bt_mount
+		return 0
+	fi
+	ab_n="${1:-$((AB_STICK_WAIT + 15))}"
+	while ! ab_mounted "${AB_BT_DIR}" ext4; do
+		[ "${ab_n}" -gt 0 ] || { ab_log "no Bluetooth image mounted: pairings stay in RAM"; return 0; }
+		ab_n=$((ab_n - 1))
+		sleep 1
+	done
+	return 0
+}
+
 # ab_bt_umount: new mode: flush and unmount the image (shutdown, and before the console suspends)
 ab_bt_umount() {
 	[ "$(ab_mode)" = new ] || return 0
