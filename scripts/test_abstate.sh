@@ -182,5 +182,91 @@ check "bt-wait new, mounted: returns at once"        ab_bt_wait 0
 check "bt-wait new, mounted: no mount of its own"    test ! -s "${LOG}"
 check "bluetooth script waits, does not mount"       grep -q '^  ab_bt_wait$' "${OV}/etc/autobleem/bluetooth"
 
+
+# --- one-time migration from the legacy install (a fake /data tree, read only) ---------------------------------------
+export AB_LEGACY="${T}/data/autobleem/rootfs"
+mk_legacy(){
+	rm -rf "${T}/data"
+	mkdir -p "${AB_LEGACY}/etc/bluetooth/bluetoothd/AA:BB:CC:DD:EE:FF/11:22:33:44:55:66" "${AB_LEGACY}/etc/autobleem"
+	printf 'KEY\n' > "${AB_LEGACY}/etc/bluetooth/bluetoothd/AA:BB:CC:DD:EE:FF/11:22:33:44:55:66/info"
+	chmod 600 "${AB_LEGACY}/etc/bluetooth/bluetoothd/AA:BB:CC:DD:EE:FF/11:22:33:44:55:66/info"
+	printf 'network={ssid="legacy"}\n' > "${AB_LEGACY}/etc/wpa_supplicant.conf"
+	printf 'legacy\n' > "${AB_LEGACY}/etc/autobleem/ssid.cfg"
+	printf 'Europe/Dublin\n' > "${AB_LEGACY}/etc/timezone"
+}
+legacy_sum(){ (cd "${T}/data" && find . -type f -o -type d | sort | xargs stat -c '%n %a %Y %s'); }
+D="${AB_STICK}/System/Data"
+MIGDIR="${T}/migfs"
+# mount/umount stubs for the migration: a loop mount over a folder is remembered, the umount of that folder
+# copies what was written there to ${MIGDIR} (the stand-in for the image's content)
+printf '#!/bin/sh\necho "mount $*" >> "%s"\nfor a; do d="$a"; done\ncase "$*" in *loop*) echo "$d" > "%s/lastmnt";; esac\n' "${LOG}" "${T}" > "${STUB}/mount"
+printf '#!/bin/sh\necho "umount $*" >> "%s"\nfor a; do d="$a"; done\n[ -f "%s/lastmnt" ] && [ "$(cat "%s/lastmnt")" = "$d" ] && { rm -rf "%s"; mkdir -p "%s"; cp -a "$d/." "%s/"; }\nexit 0\n' "${LOG}" "${T}" "${T}" "${MIGDIR}" "${MIGDIR}" "${MIGDIR}" > "${STUB}/umount"
+chmod +x "${STUB}/mount" "${STUB}/umount"
+
+# 1. everything on the legacy side, nothing on the stick -> all copied
+reset; mounts_new; stick_up; mk_legacy; rm -rf "${MIGDIR}"; before="$(legacy_sum)"
+ab_bt_mount 2>"${T}/mig.err"
+check "migrate: bluetooth.img made"                  test -f "${D}/bluetooth.img"
+check "migrate: pairings copied into the image"      test "$(cat "${MIGDIR}/AA:BB:CC:DD:EE:FF/11:22:33:44:55:66/info")" = KEY
+check "migrate: pairing mode kept (600)"             test "$(stat -c %a "${MIGDIR}/AA:BB:CC:DD:EE:FF/11:22:33:44:55:66/info")" = 600
+check "migrate: image filled before the final name"  test ! -e "${D}/bluetooth.img.pre" -a ! -e "${D}/bluetooth.img.new"
+check "migrate: wpa_supplicant.conf copied"          grep -q legacy "${D}/wifi/wpa_supplicant.conf"
+check "migrate: ssid.cfg copied"                     test "$(cat "${D}/wifi/ssid.cfg")" = legacy
+check "migrate: timezone copied"                     test "$(cat "${D}/timezone")" = Europe/Dublin
+check "migrate: marker written"                      test -f "${D}/migrated-from-legacy"
+check "migrate: one log line per item (4 + done)"    test "$(grep -c '^abstate: migrated ' "${T}/mig.err")" = 4
+check "migrate: the final image is then mounted"     grep -q "^mount -t ext4 -o loop,noatime ${D}/bluetooth.img ${AB_BT_DIR}$" "${LOG}"
+check "migrate: /data (fake) not changed"            test "$(legacy_sum)" = "${before}"
+check "migrate: no lock left"                        test ! -e "${AB_RUN}/migrate.lock"
+
+# 2. second run: the marker stops it (even with the stick state removed)
+rm -f "${D}/wifi/wpa_supplicant.conf" "${D}/timezone"; : > "${LOG}"
+ab_migrate; ab_wifi_in; ab_tz_in
+check "migrate: marker = no second run"              test ! -e "${D}/wifi/wpa_supplicant.conf" -a ! -e "${D}/timezone"
+
+# 3. state already on the stick is untouched
+reset; mounts_new; stick_up; mk_legacy
+mkdir -p "${D}/wifi"; echo STICKIMG > "${D}/bluetooth.img"; echo STICKWPA > "${D}/wifi/wpa_supplicant.conf"
+echo STICKSSID > "${D}/wifi/ssid.cfg"; echo UTC > "${D}/timezone"
+ab_bt_mount 2>/dev/null
+check "migrate: stick bluetooth.img untouched"       test "$(cat "${D}/bluetooth.img")" = STICKIMG
+check "migrate: stick wpa_supplicant.conf untouched" test "$(cat "${D}/wifi/wpa_supplicant.conf")" = STICKWPA
+check "migrate: stick ssid.cfg untouched"            test "$(cat "${D}/wifi/ssid.cfg")" = STICKSSID
+check "migrate: stick timezone untouched"            test "$(cat "${D}/timezone")" = UTC
+check "migrate: nothing to copy -> marker, 0 items"  grep -q '^migrated 0 item' "${D}/migrated-from-legacy"
+
+# 4. partly on the stick: only the missing items come over
+reset; mounts_new; stick_up; mk_legacy
+mkdir -p "${D}/wifi"; echo STICKWPA > "${D}/wifi/wpa_supplicant.conf"
+ab_migrate 2>/dev/null
+check "migrate partly: image made from legacy"       test -f "${D}/bluetooth.img"
+check "migrate partly: stick wifi kept"              test "$(cat "${D}/wifi/wpa_supplicant.conf")" = STICKWPA
+check "migrate partly: ssid.cfg not mixed in"        test ! -e "${D}/wifi/ssid.cfg"
+check "migrate partly: timezone copied"              test "$(cat "${D}/timezone")" = Europe/Dublin
+
+# 5. no legacy dir: nothing, no marker, an empty image as before
+reset; mounts_new; stick_up; rm -rf "${T}/data"; : > "${LOG}"
+ab_bt_mount 2>/dev/null; ab_wifi_in; ab_tz_in
+check "migrate none: no marker"                      test ! -e "${D}/migrated-from-legacy"
+check "migrate none: empty image made as before"     grep -q "^mke2fs " "${LOG}"
+check "migrate none: no wifi/timezone invented"      test ! -e "${D}/wifi/wpa_supplicant.conf" -a ! -e "${D}/timezone"
+
+# 6. legacy mode never migrates; no stick = nothing, no marker
+reset; mounts_legacy; stick_up; mk_legacy; ab_migrate
+check "migrate: legacy mode touches nothing"         test ! -e "${AB_STICK}/System"
+reset; mounts_new; mk_legacy; ab_migrate
+check "migrate: no stick -> nothing"                 test ! -e "${AB_STICK}/System"
+
+# 7. a failed fill leaves no image and no marker (retried next start), and no empty image is made
+reset; mounts_new; stick_up; mk_legacy; : > "${LOG}"
+printf '#!/bin/sh\nexit 1\n' > "${STUB}/mount"
+ab_bt_mount 2>/dev/null
+check "migrate fail: no image, no marker"            test ! -e "${D}/bluetooth.img" -a ! -e "${D}/migrated-from-legacy"
+check "migrate fail: wifi still copied"              test -f "${D}/wifi/wpa_supplicant.conf"
+printf '#!/bin/sh\necho "mount $*" >> "%s"\nfor a; do d="$a"; done\ncase "$*" in *loop*) echo "$d" > "%s/lastmnt";; esac\n' "${LOG}" "${T}" > "${STUB}/mount"
+ab_bt_mount 2>/dev/null
+check "migrate retry: image made at the next start"  test -f "${D}/bluetooth.img" -a -f "${D}/migrated-from-legacy"
+check "abstate command line knows migrate"           grep -q '^migrate) ab_migrate' "${OV}/etc/autobleem/abstate"
+
 if [ "${fail}" -eq 0 ]; then echo "ALL OK"; else echo "FAILED"; fi
 exit "${fail}"

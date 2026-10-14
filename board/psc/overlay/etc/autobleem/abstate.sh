@@ -84,6 +84,118 @@ ab_copy() {
 	return 1
 }
 
+# --- one-time migration from the legacy install -------------------------------------------------------------------
+# A user upgrading from the legacy boot has the pairings, the WiFi and the zone in the overlay upper at
+# $AB_LEGACY (/data/autobleem/rootfs). The first stick boot copies them to the stick, once. /data is only READ
+# here: nothing below writes, remounts or deletes anything under $AB_LEGACY. State already on the stick is never
+# overwritten. System/Data/migrated-from-legacy is the marker; it is written only when every item that was due
+# went through, so a failure is retried at the next start. No legacy tree at all = nothing happens, no marker.
+
+AB_LEGACY="${AB_LEGACY:-/data/autobleem/rootfs}"
+AB_MIG_MARK="migrated-from-legacy"
+
+# ab_legacy_tz: the zone name of the legacy install (etc/timezone, else the etc/localtime link), if valid
+ab_legacy_tz() {
+	ab_lz=""
+	[ -f "${AB_LEGACY}/etc/timezone" ] && read -r ab_lz < "${AB_LEGACY}/etc/timezone"
+	if [ -z "${ab_lz}" ] && [ -L "${AB_LEGACY}/etc/localtime" ]; then
+		ab_lz="$(readlink "${AB_LEGACY}/etc/localtime")"
+		ab_lz="${ab_lz#*/zoneinfo/}"
+	fi
+	ab_tz_ok "${ab_lz}" || return 1
+	echo "${ab_lz}"
+}
+
+# ab_legacy_pending: the legacy tree has something that the stick lacks (and no marker yet)
+ab_legacy_pending() {
+	[ -d "${AB_LEGACY}" ] || return 1
+	ab_d="$(ab_stick_data 0)" || return 1
+	[ -e "${ab_d}/${AB_MIG_MARK}" ] && return 1
+	return 0
+}
+
+# ab_bt_img_from_legacy IMG: make IMG (ext4) holding the legacy BlueZ tree, modes and owners kept (cp -a as root).
+# Built as IMG.new, loop-mounted on a temporary folder and renamed when the copy is whole.
+ab_bt_img_from_legacy() {
+	ab_src="${AB_LEGACY}/etc/bluetooth/bluetoothd"
+	ab_mnt="${AB_RUN}/btmig"
+	ab_bt_img_make "$1.pre" || return 1
+	mkdir -p "${ab_mnt}" && mount -t ext4 -o loop,noatime "$1.pre" "${ab_mnt}" || {
+		rm -f "$1.pre"; ab_log "cannot mount the new image to fill it"; return 1; }
+	if cp -a "${ab_src}/." "${ab_mnt}/" 2>/dev/null; then ab_rc=0; else ab_rc=1; fi
+	sync
+	umount -d "${ab_mnt}" 2>/dev/null || umount -l "${ab_mnt}"
+	rmdir "${ab_mnt}" 2>/dev/null
+	if [ "${ab_rc}" -eq 0 ] && mv -f "$1.pre" "$1"; then return 0; fi
+	rm -f "$1.pre"
+	ab_log "cannot copy the legacy pairings into $1"
+	return 1
+}
+
+# ab_migrate: new mode; safe to call from every start-up step (the first one does it all, the rest return)
+ab_migrate() {
+	[ "$(ab_mode)" = new ] || return 0
+	ab_legacy_pending || return 0
+	ab_w=30
+	while ! mkdir "${AB_RUN}/migrate.lock" 2>/dev/null; do
+		[ "${ab_w}" -gt 0 ] || return 0
+		ab_w=$((ab_w - 1)); sleep 1
+	done
+	ab_migrate_locked
+	ab_mrc=$?
+	rmdir "${AB_RUN}/migrate.lock" 2>/dev/null
+	return "${ab_mrc}"
+}
+
+ab_migrate_locked() {
+	ab_d="$(ab_stick_data 0)" || return 0
+	[ -e "${ab_d}/${AB_MIG_MARK}" ] && return 0
+	ab_fail=0
+	ab_n_items=0
+	# Bluetooth: only while the stick has no image yet (it is about to be created)
+	if [ ! -e "${ab_d}/bluetooth.img" ] && [ -d "${AB_LEGACY}/etc/bluetooth/bluetoothd" ]; then
+		if ab_bt_img_from_legacy "${ab_d}/bluetooth.img"; then
+			ab_log "migrated pairings: ${AB_LEGACY}/etc/bluetooth/bluetoothd -> ${ab_d}/bluetooth.img"
+			ab_n_items=$((ab_n_items + 1))
+		else
+			ab_fail=1
+		fi
+	fi
+	# WiFi: only while the stick has no wpa_supplicant.conf
+	if [ ! -e "${ab_d}/wifi/wpa_supplicant.conf" ] && [ -s "${AB_LEGACY}/etc/wpa_supplicant.conf" ]; then
+		if ab_copy "${AB_LEGACY}/etc/wpa_supplicant.conf" "${ab_d}/wifi/wpa_supplicant.conf"; then
+			ab_log "migrated wifi: wpa_supplicant.conf"
+			ab_n_items=$((ab_n_items + 1))
+			if [ ! -e "${ab_d}/wifi/ssid.cfg" ] && [ -s "${AB_LEGACY}/etc/autobleem/ssid.cfg" ]; then
+				if ab_copy "${AB_LEGACY}/etc/autobleem/ssid.cfg" "${ab_d}/wifi/ssid.cfg"; then
+					ab_log "migrated wifi: ssid.cfg"
+					ab_n_items=$((ab_n_items + 1))
+				else
+					ab_fail=1
+				fi
+			fi
+		else
+			ab_fail=1
+		fi
+	fi
+	# timezone: only while the stick has none
+	if [ ! -e "${ab_d}/timezone" ] && ab_mz="$(ab_legacy_tz)"; then
+		if echo "${ab_mz}" > "${ab_d}/timezone.tmp" && mv -f "${ab_d}/timezone.tmp" "${ab_d}/timezone"; then
+			ab_log "migrated timezone: ${ab_mz}"
+			ab_n_items=$((ab_n_items + 1))
+		else
+			rm -f "${ab_d}/timezone.tmp"; ab_fail=1
+		fi
+	fi
+	if [ "${ab_fail}" -eq 0 ]; then
+		echo "migrated ${ab_n_items} item(s) from ${AB_LEGACY}" > "${ab_d}/${AB_MIG_MARK}" || return 1
+		ab_log "legacy migration done (${ab_n_items} item(s)); marker ${ab_d}/${AB_MIG_MARK}"
+		return 0
+	fi
+	ab_log "legacy migration incomplete: tried again at the next start"
+	return 1
+}
+
 # --- WiFi: the master copy is System/Data/wifi/{wpa_supplicant.conf,ssid.cfg} ---------------------------------
 
 # ab_wifi_in: new mode, once per boot: stick -> /etc. $AB_RUN/wifi-synced is made once the stick was seen
@@ -93,6 +205,7 @@ ab_wifi_in() {
 	[ "$(ab_mode)" = new ] || return 0
 	[ -e "${AB_RUN}/wifi-synced" ] && return 0
 	ab_d="$(ab_stick_data)" || { ab_log "no stick: WiFi settings stay in RAM"; return 0; }
+	ab_migrate
 	if [ -s "${ab_d}/wifi/wpa_supplicant.conf" ]; then
 		ab_copy "${ab_d}/wifi/wpa_supplicant.conf" "${AB_ETC}/wpa_supplicant.conf" &&
 			chmod 600 "${AB_ETC}/wpa_supplicant.conf"
@@ -132,6 +245,7 @@ ab_tz_ok() {
 ab_tz_in() {
 	[ "$(ab_mode)" = new ] || return 0
 	ab_d="$(ab_stick_data)" || return 0
+	ab_migrate
 	[ -f "${ab_d}/timezone" ] || return 0
 	read -r ab_z < "${ab_d}/timezone"
 	ab_tz_ok "${ab_z}" || { ab_log "bad zone '${ab_z}' in ${ab_d}/timezone"; return 0; }
@@ -177,7 +291,15 @@ ab_bt_mount() {
 	ab_mounted "${AB_BT_DIR}" ext4 && return 0
 	ab_d="$(ab_stick_data)" || { ab_log "no stick: pairings stay in RAM"; return 0; }
 	ab_img="${ab_d}/bluetooth.img"
-	[ -f "${ab_img}" ] || ab_bt_img_make "${ab_img}" || return 0
+	ab_migrate
+	if [ ! -f "${ab_img}" ]; then
+		# a failed migration must not leave an empty image behind: it would end the migration for good
+		if ab_legacy_pending && [ -d "${AB_LEGACY}/etc/bluetooth/bluetoothd" ]; then
+			ab_log "legacy pairings not copied yet: pairings stay in RAM, retried at the next start"
+			return 0
+		fi
+		ab_bt_img_make "${ab_img}" || return 0
+	fi
 	if ! mount -t ext4 -o loop,noatime "${ab_img}" "${AB_BT_DIR}"; then
 		# a pulled plug: let e2fsck repair it, then once more. Never recreate it - that would lose the pairings.
 		command -v e2fsck >/dev/null 2>&1 && e2fsck -p "${ab_img}" >/dev/null 2>&1
