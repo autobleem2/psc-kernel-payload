@@ -58,6 +58,10 @@ if [ "$CHG_INFO" -eq "3" ]; then
   sleep "0.3"
 fi
 
+# the first suspend is over: the stick boot's usb_watch waits for this before it mounts the stick
+# (etc/autobleem/abusbwatch - the wake re-enumerates every USB device)
+mkdir -p /run/autobleem && : > /run/autobleem/first-wake
+
 mount -o remount,rw /data
 mount -o remount,rw /
 mount --make-rshared /

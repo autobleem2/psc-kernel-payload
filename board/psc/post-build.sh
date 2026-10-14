@@ -33,7 +33,8 @@ mkdir -p "${TARGET_DIR}/etc/bluetooth/bluetoothd"
 # Make sure the AutoBleem helper scripts are executable (overlay copies can lose
 # the bit on a Windows checkout).
 for f in bin/updaterootfs.sh bin/settime bin/ntpget bin/abnet bin/start_pman usr/bin/start_pman \
-         sbin/dhclient-script etc/autobleem/bluetooth etc/autobleem/dhcp etc/autobleem/rndis etc/autobleem/abstate; do
+         sbin/dhclient-script etc/autobleem/bluetooth etc/autobleem/dhcp etc/autobleem/rndis etc/autobleem/abstate \
+         etc/autobleem/modules etc/autobleem/abusbwatch; do
 	[ -f "${TARGET_DIR}/${f}" ] && chmod +x "${TARGET_DIR}/${f}" || true
 done
 

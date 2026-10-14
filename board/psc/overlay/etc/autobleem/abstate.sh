@@ -56,19 +56,24 @@ ab_mounted() {
 	return 1
 }
 
-# ab_stick_data [WAIT]: waits up to WAIT seconds (default AB_STICK_WAIT) for the stick to be mounted at
-# $AB_STICK, then prints $AB_STICK/System/Data (made when missing). Fails when there is no stick or it is
-# not writable. Never falls back to a folder on the root: that would be tmpfs, and lost.
+# ab_stick_data [WAIT]: waits up to WAIT seconds (default AB_STICK_WAIT) for a usable stick at $AB_STICK -
+# mounted, with System/Data made when missing and writable - then prints $AB_STICK/System/Data. Fails when
+# there is none by then. A mount that is there but unusable is waited out too: the console's first suspend
+# re-enumerates the USB devices, and a stick mounted before it stays at $AB_STICK with its device gone
+# (sda1 -> sdb1, 2026-10-14) until usb_watch mounts it again. Never falls back to a folder on the root: that
+# would be tmpfs, and lost.
 ab_stick_data() {
 	ab_n="${1:-${AB_STICK_WAIT}}"
-	while ! ab_mounted "${AB_STICK}"; do
+	while :; do
+		if ab_mounted "${AB_STICK}" && mkdir -p "${AB_STICK}/System/Data" 2>/dev/null &&
+			[ -w "${AB_STICK}/System/Data" ]; then
+			echo "${AB_STICK}/System/Data"
+			return 0
+		fi
 		[ "${ab_n}" -gt 0 ] || return 1
 		ab_n=$((ab_n - 1))
 		sleep 1
 	done
-	mkdir -p "${AB_STICK}/System/Data" 2>/dev/null || return 1
-	[ -w "${AB_STICK}/System/Data" ] || return 1
-	echo "${AB_STICK}/System/Data"
 }
 
 # ab_copy SRC DST: a whole file or none (the stick is FAT: a pulled plug must not leave half a config)

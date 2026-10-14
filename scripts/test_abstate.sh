@@ -18,7 +18,7 @@ bad(){ printf 'FAIL %s\n' "$*"; fail=1; }
 check(){ local what="$1"; shift; if "$@"; then ok "${what}"; else bad "${what}"; fi; }
 
 # --- syntax: each script in the shell it runs under ----------------------------------------------------------
-for f in etc/autobleem/abstate etc/autobleem/abstate.sh bin/start_pman usr/bin/start_pman; do
+for f in etc/autobleem/abstate etc/autobleem/abstate.sh etc/autobleem/abusbwatch bin/start_pman usr/bin/start_pman; do
 	check "sh -n ${f}" sh -n "${OV}/${f}"
 done
 for f in etc/autobleem/bluetooth etc/autobleem/autobleem bin/settime; do
@@ -72,7 +72,16 @@ rm -f "${AB_RUN}/mode"
 mounts_new
 check "stick: not mounted -> fails, no folder made"  bash -c ". '${OV}/etc/autobleem/abstate.sh'; ! ab_stick_data 0 >/dev/null; test ! -e '${AB_STICK}/System'"
 stick_up
+# a mount whose device is gone (the first suspend re-enumerated the stick): mounted, but nothing can be made
+chmod 555 "${AB_STICK}"
+check "stick: mounted but unusable -> fails"         bash -c ". '${OV}/etc/autobleem/abstate.sh'; ! ab_stick_data 0 >/dev/null"
+chmod 755 "${AB_STICK}"
+(sleep 1.5; chmod 755 "${AB_STICK}") & chmod 555 "${AB_STICK}"
+check "stick: unusable mount waited out"             test "$(ab_stick_data 4)" = "${AB_STICK}/System/Data"
+wait
 check "stick: mounted -> System/Data"                test "$(ab_stick_data 0)" = "${AB_STICK}/System/Data"
+check "start_pman writes the first-wake marker"      grep -q '/run/autobleem/first-wake' "${OV}/usr/bin/start_pman"
+check "usbwatch.service starts through abusbwatch"   grep -q '^ExecStart=/bin/sh /etc/autobleem/abusbwatch$' "${OV}/lib/systemd/system/usbwatch.service"
 
 # --- WiFi ----------------------------------------------------------------------------------------------------------
 reset; mounts_new; stick_up
