@@ -25,9 +25,21 @@
  */
 #include <gio/gio.h>
 #include <glob.h>
+#include <net/if.h>
+#include <poll.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <linux/genetlink.h>
+#include <linux/netlink.h>
+#include <linux/nl80211.h>
+#include <linux/wireless.h>
+
+#include "afh_map.h"
 
 #define AGENT_PATH "/org/autobleem/agent"
 #define HID_UUID "00001124-0000-1000-8000-00805f9b34fb"
@@ -305,10 +317,488 @@ static void hid_changed(GDBusConnection *conn, const char *sender, const char *p
 	hid_recount(conn);
 }
 
+/* AFH host channel classification: while a wifi network sits on the 2.4 GHz band, tell every powered Bluetooth
+ * controller (any dongle, any wifi chip) not to hop onto the wifi channels. Every 5 s: read the operating channel
+ * of each up wlan interface (nl80211, wireless extensions as the fallback), compute the map (afh_map.h), and send
+ * HCI_Set_AFH_Host_Channel_Classification through a raw HCI socket when it changed, after a controller power-up,
+ * and every 60 s. Off switch: the file AFH_OFF_FILE or the environment variable ABBTAGENT_NO_AFH=1. */
+#define AFH_OFF_FILE "/etc/abbtagent-no-afh"
+#define AFH_RESEND_SECONDS 60
+#define AFH_MAX_HCI 8
+#define AFH_MAX_WIF 8
+
+#ifndef AF_BLUETOOTH
+#define AF_BLUETOOTH 31
+#endif
+#define BT_PROTO_HCI 1
+#define HCI_GET_DEV_INFO _IOR('H', 211, int)
+#define HCI_DEV_UP_FLAG 0x1
+#define OP_SET_AFH_CLASSIFICATION 0x0c3f /* OGF 0x03, OCF 0x003f */
+
+struct sockaddr_hci_raw {
+	sa_family_t hci_family;
+	unsigned short hci_dev;
+	unsigned short hci_channel;
+};
+
+struct hci_filter_raw {
+	uint32_t type_mask;
+	uint32_t event_mask[2];
+	uint16_t opcode;
+};
+
+/* struct hci_dev_info of the kernel (net/bluetooth/hci_sock.h), only dev_id and flags are used */
+struct hci_dev_info_raw {
+	uint16_t dev_id;
+	char name[8];
+	uint8_t bdaddr[6];
+	uint32_t flags;
+	uint8_t type;
+	uint8_t features[8];
+	uint32_t pkt_type, link_policy, link_mode;
+	uint16_t acl_mtu, acl_pkts, sco_mtu, sco_pkts;
+	uint32_t stat[10];
+} __attribute__((packed));
+
+struct wif {
+	char name[IFNAMSIZ];
+	int freq, width, center1; /* MHz; 0 = not known */
+};
+
+struct hci_ctl {
+	gboolean up;
+	gboolean no_afh;                 /* the controller refused the command: logged once, not tried again */
+	uint8_t last[AFH_MAP_LEN];       /* the map the controller has (all allowed after a power-up) */
+	gint64 sent_at;                  /* monotonic µs of the last send, 0 = none */
+};
+
+static struct hci_ctl hci_ctls[AFH_MAX_HCI];
+static char afh_last_desc[256];
+static gboolean afh_was_off;
+
+static void afh_map_hex(const uint8_t *map, char *out)
+{
+	for (int i = 0; i < AFH_MAP_LEN; i++)
+		sprintf(out + 2 * i, "%02x", map[i]);
+}
+
+/* "8-52" or "0-22,48-72" or "none": the blocked channels of a map */
+static void afh_blocked_ranges(const uint8_t *map, char *out, size_t n)
+{
+	size_t used = 0;
+	int ch = 0;
+
+	out[0] = 0;
+	while (ch < AFH_CHANNELS) {
+		int first;
+
+		if (afh_map_get(map, ch)) {
+			ch++;
+			continue;
+		}
+		first = ch;
+		while (ch < AFH_CHANNELS && !afh_map_get(map, ch))
+			ch++;
+		if (used < n)
+			used += snprintf(out + used, n - used, "%s%d-%d", used ? "," : "", first, ch - 1);
+	}
+	if (!out[0])
+		snprintf(out, n, "none");
+}
+
+static int nl80211_width_mhz(unsigned w)
+{
+	switch (w) {
+	case NL80211_CHAN_WIDTH_5:
+		return 5;
+	case NL80211_CHAN_WIDTH_10:
+		return 10;
+	case NL80211_CHAN_WIDTH_40:
+		return 40;
+	case NL80211_CHAN_WIDTH_80:
+	case NL80211_CHAN_WIDTH_80P80:
+		return 80;
+	case NL80211_CHAN_WIDTH_160:
+		return 160;
+	default:
+		return 20;
+	}
+}
+
+/* one generic netlink request, with the replies handed to cb(attrs, len, ctx); returns 0 or -1 */
+static int genl_request(int fd, uint16_t type, uint8_t cmd, int dump, const char *str_attr, int str_attr_type,
+			void (*cb)(const struct nlattr *, int, void *), void *ctx)
+{
+	struct {
+		struct nlmsghdr nh;
+		struct genlmsghdr gh;
+		char buf[64];
+	} req;
+	char *rbuf;
+	int len = NLMSG_LENGTH(GENL_HDRLEN), ret = -1;
+
+	memset(&req, 0, sizeof(req));
+	req.nh.nlmsg_type = type;
+	req.nh.nlmsg_flags = NLM_F_REQUEST | (dump ? NLM_F_DUMP : 0);
+	req.nh.nlmsg_seq = 1;
+	req.gh.cmd = cmd;
+	req.gh.version = 1;
+	if (str_attr) {
+		struct nlattr *a = (struct nlattr *)((char *)&req + NLMSG_ALIGN(len));
+		size_t sl = strlen(str_attr) + 1;
+
+		a->nla_type = str_attr_type;
+		a->nla_len = NLA_HDRLEN + sl;
+		memcpy((char *)a + NLA_HDRLEN, str_attr, sl);
+		len = NLMSG_ALIGN(len) + NLA_ALIGN(a->nla_len);
+	}
+	req.nh.nlmsg_len = len;
+	if (send(fd, &req, len, 0) < 0)
+		return -1;
+	rbuf = g_malloc(32768);
+	for (;;) {
+		struct nlmsghdr *nh;
+		ssize_t n = recv(fd, rbuf, 32768, 0);
+
+		if (n <= 0)
+			break;
+		for (nh = (struct nlmsghdr *)rbuf; NLMSG_OK(nh, (unsigned)n); nh = NLMSG_NEXT(nh, n)) {
+			if (nh->nlmsg_type == NLMSG_DONE) {
+				ret = 0;
+				goto out;
+			}
+			if (nh->nlmsg_type == NLMSG_ERROR)
+				goto out;
+			cb((const struct nlattr *)((char *)NLMSG_DATA(nh) + GENL_HDRLEN),
+			   (int)nh->nlmsg_len - NLMSG_LENGTH(GENL_HDRLEN), ctx);
+			ret = 0;
+			if (!dump)
+				goto out;
+		}
+	}
+out:
+	g_free(rbuf);
+	return ret;
+}
+
+static void nla_each(const struct nlattr *a, int len, void (*fn)(const struct nlattr *, void *), void *ctx)
+{
+	while (len >= (int)sizeof(*a) && a->nla_len >= sizeof(*a) && (int)a->nla_len <= len) {
+		fn(a, ctx);
+		len -= NLA_ALIGN(a->nla_len);
+		a = (const struct nlattr *)((const char *)a + NLA_ALIGN(a->nla_len));
+	}
+}
+
+static void family_attr(const struct nlattr *a, void *ctx)
+{
+	if ((a->nla_type & NLA_TYPE_MASK) == CTRL_ATTR_FAMILY_ID)
+		memcpy(ctx, (const char *)a + NLA_HDRLEN, sizeof(uint16_t));
+}
+
+static void family_msg(const struct nlattr *a, int len, void *ctx)
+{
+	nla_each(a, len, family_attr, ctx);
+}
+
+struct wif_list {
+	struct wif w[AFH_MAX_WIF];
+	int n;
+	struct wif cur;
+};
+
+static void iface_attr(const struct nlattr *a, void *ctx)
+{
+	struct wif_list *l = ctx;
+	const char *p = (const char *)a + NLA_HDRLEN;
+
+	switch (a->nla_type & NLA_TYPE_MASK) {
+	case NL80211_ATTR_IFNAME:
+		g_strlcpy(l->cur.name, p, sizeof(l->cur.name));
+		break;
+	case NL80211_ATTR_WIPHY_FREQ:
+		memcpy(&l->cur.freq, p, 4);
+		break;
+	case NL80211_ATTR_CENTER_FREQ1:
+		memcpy(&l->cur.center1, p, 4);
+		break;
+	case NL80211_ATTR_CHANNEL_WIDTH: {
+		unsigned w;
+
+		memcpy(&w, p, 4);
+		l->cur.width = nl80211_width_mhz(w);
+		break;
+	}
+	}
+}
+
+static void iface_msg(const struct nlattr *a, int len, void *ctx)
+{
+	struct wif_list *l = ctx;
+
+	memset(&l->cur, 0, sizeof(l->cur));
+	nla_each(a, len, iface_attr, l);
+	if (l->cur.name[0] && l->n < AFH_MAX_WIF)
+		l->w[l->n++] = l->cur;
+}
+
+/* the wireless interfaces and their channels from nl80211; -1 if there is no nl80211 */
+static int nl80211_interfaces(struct wif_list *l)
+{
+	uint16_t family = 0;
+	int fd = socket(AF_NETLINK, SOCK_RAW | SOCK_CLOEXEC, NETLINK_GENERIC), ret = -1;
+	struct timeval tv = { 2, 0 };
+
+	l->n = 0;
+	if (fd < 0)
+		return -1;
+	setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+	if (genl_request(fd, GENL_ID_CTRL, CTRL_CMD_GETFAMILY, 0, "nl80211", CTRL_ATTR_FAMILY_NAME, family_msg,
+			 &family) == 0 &&
+	    family)
+		ret = genl_request(fd, family, NL80211_CMD_GET_INTERFACE, 1, NULL, 0, iface_msg, l);
+	close(fd);
+	return ret;
+}
+
+static gboolean iface_is_up(int sock, const char *name)
+{
+	struct ifreq ifr;
+
+	memset(&ifr, 0, sizeof(ifr));
+	g_strlcpy(ifr.ifr_name, name, sizeof(ifr.ifr_name));
+	return ioctl(sock, SIOCGIFFLAGS, &ifr) == 0 && (ifr.ifr_flags & IFF_UP);
+}
+
+/* wireless extensions: the frequency in MHz of an interface (a 20 MHz width is assumed), 0 if none */
+static int wext_freq(int sock, const char *name)
+{
+	struct iwreq iwr;
+	double hz;
+
+	memset(&iwr, 0, sizeof(iwr));
+	g_strlcpy(iwr.ifr_name, name, sizeof(iwr.ifr_name));
+	if (ioctl(sock, SIOCGIWFREQ, &iwr) < 0)
+		return 0;
+	hz = iwr.u.freq.m;
+	for (int e = iwr.u.freq.e; e > 0; e--)
+		hz *= 10;
+	if (iwr.u.freq.e == 0 && iwr.u.freq.m >= 1 && iwr.u.freq.m <= 14) /* a channel number, not a frequency */
+		return iwr.u.freq.m == 14 ? 2484 : 2407 + 5 * iwr.u.freq.m;
+	return (int)(hz / 1e6);
+}
+
+/* the channels of all up wireless interfaces: nl80211 first, wext for what it could not tell. Returns the count
+ * of interfaces with a frequency (any band) in l->w[] */
+static int wifi_channels(struct wif_list *l, const char **how)
+{
+	glob_t g;
+	int sock = socket(AF_INET, SOCK_DGRAM | SOCK_CLOEXEC, 0), n = 0;
+
+	*how = "nl80211";
+	if (nl80211_interfaces(l) < 0)
+		l->n = 0;
+	/* wireless interfaces that nl80211 did not list (a driver with wext only) */
+	if (glob("/sys/class/net/*/wireless", GLOB_NOSORT, NULL, &g) == 0) {
+		for (size_t i = 0; i < g.gl_pathc; i++) {
+			char name[IFNAMSIZ];
+			const char *p = g.gl_pathv[i] + strlen("/sys/class/net/");
+			size_t len = strcspn(p, "/");
+			gboolean known = FALSE;
+
+			if (len == 0 || len >= sizeof(name))
+				continue;
+			memcpy(name, p, len);
+			name[len] = 0;
+			for (int k = 0; k < l->n; k++)
+				known |= strcmp(l->w[k].name, name) == 0;
+			if (!known && l->n < AFH_MAX_WIF) {
+				memset(&l->w[l->n], 0, sizeof(l->w[0]));
+				memcpy(l->w[l->n++].name, name, len + 1);
+			}
+		}
+		globfree(&g);
+	}
+	for (int k = 0; k < l->n; k++) {
+		struct wif *w = &l->w[k];
+
+		if (sock < 0 || !iface_is_up(sock, w->name)) {
+			w->freq = 0;
+			continue;
+		}
+		if (w->freq == 0) {
+			w->freq = wext_freq(sock, w->name);
+			if (w->freq)
+				*how = "WEXT";
+			w->width = 20;
+			w->center1 = 0;
+		}
+		if (w->freq)
+			l->w[n++] = *w;
+	}
+	if (sock >= 0)
+		close(sock);
+	return n;
+}
+
+static gboolean afh_switched_off(void)
+{
+	const char *env = g_getenv("ABBTAGENT_NO_AFH");
+
+	return (env && env[0] && strcmp(env, "0") != 0) || access(AFH_OFF_FILE, F_OK) == 0;
+}
+
+/* whether hci0..hci7 exist and are up */
+static void hci_poll_up(int sock, gboolean up[AFH_MAX_HCI])
+{
+	for (int i = 0; i < AFH_MAX_HCI; i++) {
+		struct hci_dev_info_raw di;
+
+		memset(&di, 0, sizeof(di));
+		di.dev_id = i;
+		up[i] = ioctl(sock, HCI_GET_DEV_INFO, &di) == 0 && (di.flags & HCI_DEV_UP_FLAG);
+	}
+}
+
+/* send the map to hci<dev>; returns the status (0 = success), -1 no answer/socket trouble */
+static int hci_send_map(int dev, const uint8_t map[AFH_MAP_LEN])
+{
+	struct sockaddr_hci_raw sa;
+	struct hci_filter_raw flt;
+	uint8_t cmd[4 + AFH_MAP_LEN] = { 0x01, OP_SET_AFH_CLASSIFICATION & 0xff, OP_SET_AFH_CLASSIFICATION >> 8,
+					 AFH_MAP_LEN };
+	int fd = socket(AF_BLUETOOTH, SOCK_RAW | SOCK_CLOEXEC, BT_PROTO_HCI), status = -1;
+	gint64 end = g_get_monotonic_time() + 2 * G_USEC_PER_SEC;
+
+	if (fd < 0)
+		return -1;
+	memset(&flt, 0, sizeof(flt));
+	flt.type_mask = 1u << 4;                    /* HCI_EVENT_PKT */
+	flt.event_mask[0] = (1u << 0x0e) | (1u << 0x0f); /* command complete, command status */
+	flt.opcode = OP_SET_AFH_CLASSIFICATION;
+	memset(&sa, 0, sizeof(sa));
+	sa.hci_family = AF_BLUETOOTH;
+	sa.hci_dev = dev;
+	if (setsockopt(fd, 0 /* SOL_HCI */, 2 /* HCI_FILTER */, &flt, sizeof(flt)) < 0 ||
+	    bind(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0)
+		goto out;
+	memcpy(cmd + 4, map, AFH_MAP_LEN);
+	if (write(fd, cmd, sizeof(cmd)) != (ssize_t)sizeof(cmd))
+		goto out;
+	while (g_get_monotonic_time() < end) {
+		struct pollfd p = { fd, POLLIN, 0 };
+		uint8_t ev[260];
+		ssize_t n;
+
+		if (poll(&p, 1, 500) <= 0)
+			continue;
+		n = read(fd, ev, sizeof(ev));
+		if (n >= 7 && ev[0] == 0x04 && ev[1] == 0x0e && ev[4] + (ev[5] << 8) == OP_SET_AFH_CLASSIFICATION) {
+			status = ev[6]; /* Command Complete: ncmd, opcode, status */
+			break;
+		}
+		if (n >= 7 && ev[0] == 0x04 && ev[1] == 0x0f && ev[5] + (ev[6] << 8) == OP_SET_AFH_CLASSIFICATION) {
+			status = ev[3]; /* Command Status: status, ncmd, opcode */
+			break;
+		}
+	}
+out:
+	close(fd);
+	return status;
+}
+
+/* every 5 s: work out the wanted map and bring the controllers to it */
+static void afh_tick(void)
+{
+	struct wif_list *l = g_new0(struct wif_list, 1);
+	uint8_t want[AFH_MAP_LEN];
+	char desc[256] = "", hex[2 * AFH_MAP_LEN + 1], ranges[96];
+	const char *how = "nl80211";
+	gboolean up[AFH_MAX_HCI], off = afh_switched_off(), changed;
+	gint64 now = g_get_monotonic_time();
+	int hsock, n;
+
+	afh_map_all(want);
+	if (off) {
+		if (!afh_was_off)
+			log_msg("AFH: switched off (%s or ABBTAGENT_NO_AFH=1)", AFH_OFF_FILE);
+		snprintf(desc, sizeof(desc), "switched off");
+	} else {
+		n = wifi_channels(l, &how);
+		for (int k = 0; k < n; k++) {
+			struct wif *w = &l->w[k];
+			int len = strlen(desc);
+
+			if (w->freq < 2400 || w->freq > 2500)
+				continue;
+			afh_map_block(want, w->center1 > 0 ? w->center1 : w->freq, w->width);
+			snprintf(desc + len, sizeof(desc) - len, "%s%s %d MHz/%d", len ? ", " : "", w->name,
+				 w->center1 > 0 ? w->center1 : w->freq, w->width > 0 ? w->width : 20);
+		}
+		if (desc[0])
+			afh_map_floor(want, 2442);
+		else
+			snprintf(desc, sizeof(desc), "no 2.4 GHz wifi");
+	}
+	afh_was_off = off;
+	g_free(l);
+
+	changed = strcmp(desc, afh_last_desc) != 0;
+	afh_map_hex(want, hex);
+	if (changed) {
+		afh_blocked_ranges(want, ranges, sizeof(ranges));
+		log_msg("AFH: %s -> blocked BT ch %s, map %s (read by %s)", desc, ranges, hex, how);
+		g_strlcpy(afh_last_desc, desc, sizeof(afh_last_desc));
+	}
+
+	hsock = socket(AF_BLUETOOTH, SOCK_RAW | SOCK_CLOEXEC, BT_PROTO_HCI);
+	if (hsock < 0)
+		return;
+	hci_poll_up(hsock, up);
+	close(hsock);
+	for (int i = 0; i < AFH_MAX_HCI; i++) {
+		struct hci_ctl *c = &hci_ctls[i];
+		uint8_t all[AFH_MAP_LEN];
+		gboolean restricted, differs;
+		int status;
+
+		if (!up[i]) {
+			c->up = FALSE;
+			continue;
+		}
+		afh_map_all(all);
+		if (!c->up) { /* (re)powered: the controller starts with every channel allowed */
+			c->up = TRUE;
+			c->no_afh = FALSE;
+			memcpy(c->last, all, AFH_MAP_LEN);
+			c->sent_at = 0;
+		}
+		if (c->no_afh)
+			continue;
+		differs = memcmp(c->last, want, AFH_MAP_LEN) != 0;
+		restricted = memcmp(want, all, AFH_MAP_LEN) != 0;
+		if (!differs && !(restricted && now - c->sent_at >= AFH_RESEND_SECONDS * G_USEC_PER_SEC))
+			continue;
+		status = hci_send_map(i, want);
+		if (status == 0) {
+			if (differs)
+				log_msg("AFH: hci%d map %s sent, status 0", i, hex);
+			memcpy(c->last, want, AFH_MAP_LEN);
+			c->sent_at = now;
+		} else if (status > 0) {
+			log_msg("AFH: hci%d refused the map, status 0x%02x - no more tries for it", i, status);
+			c->no_afh = TRUE;
+		} else {
+			log_msg("AFH: hci%d: no answer to the map (will retry)", i);
+		}
+	}
+}
+
 static gboolean hid_tick(gpointer data)
 {
 	(void)data;
 	hid_hint_write();
+	afh_tick();
 	return G_SOURCE_CONTINUE;
 }
 

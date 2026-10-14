@@ -47,6 +47,29 @@ when the count goes 0 -> more and `0` when it goes back to 0, and writes the cur
 (a wifi module reloaded after a standby starts with 0). One journal line per change of the count. Where the
 file does not exist (Pi/PC, the stock kernel) nothing happens.
 
+## AFH host channel classification (wifi and Bluetooth share 2.4 GHz, AUTOBLEEM-36)
+
+Bluetooth hops over 79 channels (2402-2480 MHz); a wifi network on 2.4 GHz sits on 20 or 40 MHz of them, and
+both lose where they overlap. Bluetooth's adaptive frequency hopping lets the host tell the controller which
+channels to leave out (HCI_Set_AFH_Host_Channel_Classification). `abbtagent` does it for any wifi chip and any
+Bluetooth controller (also two separate dongles), in the same 5 s loop as the HID hint:
+
+- It reads the operating channel of every up wlan interface over nl80211 (frequency, width, centre frequency;
+  a hand-written generic netlink request, no libnl), and with wireless extensions (`SIOCGIWFREQ`, assumed 20
+  MHz) for an interface nl80211 says nothing about. Not associated, 5 GHz or no wifi: nothing is blocked.
+- It blocks the Bluetooth channels within the wifi band +/- 2 MHz, but always leaves at least 20 channels
+  (the Bluetooth minimum; the ones farthest from the wifi band are given back first).
+- It sends the map to every powered controller (hci0..hci7) over a raw HCI socket: when the map changed,
+  after a controller power-up, and every 60 s as a cheap re-assert while channels are blocked. When the wifi
+  goes away the all-allowed map is sent once. A controller that answers with an error status (no AFH support)
+  is logged once and left alone until it is powered up again.
+- One journal line per change: `AFH: wlan0 2432 MHz/40 -> blocked BT ch 8-52, map <hex>`, then the send status.
+
+Off switch, no rebuild: `touch /etc/abbtagent-no-afh`, or `ABBTAGENT_NO_AFH=1` in the unit's environment
+(a systemd drop-in). It takes effect within 5 s (the all-allowed map is sent) and again once the file is removed.
+The map calculation is in `package/abbtagent/src/afh_map.h`; its host test: `gcc -Wall -Wextra -o afh_test
+afh_test.c && ./afh_test` in `package/abbtagent/src`.
+
 ## What PSC-Bios does (the AutoBleem2 side) — done, leftovers still open
 
 `apps/pscbios`'s native backend replaced the "in progress" screen with a pairing flow that:
