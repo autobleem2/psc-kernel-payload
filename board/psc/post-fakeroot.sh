@@ -36,4 +36,7 @@ rm -rf etc/udev/hwdb.d lib/udev/hwdb.d usr/lib/udev/hwdb.d
 # same sonames), as do the few files the 2020 overlay replaced on purpose; the 2020 tool paths come back as
 # links and /autobleem is created. scripts/overlay.py has the rule, and scripts/verify.sh checks it.
 python3 "$(dirname "$(readlink -f "$0")")/../../scripts/overlay.py" shape --dir "${TARGET_DIR}"
+
+# The same finished tree as a squashfs for the new /init (post-image.sh puts it in the payload next to abrootfs.tgz)
+bash "$(dirname "$(readlink -f "$0")")/make-squashfs.sh" "${TARGET_DIR}" "${BINARIES_DIR:?BINARIES_DIR}/abrootfs.squashfs"
 exit 0

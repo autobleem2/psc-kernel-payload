@@ -5,7 +5,7 @@ After=powermanager.service
 [Service]
 ;Type=oneshot
 Restart=on-failure
-ExecStart=/usr/bin/usb_watch
+ExecStart=/bin/sh /etc/autobleem/abusbwatch
 User=root
 Group=root
 ;StandardOutput=null

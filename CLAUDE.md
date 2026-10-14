@@ -60,6 +60,15 @@ Buildroot (`BR2_EXTERNAL` = this repo) does everything from source in one tree:
   The FIT `signature` node needs **no key**: boot.img is dd'd straight to BOOTIMG1 (the exploit
   path); the console U-Boot does not verify it.
 - **abrootfs.tgz**: Buildroot's `rootfs.tar.gz`, copied out by `post-image.sh`.
+- **abrootfs.squashfs** + `abrootfs.squashfs.sha256` (AUTOBLEEM-33): the same tree as an xz squashfs
+  (`-Xbcj arm -b 256K -all-root -noappend`), made by `board/psc/make-squashfs.sh` from the end of
+  `post-fakeroot.sh` (host mksquashfs: `BR2_PACKAGE_HOST_SQUASHFS=y`, both defconfigs), copied and checksummed
+  (`sha256sum` format, bare name) by `post-image.sh`, next to the unchanged tgz. The new `/init` reads it from the
+  stick at `System/Kernel/abrootfs.squashfs`. See `docs/build-guide.md` "The new /init".
+- **AB_INIT=legacy|new** (default `legacy`; env var or `scripts/build.sh -i`): which `/init` the kernel embeds.
+  `board/psc/stage-initramfs.sh` stages the initramfs from an explicit file list (`init` only), so
+  `initramfs/src/` never lands in it; `legacy` = the committed 2020 binary (same bytes as before), `new` = built
+  from `initramfs/src` with the gcc-6 console toolchain. `scripts/test_stage_initramfs.sh` tests the staging.
 - **AutoBleem overlay**: `board/psc/overlay/` (`BR2_ROOTFS_OVERLAY`) — the AutoBleem-specific configs,
   systemd units, helper scripts and `abnet`. `post-build.sh` strips per-console BT pairing state.
 
@@ -228,9 +237,32 @@ produces a complete, valid payload in `output/images/psc-payload/kernel/`:
   globally (X6, 2026-09-26: PSC-Bios no longer copies driver-mode variants; legacy `etc/autobleem/dhcpcd.conf.{wext,nl80211}`
   files are kept this release for backwards compatibility and will be removed next).
 - **Pairings** persist through `etc/bluetooth/bluetoothd` (an empty dir, bind-mounted over /var/lib/bluetooth).
-- **`install_payload.sh`** keeps the WiFi (`wpa_supplicant.conf`, `ssid.cfg`) and the pairings over a flash by
-  writing them into the *new* `/data/autobleem/rootfs/etc` - never through `/etc`, which during the flash is the
-  live overlay whose upper dir was just deleted (every flash lost the WiFi until 43aca25).
+- **Stick boot (AUTOBLEEM-33, new `/init`)**: root = overlay with a tmpfs upper, `/data` read-only. `etc/autobleem/abstate.sh`
+  (POSIX sh, sourced; `abstate` is its command line) detects it (`/run/autobleem/mode`=stick, `upperdir=/abrw/`, or
+  `/data` ro) and keeps the state on the stick in `System/Data/`: `bluetooth.img` (4 MB ext4, loop-mounted over
+  `/var/lib/bluetooth`; FAT cannot keep BlueZ's modes), `wifi/{wpa_supplicant.conf,ssid.cfg}` (in at start, back on
+  change via `autobleem-wifi-save.path`), `timezone` (replayed). The legacy boot (upper on `/data/autobleem`) is unchanged.
+  `start_pman` never remounts or writes `/data` in the new mode (thermal config is bind-mounted from `/tmp`). All
+  writes and where they go: `docs/autobleem-33-no-emmc-writes.md` section 7; test: `scripts/test_abstate.sh`.
+  Keep the helpers POSIX: `start_pman` and `abstate` run under busybox sh, the others under bash.
+- **`install_payload.sh`** (run by ABFlashKit, test: `scripts/test_install_payload.sh`), two paths:
+  * kit WITH `abrootfs.squashfs` (the new kit): copies `abrootfs.squashfs` + `.sha256` from
+    `/media/Apps/abflashkit/kernel/` to `/media/System/Kernel/` (temp name, sha256 of the copy on the stick checked
+    against the kit's `.sha256`, rename; `ERROR:` on stderr and exit 1 on any failure, the old image stays). It
+    does NOT write, remount or delete anything on `/data`: `/data/autobleem` stays as the fallback boot and as the
+    source of the one-time migration. The kit must ship: `boot.img`, `boot.md5`, `abrootfs.squashfs`,
+    `abrootfs.squashfs.sha256`, `install_payload.sh`, `recovery-on.img`, `recovery-off.img` (`abrootfs.tgz`/`.md5`
+    only if old consoles are still flashed with an old ABFlashKit - the script ignores them when the squashfs is there).
+  * kit WITHOUT squashfs (an old kit): the legacy install into `/data/autobleem`, as always. It keeps the WiFi
+    (`wpa_supplicant.conf`, `ssid.cfg`) and the pairings over that flash by writing them into the *new*
+    `/data/autobleem/rootfs/etc` - never through `/etc`, which during the flash is the live overlay whose upper dir
+    was just deleted (every flash lost the WiFi until 43aca25).
+- **Migration from the legacy install** (`ab_migrate` in `abstate.sh`, `abstate migrate`; called by `ab_tz_in`,
+  `ab_wifi_in`, `ab_bt_mount`): the first stick boot copies, READ-ONLY from `/data/autobleem/rootfs`, the BlueZ tree
+  (`etc/bluetooth/bluetoothd`, into the fresh `bluetooth.img`, only if the stick has none), `etc/wpa_supplicant.conf`
+  + `etc/autobleem/ssid.cfg` (only if the stick has no `wifi/wpa_supplicant.conf`) and the zone (`etc/timezone`, only
+  if the stick has no `timezone`); one log line per item; `System/Data/migrated-from-legacy` stops a second run. A
+  failed item leaves no marker (retried at the next start). Never writes `/data`; never overwrites stick state.
 - **The clock**: no battery clock on the console or the AutoBleem kernel (every boot is 2018-09-01). systemd 229's
   timesyncd never syncs (it waits for networkd, which the console does not run). `lib/dhcpcd/dhcpcd-hooks/70-autobleem-time`
   runs `settime update` (ntpget) at the first lease and touches `/run/autobleem/clock-set` (C7, 2026-09-26: the

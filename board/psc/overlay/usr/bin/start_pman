@@ -6,6 +6,13 @@ KERN_INFO="$(uname -n|grep "aiv8167-rockman-emmc" 2>&1|wc -l)"
 VARIANT="$(cat /etc/versions/variant)"
 TARGET="$(cat /etc/versions/target)"
 
+# Stick boot (new /init): the root is an overlay on tmpfs; /data is read-write as in the stock boot (the stick's
+# boot.sh makes it read-only only while the AutoBleem launcher runs), so /data is handled the same in both boots.
+AB_NEW=
+if [ -r /etc/autobleem/abstate.sh ]; then
+  . /etc/autobleem/abstate.sh
+  [ "$(ab_mode)" = new ] && AB_NEW=1
+fi
 
 
 # copy app file
@@ -30,6 +37,15 @@ if [ x"$TARGET" = x"PVT" -o x"$TARGET" = x"MREL" ]; then
   fi
 fi
 
+# stick boot: /init blinks the LED orange through the boot; the blink stops here and the LED stays orange for the
+# sleep (with the timer trigger on, a brightness write would not stop the blink)
+if [ -n "$AB_NEW" ]; then
+  for led in red green; do
+    echo none > /sys/class/leds/$led/trigger
+    echo 1 > /sys/class/leds/$led/brightness
+  done
+fi
+
 echo "1st suspend" >>$POWER_LOG
 if [ -e /etc/autostart ]; then
   att="$(cat /etc/autostart|tr -cd '0-9')"
@@ -39,6 +55,8 @@ if [ -e /etc/autostart ]; then
 fi
 
 sync
+# stick boot: the Bluetooth image must not be mounted while the stick may go away
+[ -n "$AB_NEW" ] && ab_bt_umount
 echo mem > /sys/power/state
 
 # usb otg
@@ -48,6 +66,10 @@ if [ "$CHG_INFO" -eq "3" ]; then
   echo "host" > "/sys/devices/platform/mt_usb/swmode"
   sleep "0.3"
 fi
+
+# the first suspend is over: the stick boot's usb_watch waits for this before it mounts the stick
+# (etc/autobleem/abusbwatch - the wake re-enumerates every USB device)
+mkdir -p /run/autobleem && : > /run/autobleem/first-wake
 
 mount -o remount,rw /data
 mount -o remount,rw /

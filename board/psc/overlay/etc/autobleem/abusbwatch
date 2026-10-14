@@ -1,0 +1,22 @@
+#!/bin/sh
+# Starts the console's usb_watch, which mounts the stick at /media and starts AutoBleem from it.
+#
+# Stick boot (new /init, AUTOBLEEM-33): only after the console's first suspend. The wake from it re-enumerates
+# every USB device, so a stick usb_watch mounted before it is gone afterwards (sda1 -> sdb1), the start it had
+# begun fails, and usb_watch then sleeps 57 s before it mounts the stick again - the launcher came ~80 s after
+# Sony's UI (2026-10-14). start_pman writes the marker once the first suspend is over. The wait counts awake
+# seconds only (nothing runs while the console sleeps); after 60 of them usb_watch starts anyway.
+# Legacy boot: at once, as before.
+
+if [ -r /etc/autobleem/abstate.sh ]; then
+	. /etc/autobleem/abstate.sh
+	if [ "$(ab_mode)" = new ]; then
+		n=60
+		while [ ! -e "${AB_RUN}/first-wake" ] && [ "${n}" -gt 0 ]; do
+			n=$((n - 1))
+			sleep 1
+		done
+		[ -e "${AB_RUN}/first-wake" ] || ab_log "no first-wake marker after 60 s: usb_watch starts anyway"
+	fi
+fi
+exec /usr/bin/usb_watch

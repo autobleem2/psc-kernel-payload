@@ -12,7 +12,11 @@
 # Two VARIANTS (see -V): `psc` (baseline) and `next` (newer BlueZ/userland +
 # extra WiFi drivers). Separate Buildroot checkouts and outputs.
 #
-# Usage:  scripts/build.sh [-V psc|next] [-j N] <command> [args]
+# Usage:  scripts/build.sh [-V psc|next] [-j N] [-i legacy|new] <command> [args]
+#
+# -i / AB_INIT picks the /init packed into the kernel: `legacy` (default) the committed 2020 binary, `new` the
+# one built from sources/psc-kernel/initramfs/src (needs a psc-kernel pin that has it). docker/run.sh passes
+# AB_INIT through. Beside abrootfs.tgz the payload carries abrootfs.squashfs + .sha256 (post-fakeroot/post-image).
 #
 # Commands
 #   setup                 Fetch/pin Buildroot and load the variant defconfig.
@@ -34,13 +38,17 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 VARIANT="${VARIANT:-psc}"
 JOBS="$(nproc 2>/dev/null || echo 4)"
+# which /init the kernel embeds: legacy = the committed 2020 binary, new = initramfs/src built with gcc-6
+export AB_INIT="${AB_INIT:-legacy}"
 while [ $# -gt 0 ]; do
 	case "$1" in
 		-V|--variant) VARIANT="$2"; shift 2;;
 		-j) JOBS="$2"; shift 2;;
+		-i|--init) AB_INIT="$2"; shift 2;;
 		*) break;;
 	esac
 done
+case "${AB_INIT}" in legacy|new) ;; *) echo "unknown AB_INIT '${AB_INIT}' (use legacy|new)"; exit 2;; esac
 
 case "${VARIANT}" in
 	psc)  BR_VERSION="${BR_VERSION:-2022.02.x}"; DEFCONFIG_NAME="psc_defconfig";      SUFFIX="";;

@@ -53,6 +53,8 @@ BR2_ROOTFS_POST_IMAGE_SCRIPT="$(BR2_EXTERNAL_PSC_PATH)/board/psc/post-image.sh"
 
 # ---- Host tools for FIT packaging ----
 BR2_PACKAGE_HOST_UBOOT_TOOLS=y
+# mksquashfs (with xz) for abrootfs.squashfs, made by post-fakeroot.sh (board/psc/make-squashfs.sh)
+BR2_PACKAGE_HOST_SQUASHFS=y
 
 # ---- Bluetooth stack (newer BlueZ + sixaxis) ----
 BR2_PACKAGE_BLUEZ5_UTILS=y

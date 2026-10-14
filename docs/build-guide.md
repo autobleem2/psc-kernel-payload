@@ -57,6 +57,38 @@ scripts/build.sh verify                 # compare vs reference/
 scripts/build.sh payload                # copy payload -> payload/<variant>/kernel
 ```
 
+## The new /init and the squashfs payload (AUTOBLEEM-33)
+
+**`AB_INIT=legacy|new`** picks the `/init` the kernel embeds (`CONFIG_INITRAMFS_SOURCE`). Default `legacy`: the
+committed 2020 binary `initramfs/init`, the same bytes as before. `new` cross-compiles `initramfs/src` (needs a
+`sources/psc-kernel` pin that has it) with the console's gcc-6 (`AB_KERNEL_CROSS`, default
+`/opt/psc/bin/armv8-sony-linux-gnueabihf-`) and stages the binary as `/init`. Either way the initramfs is staged from
+an explicit list (`init` only, `board/psc/stage-initramfs.sh`), so `initramfs/src/` is never packed into it.
+
+```bash
+docker/run.sh scripts/build.sh kernel                 # legacy init (default)
+docker/run.sh scripts/build.sh -i new kernel          # new init;  AB_INIT=new docker/run.sh scripts/build.sh kernel does the same
+```
+
+Changing AB_INIT between two runs drops the packed initramfs cpio, so an incremental build picks the new choice.
+
+**The payload** also carries `abrootfs.squashfs` and `abrootfs.squashfs.sha256` next to the unchanged
+`abrootfs.tgz`: the same tree (made at the end of `post-fakeroot.sh`, so owners, modes and whiteouts match), xz with
+`-Xbcj arm -b 256K -all-root -noappend`. The checksum file is `sha256sum` output with the bare name
+(`<64 hex>  abrootfs.squashfs`). Needs Buildroot's host squashfs (`BR2_PACKAGE_HOST_SQUASHFS=y`, both defconfigs).
+
+**Stick layout the new init expects** (FAT32 or ext4; the kernel has no exFAT/NTFS driver):
+
+```
+System/Kernel/abrootfs.squashfs
+System/Kernel/abrootfs.squashfs.sha256
+```
+
+Copy both files from `output/images/psc-payload/kernel/`. Kernel command line: `ab.wait=<seconds>` (default 20)
+sets how long the init looks for a stick; see `initramfs/src/README.md` in psc-kernel.
+
+Host test of the staging and the squashfs step (no toolchain needed): `scripts/test_stage_initramfs.sh`.
+
 ## Installing the result
 
 Copy `output/images/psc-payload/kernel/` (or `output-next/...`) over

@@ -2,10 +2,17 @@
 #rm -rf /var/lib/bluetooth
 #ln -s /etc/bluetooth/bluetoothd /var/lib/bluetooth
 
-mkdir -p /var/lib/bluetooth
-mount --bind /etc/bluetooth/bluetoothd /var/lib/bluetooth
+# Stick boot (new /init): the pairings live in System/Data/bluetooth.img on the stick, loop-mounted over
+# /var/lib/bluetooth by the autobleem service (abstate.sh) - this service only waits for it. Legacy boot: the
+# overlay folder, bind-mounted as always.
+if [ -r /etc/autobleem/abstate.sh ]; then
+  . /etc/autobleem/abstate.sh
+  ab_bt_wait
+else
+  mkdir -p /var/lib/bluetooth
+  mount --bind /etc/bluetooth/bluetoothd /var/lib/bluetooth
+fi
 # Xbox One / Series pads over Bluetooth drop their connection when L2CAP offers ERTM - off, as every distro
 # that supports them does (a runtime parameter of the built-in bluetooth module)
 [ -w /sys/module/bluetooth/parameters/disable_ertm ] && echo 1 > /sys/module/bluetooth/parameters/disable_ertm
 /usr/libexec/bluetooth/bluetoothd -d 
-

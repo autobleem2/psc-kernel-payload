@@ -1,0 +1,15 @@
+#!/bin/sh
+# Command line for abstate.sh (units and scripts that do not source it): abstate mode|wifi-in|wifi-out|tz-in|
+# bt-mount|bt-umount|migrate. See abstate.sh for what each does and for the legacy boot, where all but `mode` and
+# `bt-mount` do nothing.
+. "$(dirname "$0")/abstate.sh"
+case "$1" in
+mode) ab_mode ;;
+wifi-in) ab_wifi_in ;;
+wifi-out) ab_wifi_out ;;
+tz-in) ab_tz_in ;;
+bt-mount) ab_bt_mount ;;
+bt-umount) ab_bt_umount ;;
+migrate) ab_migrate ;;
+*) echo "Usage: abstate mode|wifi-in|wifi-out|tz-in|bt-mount|bt-umount|migrate" >&2; exit 2 ;;
+esac

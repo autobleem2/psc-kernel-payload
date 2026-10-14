@@ -5,7 +5,9 @@ tzone()
   echo "New timezone: $1"
   rm -rf /etc/localtime
   ln -s /usr/share/zoneinfo/$1 /etc/localtime
-  echo "$1" > /etc/timezone 
+  echo "$1" > /etc/timezone
+  # stick boot (new /init): /etc is RAM - keep the zone name on the stick, abstate tz-in replays it at start
+  [ -r /etc/autobleem/abstate.sh ] && { . /etc/autobleem/abstate.sh; ab_tz_save "$1"; }
 }
 
 update()

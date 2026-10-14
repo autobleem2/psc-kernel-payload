@@ -1,0 +1,10 @@
+[Unit]
+Description=Watch the WiFi settings (PSC-Bios save, wpa_supplicant update_config)
+
+[Path]
+PathChanged=/etc/wpa_supplicant.conf
+PathChanged=/etc/autobleem/ssid.cfg
+Unit=autobleem-wifi-save.service
+
+[Install]
+WantedBy=multi-user.target

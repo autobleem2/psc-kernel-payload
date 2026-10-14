@@ -1,0 +1,6 @@
+[Unit]
+Description=AutoBleem WiFi settings: /etc to stick (stick boot only, a no-op otherwise)
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh /etc/autobleem/abstate wifi-out
